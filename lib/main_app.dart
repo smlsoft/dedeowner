@@ -1,4 +1,5 @@
 import 'package:dedeowner/environment.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:dedeowner/dashboard.dart';
@@ -7,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dedeowner/usersystem/login_shop.dart';
 import 'global.dart' as global;
-
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:dedeowner/imports_repositories.dart';
 import 'package:dedeowner/imports_bloc.dart';
 
@@ -21,9 +23,17 @@ void initializeEnvironmentConfig() {
 
 void mainApp() async {
   initializeEnvironmentConfig();
+
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init("dedeowner");
+  if (!kIsWeb) {
+    await Firebase.initializeApp();
+  } else {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   global.themeSelect(0);
 
   runApp(const MyApp());

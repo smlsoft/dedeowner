@@ -49,6 +49,8 @@ dependencies:
   loader_overlay: ^2.3.0
   equatable: ^2.0.5
   auto_size_text: ^3.0.0
+  google_sign_in: ^6.1.4
+  firebase_auth: ^4.7.1
 
 dependency_overrides:
   intl: ^0.17.0

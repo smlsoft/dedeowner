@@ -3,9 +3,11 @@ import 'package:dedeowner/dashboard.dart';
 import 'package:dedeowner/model/create_shop_model.dart';
 import 'package:dedeowner/repositories/client.dart';
 import 'package:dedeowner/repositories/user_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:dedeowner/bloc/list_shop/list_shop_bloc.dart';
@@ -30,47 +32,43 @@ class LoginShopState extends State<LoginShop> {
   bool _isListShop = false;
   bool _isListShopNotFound = false;
 
-  // final GoogleSignIn _googleSignIn = GoogleSignIn();
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   global.LoginEnum loginType = global.LoginEnum.none;
   final bool _showPopup = false;
   late CreateShopModel createShopData;
 
-  // Future<UserCredential?> googleSignIn() async {
-  //   try {
-  //     // Trigger the authentication flow
-  //     final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['https://www.googleapis.com/auth/contacts.readonly']).signIn();
+  Future<UserCredential?> googleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['https://www.googleapis.com/auth/contacts.readonly']).signIn();
 
-  //     // Obtain the auth details from the request
-  //     if (googleUser != null) {
-  //       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-  //       // Create a new credential
-  //       final OAuthCredential credential = GoogleAuthProvider.credential(
-  //         accessToken: googleAuth.accessToken,
-  //         idToken: googleAuth.idToken,
-  //       );
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
 
-  //       // Sign in to Firebase with the Google [UserCredential]
-
-  //       //   return await _auth.signInWithCredential(credential);
-  //     }
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // }
+        return await _auth.signInWithCredential(credential);
+      }
+    } catch (e) {
+      return null;
+    }
+  }
 
   Future<String?> getCurrentUserIdToken() async {
-    // User? currentUser = _auth.currentUser;
-    // if (currentUser != null) {
-    //   String? idToken = await currentUser.getIdToken();
-    //   return idToken;
-    // } else {
-    //   // No user is signed in.
-    //   print("No user is signed in");
-    //   return null;
-    // }
+    User? currentUser = _auth.currentUser;
+    print(currentUser);
+    if (currentUser != null) {
+      String? idToken = await currentUser.getIdToken();
+      return idToken;
+    } else {
+      // No user is signed in.
+      print("No user is signed in");
+      return null;
+    }
   }
 
   @override
@@ -305,14 +303,22 @@ class LoginShopState extends State<LoginShop> {
           press: () {
             setState(() {
               loginType = global.LoginEnum.google;
-              // googleSignIn().then((value) async {
-              //   if (value != null) {
-              //     String? userIdToken = await getCurrentUserIdToken();
-              //     if (userIdToken != null) {
-              //       context.read<LoginBloc>().add(TokenLogin(token: userIdToken));
-              //     }
-              //   }
-              // });
+
+              googleSignIn().then((value) async {
+                print(value);
+                if (value != null) {
+                  String? userIdToken = await getCurrentUserIdToken();
+                  if (userIdToken != null) {
+                    context.read<LoginBloc>().add(TokenLogin(token: userIdToken));
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Login Fail User Not Found'),
+                    ),
+                  );
+                }
+              });
             });
           },
           img: const AssetImage("assets/img/google_logo.png"),
