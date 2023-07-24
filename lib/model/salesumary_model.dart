@@ -5,10 +5,11 @@ part 'salesumary_model.g.dart';
 
 @JsonSerializable()
 class SalesumaryModel {
+  String shopid;
   double cashierAmount;
   double cash;
   double takeAway;
-
+  double discount;
   double qrcodeAmount;
   double walletAmount;
   double deliveryAmount;
@@ -20,20 +21,36 @@ class SalesumaryModel {
   List<ProductModel> bestsellershop;
   List<ProductModel> bestsellerdelivery;
   SalesumaryModel({
-    required this.cashierAmount,
-    required this.cash,
-    required this.takeAway,
-    required this.qrcode,
-    required this.wallet,
-    required this.delivery,
-    required this.qrcodeAmount,
-    required this.walletAmount,
-    required this.deliveryAmount,
-    required this.gpAmount,
-    required this.bestseller,
-    required this.bestsellershop,
-    required this.bestsellerdelivery,
-  });
+    String? shopid,
+    double? cashierAmount,
+    double? cash,
+    double? takeAway,
+    double? discount,
+    List<WalletPaymentModel>? qrcode,
+    List<WalletPaymentModel>? wallet,
+    List<DeliveryPaymentModel>? delivery,
+    double? qrcodeAmount,
+    double? walletAmount,
+    double? deliveryAmount,
+    double? gpAmount,
+    List<ProductModel>? bestseller,
+    List<ProductModel>? bestsellershop,
+    List<ProductModel>? bestsellerdelivery,
+  })  : shopid = shopid ?? "",
+        cashierAmount = cashierAmount ?? 0,
+        cash = cash ?? 0,
+        takeAway = takeAway ?? 0,
+        discount = discount ?? 0,
+        qrcode = qrcode ?? [],
+        wallet = wallet ?? [],
+        delivery = delivery ?? [],
+        qrcodeAmount = qrcodeAmount ?? 0,
+        walletAmount = walletAmount ?? 0,
+        deliveryAmount = deliveryAmount ?? 0,
+        gpAmount = gpAmount ?? 0,
+        bestseller = bestseller ?? [],
+        bestsellershop = bestsellershop ?? [],
+        bestsellerdelivery = bestsellerdelivery ?? [];
 
   factory SalesumaryModel.fromJson(Map<String, dynamic> json) => _$SalesumaryModelFromJson(json);
 
