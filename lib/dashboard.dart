@@ -33,6 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final widgetKeyYearly = GlobalKey();
   final widgetKeyDeliveryYearly = GlobalKey();
 
+  bool dailyLoad = false;
   bool weeklyLoad = false;
   bool monthlyLoad = false;
   bool threeMonthlyLoad = false;
@@ -145,7 +146,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _handleRefresh() async {
     await Future.delayed(const Duration(seconds: 2));
     getReport();
-    // getGraphDaily();
+    await Future.delayed(const Duration(seconds: 10));
+    getGraphDaily();
     // getGraphWeekly();
     // getGraphMonthly();
     // getGraphThreeMonthly();
@@ -245,15 +247,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     //     qty: 10,
     //     unit: "ตัว"));
 
-    _scrollController.addListener(() {
-      getScrollWidget();
-    });
+    // _scrollController.addListener(() {
+    //   getScrollWidget();
+    // });
 
     fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     toDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
-    getReport();
-    getGraphDaily();
+    // getReport();
+
     startTimer();
 
     super.initState();
@@ -332,20 +334,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void startTimer() async {
-    Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (weeklyLoad) {
-        getGraphWeekly();
-      }
-      if (monthlyLoad) {
-        getGraphMonthly();
-      }
-      if (threeMonthlyLoad) {
-        getGraphThreeMonthly();
-      }
-      if (yearlyLoad) {
-        getGraphYearly();
-      }
+    getAllReport();
+    Timer.periodic(const Duration(seconds: 60), (timer) async {
+      getAllReport();
+      // if (weeklyLoad) {
+      //   getGraphWeekly();
+      // }
+      // if (monthlyLoad) {
+      //   getGraphMonthly();
+      // }
+      // if (threeMonthlyLoad) {
+      //   getGraphThreeMonthly();
+      // }
+      // if (yearlyLoad) {
+      //   getGraphYearly();
+      // }
     });
+  }
+
+  void getAllReport() async {
+    getReport();
+    await Future.delayed(const Duration(seconds: 6));
+    getGraphDaily();
+    await Future.delayed(const Duration(seconds: 6));
+    getGraphWeekly();
+    await Future.delayed(const Duration(seconds: 6));
+    getGraphMonthly();
+    await Future.delayed(const Duration(seconds: 6));
+    getGraphThreeMonthly();
+    await Future.delayed(const Duration(seconds: 6));
+    getGraphYearly();
   }
 
   Future<void> getReport() async {
@@ -437,6 +455,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       for (var delivery in dailysale.delivery) {
         chartDeliveryData.add(ChartData(delivery.name, delivery.amount, getRandomColor()));
       }
+      dailyLoad = true;
       setState(() {});
     }
   }
@@ -469,6 +488,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       for (var data in weeklysale.delivery) {
         chartDeliveryDataWeekly.add(ChartData(data.name, data.amount, getRandomColor()));
       }
+      weeklyLoad = true;
       setState(() {});
     }
   }
@@ -501,6 +521,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       for (var data in monthlysale.delivery) {
         chartDeliveryDataMonthly.add(ChartData(data.name, data.amount, getRandomColor()));
       }
+      monthlyLoad = true;
       setState(() {});
     }
   }
@@ -533,6 +554,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       for (var data in threemonthlysale.delivery) {
         chartDeliveryDataThreeMonthly.add(ChartData(data.name, data.amount, getRandomColor()));
       }
+      threeMonthlyLoad = true;
       setState(() {});
     }
   }
@@ -565,6 +587,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       for (var data in yearlysale.delivery) {
         chartDeliveryDataYearly.add(ChartData(data.name, data.amount, getRandomColor()));
       }
+      yearlyLoad = true;
       setState(() {});
     }
   }
@@ -1331,9 +1354,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-    var chartWidget = SizedBox(height: 300, child: chart);
-    widgetList.add(chartWidget);
-
+    if (dailyLoad) {
+      var chartWidget = SizedBox(height: 300, child: chart);
+      widgetList.add(chartWidget);
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
     widgetList.add(Container(
         key: widgetKeyDeliveryDaily,
         margin: const EdgeInsets.only(top: 20, bottom: 0),
@@ -1372,7 +1398,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
 
-    widgetList.add(SizedBox(height: 300, child: chartdDelivery));
+    if (dailyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartdDelivery));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
+
     widgetList.add(const SizedBox(
       height: 5,
     ));
@@ -1413,8 +1444,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-    var chartWidgetWeek = SizedBox(height: 300, child: chartWeek);
-    widgetList.add(chartWidgetWeek);
+
+    if (weeklyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartWeek));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
 
     widgetList.add(Container(
         key: widgetKeyDeliveryWeekly,
@@ -1454,7 +1489,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
 
-    widgetList.add(SizedBox(height: 300, child: chartdDeliveryWeek));
+    if (weeklyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartdDeliveryWeek));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
     widgetList.add(const SizedBox(
       height: 5,
     ));
@@ -1495,8 +1534,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-    var chartWidgetMonthly = SizedBox(height: 300, child: chartMonthly);
-    widgetList.add(chartWidgetMonthly);
+
+    if (weeklyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartMonthly));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
 
     widgetList.add(Container(
         key: widgetKeyDeliveryMonthly,
@@ -1536,7 +1579,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
 
-    widgetList.add(SizedBox(height: 300, child: chartdDeliveryMonthly));
+    if (monthlyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartdDeliveryMonthly));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
     widgetList.add(const SizedBox(
       height: 5,
     ));
@@ -1577,8 +1624,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-    var chartWidgetThreeMonthly = SizedBox(height: 300, child: chartThreeMonthly);
-    widgetList.add(chartWidgetThreeMonthly);
+
+    if (threeMonthlyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartThreeMonthly));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
 
     widgetList.add(Container(
         key: widgetKeyDeliveryThreeMonthly,
@@ -1618,7 +1669,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
 
-    widgetList.add(SizedBox(height: 300, child: chartdDeliveryThreeMonthly));
+    if (threeMonthlyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartdDeliveryThreeMonthly));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
 
     widgetList.add(const SizedBox(
       height: 5,
@@ -1660,14 +1715,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-    var chartWidgetYearly = SizedBox(height: 300, child: chartYearly);
-    widgetList.add(chartWidgetYearly);
 
+    if (yearlyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartYearly));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
     widgetList.add(Container(
         key: widgetKeyDeliveryYearly,
         margin: const EdgeInsets.only(top: 20, bottom: 0),
         child: const Text(
-          "กราฟเปรียบเทียบยอดขายDelivery3เดือน",
+          "กราฟเปรียบเทียบยอดขายDeliveryปีนี้",
           style: TextStyle(fontSize: 16),
         )));
     widgetList.add(const Divider(
@@ -1701,11 +1759,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
 
-    widgetList.add(SizedBox(height: 300, child: chartdDeliveryYearly));
-
+    if (yearlyLoad) {
+      widgetList.add(SizedBox(height: 300, child: chartdDeliveryYearly));
+    } else {
+      widgetList.add(SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
+    }
     widgetList.add(const SizedBox(
       height: 5,
     ));
+
     widgetList.add(Container(
         margin: const EdgeInsets.only(top: 10, bottom: 0),
         child: const Text(

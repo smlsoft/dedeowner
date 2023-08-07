@@ -12,7 +12,7 @@ class ReportRepository {
     final token = appConfig.read("token");
     print(token);
     try {
-      final response = await dio.get('${Environment().config.reportApi}/salesummarymg?token=$token$fromdate$todate');
+      final response = await dio.get('${Environment().config.reportApi}/salesummarypg?token=$token$fromdate$todate');
       try {
         return ApiResponse.fromMap(response.data);
       } catch (ex) {
