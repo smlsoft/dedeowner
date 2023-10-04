@@ -369,6 +369,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  fl_chart:
+    dependency: "direct main"
+    description:
+      name: fl_chart
+      sha256: c1e26c7e48496be85104c16c040950b0436674cdf0737f3f6e95511b2529b592
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.63.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -733,6 +741,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.0"
+  pie_chart:
+    dependency: "direct main"
+    description:
+      name: pie_chart
+      sha256: "5dba6d0eb4718e8ed00a9079361cd8947c3f84ac5a5d76f05a27f4ec5e27589e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.2"
   platform:
     dependency: transitive
     description:
@@ -930,6 +946,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  visibility_detector:
+    dependency: "direct main"
+    description:
+      name: visibility_detector
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0+2"
   watcher:
     dependency: transitive
     description:

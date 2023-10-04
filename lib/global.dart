@@ -46,23 +46,7 @@ enum DateTimeFormatEnum { fullDate, date, dateTime, dateTimeDay, time, dateDay }
 
 enum TransactionTypeEnum { purchase, purchasereturn, sale, salereturn, stocktransfer, stockreceiveproduct, stockpickupproduct, stockreturnproduct, adjust, paid, pay }
 
-enum ReportEnum {
-  product,
-  saleinvoice,
-  debtor,
-  creditor,
-  bookbank,
-  purchase,
-  purchasereturn,
-  saleinvoicereturn,
-  transfer,
-  receive,
-  pickup,
-  returnproduct,
-  stockadjustment,
-  paid,
-  pay
-}
+enum ReportEnum { product, saleinvoice, debtor, creditor, bookbank, purchase, purchasereturn, saleinvoicereturn, transfer, receive, pickup, returnproduct, stockadjustment, paid, pay }
 
 enum PosVersionEnum { Pos, Restaurant, Vfgl }
 
@@ -84,7 +68,7 @@ enum DeviceModeEnum {
 // โหมด พัฒนาโปรแกรม
 bool developerMode = true;
 List<String> googleLanguageCode = [];
-String userLanguage = "";
+String userLanguage = "th";
 bool apiConnected = false;
 String apiToken = "";
 String apiUserName = "maxkorn"; //maxkorn
