@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:dedeowner/model/best_product_model.dart';
 import 'package:dedeowner/model/salesumary_model.dart';
+import 'package:dedeowner/model/salesumarybyday_model.dart';
 import 'package:dedeowner/repositories/client.dart';
 import 'package:dedeowner/repositories/report_repository.dart';
 import 'package:dedeowner/select_shop_screen.dart';
@@ -42,6 +43,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final widgetKeyYearly = GlobalKey();
   final widgetKeyDeliveryYearly = GlobalKey();
   int Piekey = 0;
+  DateTime selectedDateGraph = DateTime.now();
+
+  void _selectPreviousWeek() {
+    setState(() {
+      selectedDateGraph = selectedDateGraph.subtract(const Duration(days: 7));
+    });
+  }
+
+  void _selectNextWeek() {
+    setState(() {
+      selectedDateGraph = selectedDateGraph.add(const Duration(days: 7));
+    });
+  }
 
   final colorList = <Color>[
     const Color(0xfffdcb6e),
@@ -102,6 +116,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bestseller: [],
       bestsellerdelivery: [],
       bestsellershop: []);
+
+  SalesumaryByDayModel saleByDay = SalesumaryByDayModel();
 
   SalesumaryModel dailysale = SalesumaryModel(
       cash: 0,
@@ -176,7 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<BestProductModel> bestSeller = [];
   List<BestProductModel> bestPosSeller = [];
   List<BestProductModel> bestDeliverySeller = [];
-
+  List<ChartData> chartWeeklyData = [];
   List<ChartData> chartPOSData = [];
   List<ChartData> chartDeliveryData = [];
   List<ChartData> chartPOSDataWeekly = [];
@@ -190,12 +206,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _scrollController = ScrollController();
   TextEditingController fromDateController = TextEditingController();
   TextEditingController toDateController = TextEditingController();
-  List<String> dropdownSelect = ['Daily', 'Weekly', 'Monthly', 'Yearly', 'Custom'];
-  List<String> graphSelect = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
-  List<String> graphDeliverySelect = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
-  String selectedItem = 'Daily';
-  String graphSelectedItem = 'Daily';
-  String graphDeliverySelectedItem = 'Daily';
+  List<String> dropdownSelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
+  List<String> graphSelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
+  List<String> graphDeliverySelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
+  String selectedItem = 'รายวัน';
+  String graphSelectedItem = 'รายวัน';
+  String graphDeliverySelectedItem = 'รายวัน';
 
   double opacityText = 1;
   final appConfig = GetStorage("AppConfig");
@@ -330,6 +346,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void getAllReport() async {
     getReport();
     await Future.delayed(const Duration(seconds: 6));
+    getReportSaleWeek();
+    await Future.delayed(const Duration(seconds: 6));
     getGraphStore();
     await Future.delayed(const Duration(seconds: 6));
     getGraphDelivery();
@@ -340,19 +358,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void getGraphDelivery() async {
-    if (graphDeliverySelectedItem == 'Daily') {
+    if (graphDeliverySelectedItem == 'รายวัน') {
       DateTime currentDate = DateTime.now();
       String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       getGraph(1, queryFromdate, queryTodate);
-    } else if (graphDeliverySelectedItem == 'Weekly') {
+    } else if (graphDeliverySelectedItem == 'รายสัปดาห์') {
       DateTime currentDate = DateTime.now();
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
       String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
       String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
       getGraph(1, queryFromdate, queryTodate);
-    } else if (graphDeliverySelectedItem == 'Monthly') {
+    } else if (graphDeliverySelectedItem == 'รายเดือน') {
       String queryFromdate = "";
       String queryTodate = "";
       DateTime currentDate = DateTime.now();
@@ -361,7 +379,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfMonth)}";
       queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfMonth)}";
       getGraph(1, queryFromdate, queryTodate);
-    } else if (graphDeliverySelectedItem == 'Yearly') {
+    } else if (graphDeliverySelectedItem == 'รายปี') {
       String queryFromdate = "";
       String queryTodate = "";
       DateTime currentDate = DateTime.now();
@@ -369,17 +387,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
       DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
       queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfYear)}";
       queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfYear)}";
+      getGraph(1, queryFromdate, queryTodate);
+    } else {
+      String queryFromdate = "";
+      String queryTodate = "";
+      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text))}";
+      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text))}";
       getGraph(1, queryFromdate, queryTodate);
     }
   }
 
   void getGraphStore() async {
-    if (graphSelectedItem == 'Daily') {
+    if (graphSelectedItem == 'รายวัน') {
       DateTime currentDate = DateTime.now();
       String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       getGraph(0, queryFromdate, queryTodate);
-    } else if (graphSelectedItem == 'Weekly') {
+    } else if (graphSelectedItem == 'รายสัปดาห์') {
       DateTime currentDate = DateTime.now();
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
@@ -387,7 +411,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
 
       getGraph(0, queryFromdate, queryTodate);
-    } else if (graphSelectedItem == 'Monthly') {
+    } else if (graphSelectedItem == 'รายเดือน') {
       String queryFromdate = "";
       String queryTodate = "";
       DateTime currentDate = DateTime.now();
@@ -397,7 +421,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfMonth)}";
 
       getGraph(0, queryFromdate, queryTodate);
-    } else if (graphSelectedItem == 'Yearly') {
+    } else if (graphSelectedItem == 'รายปี') {
       String queryFromdate = "";
       String queryTodate = "";
       DateTime currentDate = DateTime.now();
@@ -406,6 +430,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfYear)}";
       queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfYear)}";
 
+      getGraph(0, queryFromdate, queryTodate);
+    } else {
+      String queryFromdate = "";
+      String queryTodate = "";
+      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text))}";
+      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text))}";
       getGraph(0, queryFromdate, queryTodate);
     }
   }
@@ -415,12 +445,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryTodate = "";
     DateTime currentDate = DateTime.now();
 
-    if (selectedItem == 'Daily') {
+    if (selectedItem == 'รายวัน') {
       fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
-    } else if (selectedItem == 'Weekly') {
+    } else if (selectedItem == 'รายสัปดาห์') {
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
 
@@ -428,7 +458,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfWeek);
       queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
       queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
-    } else if (selectedItem == 'Monthly') {
+    } else if (selectedItem == 'รายเดือน') {
       DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
       DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
 
@@ -444,7 +474,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfLastThreeMonths);
       queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfLastThreeMonths)}";
       queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfLastThreeMonths)}";
-    } else if (selectedItem == 'Yearly') {
+    } else if (selectedItem == 'รายปี') {
       DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
       DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
 
@@ -473,6 +503,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> getReportSaleWeek() async {
+    String queryFromdate = "";
+    String queryTodate = "";
+
+    DateTime firstDayOfWeek = selectedDateGraph.subtract(Duration(days: selectedDateGraph.weekday - 1));
+    DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
+    queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
+    queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
+    ReportRepository reportRepository = ReportRepository();
+    chartWeeklyData = [];
+    chartWeeklyData.addAll([
+      ChartData('Mon', 20000, Colors.yellow),
+      ChartData('Tue', 30000, Colors.pink),
+      ChartData('Wed', 5000, Colors.green),
+      ChartData('Thu', 5454, Colors.orange),
+      ChartData('Fri', 12000, Colors.blue),
+      ChartData('Sat', 60000, Colors.purple),
+      ChartData('Sun', 54200, Colors.red),
+    ]);
+    // ApiResponse result = await reportRepository.getReportSaleSummary(queryFromdate, queryTodate);
+    // if (result.success) {
+    //   saleByDay = SalesumaryByDayModel.fromJson(result.data);
+    //   calAmount();
+    //   setState(() {
+    //     opacityText = 0.1;
+    //   });
+
+    //   setState(() {
+    //     opacityText = 1;
+    //   });
+    // }
+  }
+
   Future<void> getGraph(int mode, String queryFromdate, String queryTodate) async {
     ReportRepository reportRepository = ReportRepository();
 
@@ -485,16 +548,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         chartPOSData = [];
         chartPOSData.addAll([
           ChartData('เงินสด', resData.cash, Colors.orangeAccent),
-          ChartData('สั่งกลับบ้าน', resData.takeAway, Colors.blue),
-          ChartData('QRCode', resData.qrcodeAmount, Colors.green),
-          ChartData('Wallet', resData.walletAmount, Colors.red),
+          ChartData('สั่งกลับบ้าน', 5000, Colors.blue),
+          ChartData('QRCode', 1000, Colors.green),
+          ChartData('Wallet', 12522, Colors.red),
         ]);
       } else {
         chartDeliveryData = [];
-
-        for (var delivery in resData.delivery) {
-          chartDeliveryData.add(ChartData(delivery.name, delivery.amount, getRandomColor()));
-        }
+        chartDeliveryData.add(ChartData('Panda', 1500, getRandomColor()));
+        chartDeliveryData.add(ChartData('Grab', 2000, getRandomColor()));
+        chartDeliveryData.add(ChartData('Shopee', 3000, getRandomColor()));
+        chartDeliveryData.add(ChartData('Line', 4000, getRandomColor()));
+        // for (var delivery in resData.delivery) {
+        //   chartDeliveryData.add(ChartData(delivery.name, delivery.amount, getRandomColor()));
+        // }
       }
       saleSummaryLoad = true;
 
@@ -576,7 +642,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               maxLines: 1,
             ),
           ),
-          backgroundColor: const Color.fromARGB(255, 26, 39, 58),
+          backgroundColor: Colors.indigo.shade700,
           leading: IconButton(
             icon: const Icon(Icons.swap_vert),
             onPressed: () {
@@ -613,24 +679,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       onVisibilityChanged: (visibilityInfo) {
                         print(visibilityInfo);
                         if (visibilityInfo.visibleFraction == 1) {
-                          print(loop.toString() + " : Visible");
+                          print("$loop : Visible");
 
                           if (loadSuccess[loop] == false) {
                             if (widgetList[loop].key != null) {
-                              print("get key : " + loop.toString());
+                              print("get key : $loop");
                               if (loop == 11) {
                                 getSellLoad();
                               }
                               // if (loop == 20) {
-                              //   //สัปดาห์นี้
+                              //   //รายสัปดาห์นี้
                               //   getGraphWeekly();
                               // }
                               // if (loop == 29) {
-                              //   //เดือนนี้
+                              //   //รายเดือน
                               //   getGraphMonthly();
                               // }
                               // if (loop == 38) {
-                              //   //3เดือนนี้
+                              //   //3รายเดือน
                               //   getGraphThreeMonthly();
                               // }
                               // if (loop == 47) {
@@ -675,15 +741,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (pickedDate != null) {
       setState(() {
+        selectedItem = 'กำหนดเอง';
+        graphSelectedItem = 'xx';
+        graphDeliverySelectedItem = 'xx';
         DateTime? pickDateTimeFormat = DateTime.parse('${DateFormat('yyyy-MM-dd').format(pickedDate)} ${DateFormat('HH:mm:ss.sss').format(DateTime.now())}');
         if (cmd == 'fromdate') {
           fromDateController.text = DateFormat('dd/MM/yyyy').format(pickDateTimeFormat);
         } else {
           toDateController.text = DateFormat('dd/MM/yyyy').format(pickDateTimeFormat);
         }
-
-        getReport();
       });
+
+      getReport();
+      getGraphStore();
+      getGraphDelivery();
     }
   }
 
@@ -691,140 +762,151 @@ class _DashboardScreenState extends State<DashboardScreen> {
     widgetList = [];
     loadSuccess = [];
     widgetList.add(
-      Padding(
-          padding: const EdgeInsets.all(2),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (int i = 0; i < dropdownSelect.length; i++)
-                  Container(
-                    margin: const EdgeInsets.all(2),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedItem = dropdownSelect[i];
-                          if (selectedItem != 'Custom') {
-                            getReport();
-                          }
-                        });
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.blue : Colors.white),
-                        foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
-                        side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
+      Center(
+        child: Padding(
+            padding: const EdgeInsets.all(2),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (int i = 0; i < dropdownSelect.length; i++)
+                    Container(
+                      margin: const EdgeInsets.all(2),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedItem = dropdownSelect[i];
+
+                            if (selectedItem != 'Custom') {
+                              graphSelectedItem = selectedItem;
+                              graphDeliverySelectedItem = selectedItem;
+                              getReport();
+                              getGraphStore();
+                              getGraphDelivery();
+                            }
+                          });
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.blue : Colors.white),
+                          foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
+                          side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
                           ),
                         ),
+                        child: Text(dropdownSelect[i]),
                       ),
-                      child: Text(dropdownSelect[i]),
                     ),
-                  ),
-              ],
-            ),
-          )),
+                ],
+              ),
+            )),
+      ),
     );
 
-    if (selectedItem == 'Custom') {
-      widgetList.add(const SizedBox(
-        height: 5,
-      ));
-      widgetList.add(SizedBox(
+    widgetList.add(
+      SizedBox(
         width: double.infinity,
-        child: TextField(
-          readOnly: true,
-          decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: "จากวันที่",
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    focusNode: FocusNode(skipTraversal: true),
-                    icon: const Icon(Icons.calendar_month),
-                    onPressed: () {
-                      _selectDocDate("fromdate", fromDateController.text);
-                    },
-                  ),
-                ],
-              )),
-          controller: fromDateController,
-          onChanged: (value) {
-            setState(() {
-              try {
-                List<String> valueSplit = value.replaceAll(".", "/").split("/");
-                if (valueSplit.length == 3) {
-                  if (valueSplit[2].length == 2) {
-                    valueSplit[2] = '25${valueSplit[2]}';
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: TextField(
+              readOnly: true,
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "จากวันที่",
+                  suffixIcon: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        focusNode: FocusNode(skipTraversal: true),
+                        icon: const Icon(Icons.calendar_month),
+                        onPressed: () {
+                          _selectDocDate("fromdate", fromDateController.text);
+                        },
+                      ),
+                    ],
+                  )),
+              controller: fromDateController,
+              onChanged: (value) {
+                setState(() {
+                  try {
+                    List<String> valueSplit = value.replaceAll(".", "/").split("/");
+                    if (valueSplit.length == 3) {
+                      if (valueSplit[2].length == 2) {
+                        valueSplit[2] = '25${valueSplit[2]}';
+                      }
+                      int year = int.tryParse(valueSplit[2]) ?? 0;
+                      year = year - 543;
+                      int month = int.tryParse(valueSplit[1]) ?? 0;
+                      int day = int.tryParse(valueSplit[0]) ?? 0;
+                      value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+                    }
+                  } catch (e) {
+                    print(e);
                   }
-                  int year = int.tryParse(valueSplit[2]) ?? 0;
-                  year = year - 543;
-                  int month = int.tryParse(valueSplit[1]) ?? 0;
-                  int day = int.tryParse(valueSplit[0]) ?? 0;
-                  value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
-                }
-              } catch (e) {
-                print(e);
-              }
-            });
-          },
-          onSubmitted: (value) {
-            //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
-          },
+                });
+              },
+              onSubmitted: (value) {
+                //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
+              },
+            ),
+          ),
         ),
-      ));
-      widgetList.add(const SizedBox(
-        height: 5,
-      ));
-      widgetList.add(SizedBox(
-        width: double.infinity,
-        child: TextField(
-          readOnly: true,
-          decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: "ถึงวันที่",
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    focusNode: FocusNode(skipTraversal: true),
-                    icon: const Icon(Icons.calendar_month),
-                    onPressed: () {
-                      _selectDocDate("todate", toDateController.text);
-                    },
-                  ),
-                ],
-              )),
-          controller: toDateController,
-          onChanged: (value) {
-            setState(() {
-              try {
-                List<String> valueSplit = value.replaceAll(".", "/").split("/");
-                if (valueSplit.length == 3) {
-                  if (valueSplit[2].length == 2) {
-                    valueSplit[2] = '25${valueSplit[2]}';
+      ),
+    );
+    widgetList.add(SizedBox(
+      width: double.infinity,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: TextField(
+            readOnly: true,
+            decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: "ถึงวันที่",
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      focusNode: FocusNode(skipTraversal: true),
+                      icon: const Icon(Icons.calendar_month),
+                      onPressed: () {
+                        _selectDocDate("todate", toDateController.text);
+                      },
+                    ),
+                  ],
+                )),
+            controller: toDateController,
+            onChanged: (value) {
+              setState(() {
+                try {
+                  List<String> valueSplit = value.replaceAll(".", "/").split("/");
+                  if (valueSplit.length == 3) {
+                    if (valueSplit[2].length == 2) {
+                      valueSplit[2] = '25${valueSplit[2]}';
+                    }
+                    int year = int.tryParse(valueSplit[2]) ?? 0;
+                    year = year - 543;
+                    int month = int.tryParse(valueSplit[1]) ?? 0;
+                    int day = int.tryParse(valueSplit[0]) ?? 0;
+                    value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
                   }
-                  int year = int.tryParse(valueSplit[2]) ?? 0;
-                  year = year - 543;
-                  int month = int.tryParse(valueSplit[1]) ?? 0;
-                  int day = int.tryParse(valueSplit[0]) ?? 0;
-                  value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+                } catch (e) {
+                  print(e);
                 }
-              } catch (e) {
-                print(e);
-              }
-            });
-          },
-          onSubmitted: (value) {
-            //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
-          },
+              });
+            },
+            onSubmitted: (value) {
+              //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
+            },
+          ),
         ),
-      ));
-    }
+      ),
+    ));
 
     widgetList.add(const SizedBox(
       height: 5,
@@ -861,7 +943,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   height: 4,
                 ),
                 const Text(
-                  "Gross Sales",
+                  "รวมยอดขาย",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black),
@@ -950,7 +1032,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Store Sales",
+                  "ขายหน้าร้าน",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
@@ -1010,7 +1092,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Delivery Sales",
+                  "บริการจัดส่งอาหาร",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
@@ -1066,7 +1148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             children: [
               const Text(
-                "Store Sales",
+                "รายละเอียดยอดขายหน้าร้าน",
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -1204,7 +1286,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           children: [
             const Text(
-              "Delivery Sales",
+              "รายละเอียดบริการจัดส่ง",
               style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -1336,7 +1418,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     //     key: keys[0],
     //     margin: const EdgeInsets.only(top: 10, bottom: 0),
     //     child: const Text(
-    //       "กราฟเปรียบเทียบยอดชำระหน้าร้านวันนี้",
+    //       "กราฟเปรียบเทียบยอดชำระหน้าร้านรายวัน",
     //       style: TextStyle(fontSize: 16),
     //     )));
     // widgetList.add(const Divider(
@@ -1348,71 +1430,146 @@ class _DashboardScreenState extends State<DashboardScreen> {
     //   height: 2,
     // ));
 
-    Widget graphSelectWidget = Padding(
-      padding: const EdgeInsets.all(2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          for (int i = 0; i < graphSelect.length; i++)
-            Container(
-              margin: const EdgeInsets.all(2),
-              child: ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    graphSelectedItem = graphSelect[i];
-                  });
-                  getGraphStore();
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>((graphSelectedItem == graphSelect[i]) ? Colors.blue : Colors.white),
-                  foregroundColor: MaterialStateProperty.all<Color>((graphSelectedItem == graphSelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
-                  side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                ),
-                child: Text(graphSelect[i]),
-              ),
-            ),
-        ],
+    var series = [
+      charts.Series(
+        domainFn: (ChartData data, _) => data.label,
+        measureFn: (ChartData data, _) => data.value,
+        colorFn: (ChartData data, _) => charts.ColorUtil.fromDartColor(data.color),
+        labelAccessorFn: (ChartData data, _) => '${data.value}',
+        id: 'chartWeeklyData',
+        data: chartWeeklyData,
+      ),
+    ];
+    var chart = charts.BarChart(
+      series,
+      animate: true,
+      barRendererDecorator: charts.BarLabelDecorator<String>(outsideLabelStyleSpec: const charts.TextStyleSpec(fontSize: 9), labelPosition: charts.BarLabelPosition.outside),
+      domainAxis: const charts.OrdinalAxisSpec(
+        renderSpec: charts.SmallTickRendererSpec(
+          labelStyle: charts.TextStyleSpec(
+            fontSize: 11,
+          ),
+        ),
       ),
     );
 
-    Widget graphSelectDeliveryWidget = Padding(
-      padding: const EdgeInsets.all(2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          for (int i = 0; i < graphDeliverySelect.length; i++)
+    DateTime firstDayOfWeekGraph = selectedDateGraph.subtract(Duration(days: selectedDateGraph.weekday - 1));
+    DateTime lastDayOfWeekGraph = firstDayOfWeekGraph.add(const Duration(days: 6));
+    var chartWidget = GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity! > 0) {
+          setState(() {
+            selectedDateGraph = selectedDateGraph.subtract(const Duration(days: 7));
+            getReportSaleWeek();
+          });
+        } else if (details.primaryVelocity! < 0) {
+          setState(() {
+            selectedDateGraph = selectedDateGraph.add(const Duration(days: 7));
+            getReportSaleWeek();
+          });
+        }
+      },
+      child: Card(
+          child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
             Container(
-              margin: const EdgeInsets.all(2),
-              child: ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    graphDeliverySelectedItem = graphDeliverySelect[i];
-                  });
-                  getGraphDelivery();
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>((graphDeliverySelectedItem == graphDeliverySelect[i]) ? Colors.blue : Colors.white),
-                  foregroundColor: MaterialStateProperty.all<Color>((graphDeliverySelectedItem == graphDeliverySelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
-                  side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
+                margin: const EdgeInsets.only(top: 10, bottom: 0),
+                child: const Text(
+                  "กราฟแสดงยอดขายตามวัน",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                )),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: _selectPreviousWeek,
                   ),
-                ),
-                child: Text(graphDeliverySelect[i]),
+                  Expanded(child: Center(child: Text('${DateFormat('dd/MM/yyyy').format(firstDayOfWeekGraph)} ถึง ${DateFormat('dd/MM/yyyy').format(lastDayOfWeekGraph)}'))),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward),
+                    onPressed: _selectNextWeek,
+                  ),
+                ],
               ),
             ),
-        ],
-      ),
+            SizedBox(height: 450, child: chart),
+          ],
+        ),
+      )),
     );
+    widgetList.add(chartWidget);
+
+    // Widget graphSelectWidget = Padding(
+    //   padding: const EdgeInsets.all(2),
+    //   child: Row(
+    //     mainAxisAlignment: MainAxisAlignment.center,
+    //     crossAxisAlignment: CrossAxisAlignment.center,
+    //     children: [
+    //       for (int i = 0; i < graphSelect.length; i++)
+    //         Container(
+    //           margin: const EdgeInsets.all(2),
+    //           child: ElevatedButton(
+    //             onPressed: () {
+    //               setState(() {
+    //                 graphSelectedItem = graphSelect[i];
+    //               });
+    //               getGraphStore();
+    //             },
+    //             style: ButtonStyle(
+    //               backgroundColor: MaterialStateProperty.all<Color>((graphSelectedItem == graphSelect[i]) ? Colors.blue : Colors.white),
+    //               foregroundColor: MaterialStateProperty.all<Color>((graphSelectedItem == graphSelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
+    //               side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
+    //               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+    //                 RoundedRectangleBorder(
+    //                   borderRadius: BorderRadius.circular(25),
+    //                 ),
+    //               ),
+    //             ),
+    //             child: Text(graphSelect[i]),
+    //           ),
+    //         ),
+    //     ],
+    //   ),
+    // );
+
+    // Widget graphSelectDeliveryWidget = Padding(
+    //   padding: const EdgeInsets.all(2),
+    //   child: Row(
+    //     mainAxisAlignment: MainAxisAlignment.center,
+    //     crossAxisAlignment: CrossAxisAlignment.center,
+    //     children: [
+    //       for (int i = 0; i < graphDeliverySelect.length; i++)
+    //         Container(
+    //           margin: const EdgeInsets.all(2),
+    //           child: ElevatedButton(
+    //             onPressed: () {
+    //               setState(() {
+    //                 graphDeliverySelectedItem = graphDeliverySelect[i];
+    //               });
+    //               getGraphDelivery();
+    //             },
+    //             style: ButtonStyle(
+    //               backgroundColor: MaterialStateProperty.all<Color>((graphDeliverySelectedItem == graphDeliverySelect[i]) ? Colors.blue : Colors.white),
+    //               foregroundColor:
+    //                   MaterialStateProperty.all<Color>((graphDeliverySelectedItem == graphDeliverySelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
+    //               side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
+    //               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+    //                 RoundedRectangleBorder(
+    //                   borderRadius: BorderRadius.circular(25),
+    //                 ),
+    //               ),
+    //             ),
+    //             child: Text(graphDeliverySelect[i]),
+    //           ),
+    //         ),
+    //     ],
+    //   ),
+    // );
 
     Map<String, double> dataMap = {"Empty": 0};
     Map<String, String> legendLabels = {"Empty": "Empty"};
@@ -1424,6 +1581,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         legendLabels[data.label] = data.label;
       }
     }
+
     final pieChartGen = PieChart(
       key: const ValueKey(1),
       dataMap: dataMap,
@@ -1507,56 +1665,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
       baseChartColor: Colors.transparent,
     );
 
-    widgetList.add(Container(
-      margin: const EdgeInsets.only(top: 4, bottom: 4, right: 8, left: 8),
-      padding: const EdgeInsets.all(12),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.indigo.shade600,
-            spreadRadius: 0,
-            blurRadius: 4,
-            offset: const Offset(0, 0), // changes position of shadow
+    widgetList.add(Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(children: [
+          const Text(
+            "เปรียบเทียบการรับเงินหน้าร้าน",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
           ),
-        ],
-        color: Colors.white,
+          // graphSelectWidget,
+          (dailyLoad) ? pieChartGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+        ]),
       ),
-      child: Column(children: [
-        const Text(
-          "Compare Store Sales",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-        graphSelectWidget,
-        (dailyLoad) ? pieChartGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-      ]),
     ));
 
-    widgetList.add(Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
-      padding: const EdgeInsets.all(12),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.indigo.shade600,
-            spreadRadius: 0,
-            blurRadius: 4,
-            offset: const Offset(0, 0), // changes position of shadow
+    widgetList.add(Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(children: [
+          const Text(
+            "เปรียบเทียบยอดขายบริการจัดส่งอาหาร",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
           ),
-        ],
-        color: Colors.white,
+          // graphSelectDeliveryWidget,
+          (dailyLoad) ? pieChartDeliveryGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+        ]),
       ),
-      child: Column(children: [
-        const Text(
-          "Compare Delivery Sales",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-        graphSelectDeliveryWidget,
-        (dailyLoad) ? pieChartDeliveryGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-      ]),
     ));
 
     if (dailyLoad) {
@@ -1605,7 +1739,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 )),
                 Expanded(
                     child: Text(
-                  "${global.formatNumber(bestseller.qty)} ${bestseller.unitcode}",
+                  "${global.formatNumber(bestseller.qty)} ${(bestseller.unitcode != '' ? bestseller.unitcode : 'ชิ้น')}",
                   textAlign: TextAlign.right,
                 ))
               ],
@@ -1624,7 +1758,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         borderRadius: BorderRadius.circular(5),
         boxShadow: [
           BoxShadow(
-            color: Colors.indigo.shade600,
+            color: Colors.orangeAccent.shade700,
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 0), // changes position of shadow
@@ -1634,7 +1768,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       child: Column(children: [
         const Text(
-          "Top 10 Best Selling Products",
+          "10 อันดับสินค้าขายดี",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
         ),
         const Divider(
@@ -1642,7 +1776,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           thickness: 1,
           color: Colors.grey,
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         if (bestSellingList.isNotEmpty)
@@ -1669,7 +1803,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       child: Column(children: [
         const Text(
-          "Top 10 Best Store Selling Products",
+          "10 อันดับสินค้าขายดีหน้าร้าน",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
         ),
         const Divider(
@@ -1677,7 +1811,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           thickness: 1,
           color: Colors.grey,
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         if (bestSellingList.isNotEmpty)
@@ -1703,7 +1837,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       child: Column(children: [
         const Text(
-          "Top 10 Best Delivery Selling Products",
+          "10 อันดับสินค้าขายดีบริการจัดส่ง",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
         ),
         const Divider(
@@ -1711,7 +1845,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           thickness: 1,
           color: Colors.grey,
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         if (bestSellingList.isNotEmpty)
