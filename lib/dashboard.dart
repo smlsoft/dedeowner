@@ -338,7 +338,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     reFreshTimer?.cancel();
     super.dispose();
   }
@@ -632,7 +631,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: const Color.fromARGB(255, 232, 233, 237),
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          elevation: 0,
+          elevation: 1,
+          shadowColor: Colors.orange.shade700,
           automaticallyImplyLeading: false,
           title: Align(
             alignment: Alignment.center,
@@ -642,7 +642,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               maxLines: 1,
             ),
           ),
-          backgroundColor: Colors.indigo.shade700,
+          backgroundColor: Colors.orange.shade700,
           leading: IconButton(
             icon: const Icon(Icons.swap_vert),
             onPressed: () {
@@ -787,9 +787,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           });
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.blue : Colors.white),
-                          foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
-                          side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
+                          backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.orange.shade700 : Colors.white),
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.orange.shade900), // This changes the color of the text
+                          side: MaterialStateProperty.all<BorderSide>(BorderSide(color: Colors.orange.shade700, width: 2)),
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
@@ -821,6 +822,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
+                        color: Colors.orange.shade700,
                         focusNode: FocusNode(skipTraversal: true),
                         icon: const Icon(Icons.calendar_month),
                         onPressed: () {
@@ -872,6 +874,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
+                      color: Colors.orange.shade700,
                       focusNode: FocusNode(skipTraversal: true),
                       icon: const Icon(Icons.calendar_month),
                       onPressed: () {
@@ -921,7 +924,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.indigo.shade800,
+                color: Colors.orange.shade700,
                 spreadRadius: 0,
                 blurRadius: 3,
                 offset: const Offset(0, 0), // changes position of shadow
@@ -1017,7 +1020,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
-                color: Colors.orange.shade600,
+                color: Colors.orange.shade700,
                 spreadRadius: 0,
                 blurRadius: 3,
                 offset: const Offset(0, 0),
@@ -1077,7 +1080,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
-                color: Colors.blue.shade600,
+                color: Colors.orange.shade700,
                 spreadRadius: 0,
                 blurRadius: 3,
                 offset: const Offset(0, 0), // changes position of shadow
@@ -1137,7 +1140,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
-                color: Colors.orange.shade600,
+                color: Colors.orange.shade700,
                 spreadRadius: 0,
                 blurRadius: 4,
                 offset: const Offset(0, 0),
@@ -1275,7 +1278,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(5),
           boxShadow: [
             BoxShadow(
-              color: Colors.blue.shade600,
+              color: Colors.orange.shade700,
               spreadRadius: 0,
               blurRadius: 4,
               offset: const Offset(0, 0), // changes position of shadow
@@ -1290,7 +1293,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            Divider(height: 5, color: Colors.blue.shade600),
+            Divider(height: 5, color: Colors.orange.shade700),
             for (var data in salesumary.delivery)
               Container(
                 margin: const EdgeInsets.only(top: 2),
@@ -1343,7 +1346,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     Divider(
                       height: 2,
-                      color: Colors.blue.shade600,
+                      color: Colors.orange.shade700,
                     ),
                     const SizedBox(
                       height: 5,
@@ -1408,7 +1411,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             Divider(
               height: 5,
-              color: Colors.blue.shade600,
+              color: Colors.orange.shade700,
             ),
           ],
         ),
