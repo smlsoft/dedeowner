@@ -18,3 +18,7 @@ flutter build apk --release
 
 # copy the APK where AppCenter will find it
 mkdir -p android/app/build/outputs/apk/; mv build/app/outputs/apk/release/app-release.apk $_
+
+
+# Android SDK path for App Center build servers
+echo "sdk.dir=/usr/local/share/android-sdk" > "/android/local.properties"
