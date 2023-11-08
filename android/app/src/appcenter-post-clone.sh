@@ -15,10 +15,6 @@ flutter channel stable
 flutter doctor
 flutter pub get
 
-
-# Android SDK path for App Center build servers
-echo "sdk.dir=/usr/local/share/android-sdk" > "/android/local.properties"
-
 flutter build apk --release
 
 # copy the APK where AppCenter will find it
