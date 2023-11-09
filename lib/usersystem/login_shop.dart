@@ -73,8 +73,8 @@ class LoginShopState extends State<LoginShop> {
 
   @override
   void initState() {
-    _userControl.text = "maxkorn";
-    _passControl.text = "maxkorn";
+    _userControl.text = "";
+    _passControl.text = "";
     createShopData = CreateShopModel(
       name1: "",
       telephone: "",
@@ -399,7 +399,7 @@ class LoginShopState extends State<LoginShop> {
               height: 10,
             ),
             loginButton(),
-            loginDemo(),
+            // loginDemo(),
             loginWithGoogle(),
             BlocBuilder<LoginBloc, LoginState>(
               builder: (context, state) {

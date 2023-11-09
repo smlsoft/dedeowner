@@ -49,12 +49,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       selectedDateGraph = selectedDateGraph.subtract(const Duration(days: 7));
     });
+    getReportSaleWeek();
   }
 
   void _selectNextWeek() {
     setState(() {
       selectedDateGraph = selectedDateGraph.add(const Duration(days: 7));
     });
+    getReportSaleWeek();
   }
 
   final colorList = <Color>[
@@ -100,6 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool bestSellLoad = true;
   bool isSaleShop = false;
   bool isDeliveryShop = false;
+  bool isLoading = false;
   List<Widget> widgetList = [];
   List<bool> loadSuccess = [];
   SalesumaryModel salesumary = SalesumaryModel(
@@ -189,6 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bestseller: [],
       bestsellerdelivery: [],
       bestsellershop: []);
+  bool _isLoading = false;
   List<BestProductModel> bestSeller = [];
   List<BestProductModel> bestPosSeller = [];
   List<BestProductModel> bestDeliverySeller = [];
@@ -329,7 +333,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // }
 
     getAllReport();
-    reFreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+    reFreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) async {
       getAllReport();
     });
 
@@ -338,7 +342,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     reFreshTimer?.cancel();
     super.dispose();
   }
@@ -444,6 +447,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryFromdate = "";
     String queryTodate = "";
     DateTime currentDate = DateTime.now();
+    setState(() {
+      isLoading = true;
+    });
 
     if (selectedItem == 'รายวัน') {
       fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
@@ -487,10 +493,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
       queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text))}";
     }
 
+    salesumary = SalesumaryModel(
+        cash: 0,
+        takeAway: 0,
+        cashierAmount: 0,
+        qrcodeAmount: 0,
+        walletAmount: 0,
+        deliveryAmount: 0,
+        gpAmount: 0,
+        qrcode: [],
+        wallet: [],
+        delivery: [],
+        bestseller: [],
+        bestsellerdelivery: [],
+        bestsellershop: []);
     ReportRepository reportRepository = ReportRepository();
 
     ApiResponse result = await reportRepository.getReportSaleSummary(queryFromdate, queryTodate);
     if (result.success) {
+      setState(() {
+        isLoading = false;
+      });
       salesumary = SalesumaryModel.fromJson(result.data);
       calAmount();
       setState(() {
@@ -499,6 +522,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       setState(() {
         opacityText = 1;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
       });
     }
   }
@@ -511,29 +538,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
     DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
     queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
     queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
+    setState(() {
+      _isLoading = true;
+    });
+    print(queryFromdate + " : " + queryTodate);
     ReportRepository reportRepository = ReportRepository();
     chartWeeklyData = [];
     chartWeeklyData.addAll([
-      ChartData('Mon', 20000, Colors.yellow),
-      ChartData('Tue', 30000, Colors.pink),
-      ChartData('Wed', 5000, Colors.green),
-      ChartData('Thu', 5454, Colors.orange),
-      ChartData('Fri', 12000, Colors.blue),
-      ChartData('Sat', 60000, Colors.purple),
-      ChartData('Sun', 54200, Colors.red),
+      ChartData('Mon', 0, Colors.yellow),
+      ChartData('Tue', 0, Colors.pink),
+      ChartData('Wed', 0, Colors.green),
+      ChartData('Thu', 0, Colors.orange),
+      ChartData('Fri', 0, Colors.blue),
+      ChartData('Sat', 0, Colors.purple),
+      ChartData('Sun', 0, Colors.red),
     ]);
-    // ApiResponse result = await reportRepository.getReportSaleSummary(queryFromdate, queryTodate);
-    // if (result.success) {
-    //   saleByDay = SalesumaryByDayModel.fromJson(result.data);
-    //   calAmount();
-    //   setState(() {
-    //     opacityText = 0.1;
-    //   });
-
-    //   setState(() {
-    //     opacityText = 1;
-    //   });
-    // }
+    ApiResponse result = await reportRepository.getReportSaleWeeklySummary(queryFromdate, queryTodate);
+    if (result.success) {
+      chartWeeklyData = [];
+      chartWeeklyData.addAll([
+        ChartData('Mon', double.parse(result.data['Mon'].toString()), Colors.yellow),
+        ChartData('Tue', double.parse(result.data['Tue'].toString()), Colors.pink),
+        ChartData('Wed', double.parse(result.data['Wed'].toString()), Colors.green),
+        ChartData('Thu', double.parse(result.data['Thu'].toString()), Colors.orange),
+        ChartData('Fri', double.parse(result.data['Fri'].toString()), Colors.blue),
+        ChartData('Sat', double.parse(result.data['Sat'].toString()), Colors.purple),
+        ChartData('Sun', double.parse(result.data['Sun'].toString()), Colors.red),
+      ]);
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> getGraph(int mode, String queryFromdate, String queryTodate) async {
@@ -629,10 +668,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     buildReport();
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 232, 233, 237),
+        backgroundColor: Colors.grey.shade100,
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          elevation: 0,
+          elevation: 1,
+          shadowColor: Colors.orange.shade700,
           automaticallyImplyLeading: false,
           title: Align(
             alignment: Alignment.center,
@@ -642,7 +682,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               maxLines: 1,
             ),
           ),
-          backgroundColor: Colors.indigo.shade700,
+          backgroundColor: Colors.orange.shade700,
           leading: IconButton(
             icon: const Icon(Icons.swap_vert),
             onPressed: () {
@@ -772,6 +812,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   for (int i = 0; i < dropdownSelect.length; i++)
                     Container(
                       margin: const EdgeInsets.all(2),
+                      padding: const EdgeInsets.all(1),
                       child: ElevatedButton(
                         onPressed: () {
                           setState(() {
@@ -787,12 +828,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           });
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.blue : Colors.white),
-                          foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
-                          side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
+                          backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.white),
+                          foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.orange.shade900 : Colors.grey.shade700),
+                          side: MaterialStateProperty.all<BorderSide>(BorderSide(color: (selectedItem == dropdownSelect[i]) ? Colors.orange.shade700 : Colors.white, width: 2)),
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                              borderRadius: BorderRadius.circular(5),
                             ),
                           ),
                         ),
@@ -806,111 +847,113 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
 
     widgetList.add(
-      SizedBox(
-        width: double.infinity,
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: TextField(
-              readOnly: true,
-              decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: "จากวันที่",
-                  suffixIcon: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        focusNode: FocusNode(skipTraversal: true),
-                        icon: const Icon(Icons.calendar_month),
-                        onPressed: () {
-                          _selectDocDate("fromdate", fromDateController.text);
-                        },
-                      ),
-                    ],
-                  )),
-              controller: fromDateController,
-              onChanged: (value) {
-                setState(() {
-                  try {
-                    List<String> valueSplit = value.replaceAll(".", "/").split("/");
-                    if (valueSplit.length == 3) {
-                      if (valueSplit[2].length == 2) {
-                        valueSplit[2] = '25${valueSplit[2]}';
-                      }
-                      int year = int.tryParse(valueSplit[2]) ?? 0;
-                      year = year - 543;
-                      int month = int.tryParse(valueSplit[1]) ?? 0;
-                      int day = int.tryParse(valueSplit[0]) ?? 0;
-                      value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
-                    }
-                  } catch (e) {
-                    print(e);
+      Container(
+        height: 75,
+        padding: const EdgeInsets.only(top: 10, left: 10, bottom: 5, right: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: Colors.white,
+        ),
+        child: TextField(
+          readOnly: true,
+          decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+              border: const OutlineInputBorder(),
+              labelText: "จากวันที่",
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    color: Colors.orange.shade700,
+                    focusNode: FocusNode(skipTraversal: true),
+                    icon: const Icon(Icons.calendar_month),
+                    onPressed: () {
+                      _selectDocDate("fromdate", fromDateController.text);
+                    },
+                  ),
+                ],
+              )),
+          controller: fromDateController,
+          onChanged: (value) {
+            setState(() {
+              try {
+                List<String> valueSplit = value.replaceAll(".", "/").split("/");
+                if (valueSplit.length == 3) {
+                  if (valueSplit[2].length == 2) {
+                    valueSplit[2] = '25${valueSplit[2]}';
                   }
-                });
-              },
-              onSubmitted: (value) {
-                //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
-              },
-            ),
-          ),
+                  int year = int.tryParse(valueSplit[2]) ?? 0;
+                  year = year - 543;
+                  int month = int.tryParse(valueSplit[1]) ?? 0;
+                  int day = int.tryParse(valueSplit[0]) ?? 0;
+                  value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+                }
+              } catch (e) {
+                print(e);
+              }
+            });
+          },
+          onSubmitted: (value) {
+            //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
+          },
         ),
       ),
     );
-    widgetList.add(SizedBox(
-      width: double.infinity,
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: TextField(
-            readOnly: true,
-            decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: "ถึงวันที่",
-                suffixIcon: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      focusNode: FocusNode(skipTraversal: true),
-                      icon: const Icon(Icons.calendar_month),
-                      onPressed: () {
-                        _selectDocDate("todate", toDateController.text);
-                      },
-                    ),
-                  ],
-                )),
-            controller: toDateController,
-            onChanged: (value) {
-              setState(() {
-                try {
-                  List<String> valueSplit = value.replaceAll(".", "/").split("/");
-                  if (valueSplit.length == 3) {
-                    if (valueSplit[2].length == 2) {
-                      valueSplit[2] = '25${valueSplit[2]}';
-                    }
-                    int year = int.tryParse(valueSplit[2]) ?? 0;
-                    year = year - 543;
-                    int month = int.tryParse(valueSplit[1]) ?? 0;
-                    int day = int.tryParse(valueSplit[0]) ?? 0;
-                    value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
-                  }
-                } catch (e) {
-                  print(e);
+    widgetList.add(Container(
+      height: 75,
+      padding: const EdgeInsets.only(top: 3, left: 10, bottom: 0, right: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: Colors.white,
+      ),
+      child: TextField(
+        readOnly: true,
+        decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+            border: const OutlineInputBorder(),
+            labelText: "ถึงวันที่",
+            suffixIcon: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  color: Colors.orange.shade700,
+                  focusNode: FocusNode(skipTraversal: true),
+                  icon: const Icon(Icons.calendar_month),
+                  onPressed: () {
+                    _selectDocDate("todate", toDateController.text);
+                  },
+                ),
+              ],
+            )),
+        controller: toDateController,
+        onChanged: (value) {
+          setState(() {
+            try {
+              List<String> valueSplit = value.replaceAll(".", "/").split("/");
+              if (valueSplit.length == 3) {
+                if (valueSplit[2].length == 2) {
+                  valueSplit[2] = '25${valueSplit[2]}';
                 }
-              });
-            },
-            onSubmitted: (value) {
-              //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
-            },
-          ),
-        ),
+                int year = int.tryParse(valueSplit[2]) ?? 0;
+                year = year - 543;
+                int month = int.tryParse(valueSplit[1]) ?? 0;
+                int day = int.tryParse(valueSplit[0]) ?? 0;
+                value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+              }
+            } catch (e) {
+              print(e);
+            }
+          });
+        },
+        onSubmitted: (value) {
+          //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
+        },
       ),
     ));
 
-    widgetList.add(const SizedBox(
-      height: 5,
-    ));
+    widgetList.add(const SizedBox(height: 10));
 
     widgetList.add(
       Center(
@@ -921,7 +964,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.indigo.shade800,
+                color: Colors.orange.shade700,
                 spreadRadius: 0,
                 blurRadius: 3,
                 offset: const Offset(0, 0), // changes position of shadow
@@ -929,26 +972,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           alignment: Alignment.center,
-          child: Opacity(
-            opacity: opacityText,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  global.formatNumber(salesumary.cashierAmount + salesumary.deliveryAmount),
-                  style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
-                ),
-                const SizedBox(
-                  height: 4,
-                ),
-                const Text(
-                  "รวมยอดขาย",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
-              ],
+          child: InkWell(
+            onTap: () {
+              getReport();
+            },
+            child: Opacity(
+              opacity: opacityText,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  (isLoading)
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Text(
+                          global.formatNumber(salesumary.cashierAmount + salesumary.deliveryAmount),
+                          style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: Colors.indigo.shade800),
+                        ),
+                  const SizedBox(
+                    height: 4,
+                  ),
+                  Text(
+                    "รวมยอดขาย",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1008,7 +1060,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           } else {
             isSaleShop = true;
           }
-
+          showShopDetailDialog();
           setState(() {});
         },
         child: Container(
@@ -1017,7 +1069,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
-                color: Colors.orange.shade600,
+                color: Colors.orange.shade700,
                 spreadRadius: 0,
                 blurRadius: 3,
                 offset: const Offset(0, 0),
@@ -1031,19 +1083,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "ขายหน้าร้าน",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
                 ),
                 const SizedBox(
                   height: 2,
                 ),
-                Text(
-                  global.formatNumber(salesumary.cashierAmount),
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
-                ),
+                (isLoading)
+                    ? const CircularProgressIndicator()
+                    : Text(
+                        global.formatNumber(salesumary.cashierAmount),
+                        style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                      ),
                 const SizedBox(
                   height: 2,
                 ),
@@ -1068,7 +1122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           } else {
             isDeliveryShop = true;
           }
-
+          showSalechanelDialog();
           setState(() {});
         },
         child: Container(
@@ -1077,7 +1131,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
-                color: Colors.blue.shade600,
+                color: Colors.orange.shade700,
                 spreadRadius: 0,
                 blurRadius: 3,
                 offset: const Offset(0, 0), // changes position of shadow
@@ -1091,19 +1145,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "บริการจัดส่งอาหาร",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
                 ),
                 const SizedBox(
                   height: 2,
                 ),
-                Text(
-                  global.formatNumber(salesumary.deliveryAmount),
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
-                ),
+                (isLoading)
+                    ? const CircularProgressIndicator()
+                    : Text(
+                        global.formatNumber(salesumary.deliveryAmount),
+                        style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                      ),
                 const SizedBox(
                   height: 2,
                 ),
@@ -1127,293 +1183,294 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 4,
     ));
 
-    widgetList.add(
-      Visibility(
-        visible: isSaleShop,
-        child: Container(
-          margin: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 10),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.orange.shade600,
-                spreadRadius: 0,
-                blurRadius: 4,
-                offset: const Offset(0, 0),
-              ),
-            ],
-            color: Colors.white,
-          ),
-          child: Column(
-            children: [
-              const Text(
-                "รายละเอียดยอดขายหน้าร้าน",
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              Divider(height: 5, color: Colors.orange.shade600),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    "เงินสด",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                  ),
-                  Opacity(
-                    opacity: opacityText,
-                    child: Text(
-                      global.formatNumber(salesumary.cash),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    "สั่งกลับบ้าน",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                  ),
-                  Opacity(
-                    opacity: opacityText,
-                    child: Text(
-                      global.formatNumber(salesumary.takeAway),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    "QR code",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                  ),
-                  Opacity(
-                    opacity: opacityText,
-                    child: Text(
-                      global.formatNumber(salesumary.qrcodeAmount),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                  )
-                ],
-              ),
-              for (var data in salesumary.qrcode)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      " - ${data.name}",
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                    Text(
-                      global.formatNumber(data.amount),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-                    )
-                  ],
-                ),
-              const SizedBox(
-                height: 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Wallet",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                  ),
-                  Opacity(
-                    opacity: opacityText,
-                    child: Text(
-                      global.formatNumber(salesumary.walletAmount),
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                  )
-                ],
-              ),
-              for (var data in salesumary.wallet)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      " - ${data.name}",
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                    Text(
-                      global.formatNumber(data.amount),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-                    )
-                  ],
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
+    // widgetList.add(
+    //   Visibility(
+    //     visible: isSaleShop,
+    //     child: Container(
+    //       margin: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 10),
+    //       padding: const EdgeInsets.all(8),
+    //       decoration: BoxDecoration(
+    //         borderRadius: BorderRadius.circular(5),
+    //         boxShadow: [
+    //           BoxShadow(
+    //             color: Colors.orange.shade700,
+    //             spreadRadius: 0,
+    //             blurRadius: 4,
+    //             offset: const Offset(0, 0),
+    //           ),
+    //         ],
+    //         color: Colors.white,
+    //       ),
+    //       child: Column(
+    //         children: [
+    //           const Text(
+    //             "รายละเอียดยอดขายหน้าร้าน",
+    //             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+    //             textAlign: TextAlign.center,
+    //           ),
+    //           Divider(height: 5, color: Colors.orange.shade600),
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             crossAxisAlignment: CrossAxisAlignment.center,
+    //             children: [
+    //               const Text(
+    //                 "เงินสด",
+    //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //               ),
+    //               Opacity(
+    //                 opacity: opacityText,
+    //                 child: Text(
+    //                   global.formatNumber(salesumary.cash),
+    //                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //                 ),
+    //               )
+    //             ],
+    //           ),
+    //           const SizedBox(
+    //             height: 2,
+    //           ),
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             crossAxisAlignment: CrossAxisAlignment.center,
+    //             children: [
+    //               const Text(
+    //                 "สั่งกลับบ้าน",
+    //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //               ),
+    //               Opacity(
+    //                 opacity: opacityText,
+    //                 child: Text(
+    //                   global.formatNumber(salesumary.takeAway),
+    //                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //                 ),
+    //               )
+    //             ],
+    //           ),
+    //           const SizedBox(
+    //             height: 2,
+    //           ),
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             crossAxisAlignment: CrossAxisAlignment.center,
+    //             children: [
+    //               const Text(
+    //                 "QR code",
+    //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //               ),
+    //               Opacity(
+    //                 opacity: opacityText,
+    //                 child: Text(
+    //                   global.formatNumber(salesumary.qrcodeAmount),
+    //                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //                 ),
+    //               )
+    //             ],
+    //           ),
+    //           for (var data in salesumary.qrcode)
+    //             Row(
+    //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //               crossAxisAlignment: CrossAxisAlignment.center,
+    //               children: [
+    //                 Text(
+    //                   " - ${data.name}",
+    //                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+    //                 ),
+    //                 Text(
+    //                   global.formatNumber(data.amount),
+    //                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+    //                 )
+    //               ],
+    //             ),
+    //           const SizedBox(
+    //             height: 2,
+    //           ),
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             crossAxisAlignment: CrossAxisAlignment.center,
+    //             children: [
+    //               const Text(
+    //                 "Wallet",
+    //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //               ),
+    //               Opacity(
+    //                 opacity: opacityText,
+    //                 child: Text(
+    //                   global.formatNumber(salesumary.walletAmount),
+    //                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //                 ),
+    //               )
+    //             ],
+    //           ),
+    //           for (var data in salesumary.wallet)
+    //             Row(
+    //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //               crossAxisAlignment: CrossAxisAlignment.center,
+    //               children: [
+    //                 Text(
+    //                   " - ${data.name}",
+    //                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+    //                 ),
+    //                 Text(
+    //                   global.formatNumber(data.amount),
+    //                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+    //                 )
+    //               ],
+    //             ),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
 
-    widgetList.add(Visibility(
-      visible: isDeliveryShop,
-      child: Container(
-        margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 10),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.shade600,
-              spreadRadius: 0,
-              blurRadius: 4,
-              offset: const Offset(0, 0), // changes position of shadow
-            ),
-          ],
-          color: Colors.white,
-        ),
-        child: Column(
-          children: [
-            const Text(
-              "รายละเอียดบริการจัดส่ง",
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            Divider(height: 5, color: Colors.blue.shade600),
-            for (var data in salesumary.delivery)
-              Container(
-                margin: const EdgeInsets.only(top: 2),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          data.name,
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                        Text(
-                          global.formatNumber(data.amount),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                        )
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "GP ${data.gpPercent}%",
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                        Text(
-                          global.formatNumber(data.gpAmount * -1),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                        )
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "รวม",
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                        Text(
-                          global.formatNumber((data.amount - data.gpAmount)),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Divider(
-                      height: 2,
-                      color: Colors.blue.shade600,
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    )
-                  ],
-                ),
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  "รวม",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
-                Text(
-                  global.formatNumber(salesumary.deliveryAmount),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                )
-              ],
-            ),
-            const SizedBox(
-              height: 2,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  "หักGPรวม",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
-                Text(
-                  global.formatNumber(salesumary.gpAmount * -1),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                )
-              ],
-            ),
-            const SizedBox(
-              height: 2,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  "สุทธิประมาณ",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
-                Text(
-                  global.formatNumber(salesumary.deliveryAmount - salesumary.gpAmount),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                )
-              ],
-            ),
-            const SizedBox(
-              height: 2,
-            ),
-            Divider(
-              height: 5,
-              color: Colors.blue.shade600,
-            ),
-          ],
-        ),
-      ),
-    ));
+    // widgetList.add(Visibility(
+    //   visible: isDeliveryShop,
+    //   child: Container(
+    //     margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 10),
+    //     padding: const EdgeInsets.all(12),
+    //     decoration: BoxDecoration(
+    //       borderRadius: BorderRadius.circular(5),
+    //       boxShadow: [
+    //         BoxShadow(
+    //           color: Colors.orange.shade700,
+    //           spreadRadius: 0,
+    //           blurRadius: 4,
+    //           offset: const Offset(0, 0), // changes position of shadow
+    //         ),
+    //       ],
+    //       color: Colors.white,
+    //     ),
+    //     child: Column(
+    //       children: [
+    //         const Text(
+    //           "รายละเอียดบริการจัดส่ง",
+    //           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+    //           textAlign: TextAlign.center,
+    //         ),
+    //         Divider(height: 5, color: Colors.orange.shade700),
+    //         for (var data in salesumary.delivery)
+    //           Container(
+    //             margin: const EdgeInsets.only(top: 2),
+    //             child: Column(
+    //               children: [
+    //                 Row(
+    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                   crossAxisAlignment: CrossAxisAlignment.center,
+    //                   children: [
+    //                     Text(
+    //                       data.name,
+    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+    //                     ),
+    //                     Text(
+    //                       global.formatNumber(data.amount),
+    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+    //                     )
+    //                   ],
+    //                 ),
+    //                 Row(
+    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                   crossAxisAlignment: CrossAxisAlignment.center,
+    //                   children: [
+    //                     Text(
+    //                       "GP ${data.gpPercent}%",
+    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+    //                     ),
+    //                     Text(
+    //                       global.formatNumber(data.gpAmount * -1),
+    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+    //                     )
+    //                   ],
+    //                 ),
+    //                 Row(
+    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                   crossAxisAlignment: CrossAxisAlignment.center,
+    //                   children: [
+    //                     const Text(
+    //                       "รวม",
+    //                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+    //                     ),
+    //                     Text(
+    //                       global.formatNumber((data.amount - data.gpAmount)),
+    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+    //                     )
+    //                   ],
+    //                 ),
+    //                 const SizedBox(
+    //                   height: 5,
+    //                 ),
+    //                 Divider(
+    //                   height: 2,
+    //                   color: Colors.orange.shade700,
+    //                 ),
+    //                 const SizedBox(
+    //                   height: 5,
+    //                 )
+    //               ],
+    //             ),
+    //           ),
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           crossAxisAlignment: CrossAxisAlignment.center,
+    //           children: [
+    //             const Text(
+    //               "รวม",
+    //               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //             ),
+    //             Text(
+    //               global.formatNumber(salesumary.deliveryAmount),
+    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //             )
+    //           ],
+    //         ),
+    //         const SizedBox(
+    //           height: 2,
+    //         ),
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           crossAxisAlignment: CrossAxisAlignment.center,
+    //           children: [
+    //             const Text(
+    //               "หักGPรวม",
+    //               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //             ),
+    //             Text(
+    //               global.formatNumber(salesumary.gpAmount * -1),
+    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //             )
+    //           ],
+    //         ),
+    //         const SizedBox(
+    //           height: 2,
+    //         ),
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           crossAxisAlignment: CrossAxisAlignment.center,
+    //           children: [
+    //             const Text(
+    //               "สุทธิประมาณ",
+    //               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //             ),
+    //             Text(
+    //               global.formatNumber(salesumary.deliveryAmount - salesumary.gpAmount),
+    //               style: const TextStyle(
+    //                 fontSize: 18,
+    //                 fontWeight: FontWeight.bold,
+    //                 color: Colors.black,
+    //               ),
+    //             )
+    //           ],
+    //         ),
+    //         const SizedBox(
+    //           height: 2,
+    //         ),
+    //         Divider(
+    //           height: 5,
+    //           color: Colors.orange.shade700,
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // ));
+
     // widgetList.add(Container(
     //     key: keys[0],
     //     margin: const EdgeInsets.only(top: 10, bottom: 0),
@@ -1447,7 +1504,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       domainAxis: const charts.OrdinalAxisSpec(
         renderSpec: charts.SmallTickRendererSpec(
           labelStyle: charts.TextStyleSpec(
-            fontSize: 11,
+            fontSize: 12,
           ),
         ),
       ),
@@ -1469,16 +1526,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
           });
         }
       },
-      child: Card(
-          child: Padding(
-        padding: const EdgeInsets.all(8.0),
+      child: Container(
+        margin: const EdgeInsets.all(7),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.shade700,
+              spreadRadius: 0,
+              blurRadius: 3,
+              offset: const Offset(0, 0),
+            ),
+          ],
+          color: Colors.white,
+        ),
+        padding: const EdgeInsets.all(12),
         child: Column(
           children: [
             Container(
                 margin: const EdgeInsets.only(top: 10, bottom: 0),
-                child: const Text(
+                child: Text(
                   "กราฟแสดงยอดขายตามวัน",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
                 )),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -1497,10 +1566,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 450, child: chart),
+            SizedBox(
+                height: 450,
+                child: Stack(children: [
+                  Opacity(opacity: _isLoading ? 0 : 1, child: chart),
+                  if (_isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                ])),
           ],
         ),
-      )),
+      ),
     );
     widgetList.add(chartWidget);
 
@@ -1665,33 +1742,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
       baseChartColor: Colors.transparent,
     );
 
-    widgetList.add(Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(children: [
-          const Text(
-            "เปรียบเทียบการรับเงินหน้าร้าน",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          // graphSelectWidget,
-          (dailyLoad) ? pieChartGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-        ]),
-      ),
-    ));
+    // widgetList.add(Card(
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(8.0),
+    //     child: Column(children: [
+    //       const Text(
+    //         "เปรียบเทียบการรับเงินหน้าร้าน",
+    //         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //       ),
+    //       // graphSelectWidget,
+    //       (dailyLoad) ? pieChartGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+    //     ]),
+    //   ),
+    // ));
 
-    widgetList.add(Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(children: [
-          const Text(
-            "เปรียบเทียบยอดขายบริการจัดส่งอาหาร",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          // graphSelectDeliveryWidget,
-          (dailyLoad) ? pieChartDeliveryGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-        ]),
-      ),
-    ));
+    // widgetList.add(Card(
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(8.0),
+    //     child: Column(children: [
+    //       const Text(
+    //         "เปรียบเทียบยอดขายบริการจัดส่งอาหาร",
+    //         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //       ),
+    //       // graphSelectDeliveryWidget,
+    //       (dailyLoad) ? pieChartDeliveryGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+    //     ]),
+    //   ),
+    // ));
 
     if (dailyLoad) {
       //  widgetList.add(chartWidget);
@@ -1767,14 +1844,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         color: Colors.white,
       ),
       child: Column(children: [
-        const Text(
+        Text(
           "10 อันดับสินค้าขายดี",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
         ),
-        const Divider(
+        Divider(
           height: 3,
           thickness: 1,
-          color: Colors.grey,
+          color: Colors.orange.shade100,
         ),
         const SizedBox(
           height: 10,
@@ -1793,7 +1870,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         borderRadius: BorderRadius.circular(5),
         boxShadow: [
           BoxShadow(
-            color: Colors.indigo.shade600,
+            color: Colors.orangeAccent.shade700,
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 0), // changes position of shadow
@@ -1802,14 +1879,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         color: Colors.white,
       ),
       child: Column(children: [
-        const Text(
+        Text(
           "10 อันดับสินค้าขายดีหน้าร้าน",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
         ),
-        const Divider(
+        Divider(
           height: 3,
           thickness: 1,
-          color: Colors.grey,
+          color: Colors.orange.shade100,
         ),
         const SizedBox(
           height: 10,
@@ -1827,7 +1904,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         borderRadius: BorderRadius.circular(5),
         boxShadow: [
           BoxShadow(
-            color: Colors.indigo.shade600,
+            color: Colors.orangeAccent.shade700,
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 0), // changes position of shadow
@@ -1836,14 +1913,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         color: Colors.white,
       ),
       child: Column(children: [
-        const Text(
+        Text(
           "10 อันดับสินค้าขายดีบริการจัดส่ง",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
         ),
-        const Divider(
+        Divider(
           height: 3,
           thickness: 1,
-          color: Colors.grey,
+          color: Colors.orange.shade100,
         ),
         const SizedBox(
           height: 10,
@@ -1859,5 +1936,279 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return widgetList;
+  }
+
+  void showShopDetailDialog() {
+    final double _height = MediaQuery.of(context).size.height * 0.65;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('รายละเอียดยอดขายหน้าร้าน'),
+          content: Container(
+            constraints: BoxConstraints(maxHeight: _height),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "เงินสด",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Opacity(
+                        opacity: opacityText,
+                        child: Text(
+                          global.formatNumber(salesumary.cash),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                  Divider(height: 5, color: Colors.orange.shade600),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "สั่งกลับบ้าน",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Opacity(
+                        opacity: opacityText,
+                        child: Text(
+                          global.formatNumber(salesumary.takeAway),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                  Divider(height: 5, color: Colors.orange.shade600),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "QR code",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Opacity(
+                        opacity: opacityText,
+                        child: Text(
+                          global.formatNumber(salesumary.qrcodeAmount),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                  for (var data in salesumary.qrcode)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          " - ${data.name}",
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        Text(
+                          global.formatNumber(data.amount),
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                        )
+                      ],
+                    ),
+                  Divider(height: 5, color: Colors.orange.shade600),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Wallet",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Opacity(
+                        opacity: opacityText,
+                        child: Text(
+                          global.formatNumber(salesumary.walletAmount),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                  for (var data in salesumary.wallet)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          " - ${data.name}",
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        Text(
+                          global.formatNumber(data.amount),
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                        )
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('ปิด'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showSalechanelDialog() {
+    final double _height = MediaQuery.of(context).size.height * 0.65;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('รายละเอียดบริการจัดส่ง'),
+          content: Container(
+            constraints: BoxConstraints(maxHeight: _height),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  for (var data in salesumary.delivery)
+                    Container(
+                      margin: const EdgeInsets.only(top: 2),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                data.name,
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                              ),
+                              Text(
+                                global.formatNumber(data.amount),
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "GP ${data.gpPercent}%",
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                              ),
+                              Text(
+                                global.formatNumber(data.gpAmount * -1),
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "รวม",
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                              ),
+                              Text(
+                                global.formatNumber((data.amount - data.gpAmount)),
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                              )
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Divider(
+                            height: 2,
+                            color: Colors.orange.shade700,
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          )
+                        ],
+                      ),
+                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "รวม",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Text(
+                        global.formatNumber(salesumary.deliveryAmount),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                      )
+                    ],
+                  ),
+                  Divider(height: 5, color: Colors.orange.shade700),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "หักGPรวม",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Text(
+                        global.formatNumber(salesumary.gpAmount * -1),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                      )
+                    ],
+                  ),
+                  Divider(height: 5, color: Colors.orange.shade700),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "สุทธิประมาณ",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Text(
+                        global.formatNumber(salesumary.deliveryAmount - salesumary.gpAmount),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 2,
+                  ),
+                  Divider(
+                    height: 5,
+                    color: Colors.orange.shade700,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('ปิด'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
