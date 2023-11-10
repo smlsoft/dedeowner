@@ -54,7 +54,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         appConfig.write("token", _result.data["token"]);
         emit(TokenLoginSuccess(userLogin: userLogin));
       } else {
-        emit(TokenLoginFailed(message: 'User Not Found'));
+        emit(TokenLoginFailed(message: _result.message));
       }
     } on Exception catch (exception) {
       emit(TokenLoginFailed(message: 'ติดต่อ Server ไม่ได้ : ' + exception.toString()));

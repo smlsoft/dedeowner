@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "dedeowner",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define",
+                "ENVIRONMENT=DEV"
+            ]
+        },
+        {
+            "name": "dedeowner-prd",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define",
+                "ENVIRONMENT=PROD"
+            ]
+        },
+       
+        {
+            "name": "dedeowner (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "dedeowner (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
