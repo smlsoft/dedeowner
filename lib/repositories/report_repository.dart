@@ -41,6 +41,23 @@ class ReportRepository {
     }
   }
 
+  Future<ApiResponse> getProductSales(String fromdate, String todate) async {
+    Dio dio = Dio();
+    final token = appConfig.read("token");
+    print("getProductSales");
+    try {
+      final response = await dio.get('${Environment().config.reportApi}/salesummarypg/productsales?token=$token$fromdate$todate');
+      try {
+        return ApiResponse.fromMap(response.data);
+      } catch (ex) {
+        throw Exception(ex);
+      }
+    } on DioError catch (ex) {
+      String errorMessage = ex.error.toString();
+      throw Exception(errorMessage);
+    }
+  }
+
   Future<ApiResponse> getReportBestSellSummary(String fromdate, String todate) async {
     Dio dio = Dio();
     final token = appConfig.read("token");

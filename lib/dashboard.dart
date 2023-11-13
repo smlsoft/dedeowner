@@ -103,6 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isSaleShop = false;
   bool isDeliveryShop = false;
   bool isLoading = false;
+  bool productSaleLoad = true;
   List<Widget> widgetList = [];
   List<bool> loadSuccess = [];
   SalesumaryModel salesumary = SalesumaryModel(
@@ -193,6 +194,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bestsellerdelivery: [],
       bestsellershop: []);
   bool _isLoading = false;
+  List<BestProductModel> productSaleToday = [];
   List<BestProductModel> bestSeller = [];
   List<BestProductModel> bestPosSeller = [];
   List<BestProductModel> bestDeliverySeller = [];
@@ -350,6 +352,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     getReport();
     await Future.delayed(const Duration(seconds: 6));
     getReportSaleWeek();
+    await Future.delayed(const Duration(seconds: 6));
+    getReportProductSale();
     await Future.delayed(const Duration(seconds: 6));
     getGraphStore();
     await Future.delayed(const Duration(seconds: 6));
@@ -526,6 +530,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } else {
       setState(() {
         isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getReportProductSale() async {
+    String queryFromdate = "";
+    String queryTodate = "";
+    DateTime currentDate = DateTime.now();
+
+    queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
+    queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
+
+    ReportRepository reportRepository = ReportRepository();
+
+    setState(() {
+      productSaleLoad = true;
+    });
+    ApiResponse result = await reportRepository.getProductSales(queryFromdate, queryTodate);
+    if (result.success) {
+      List<BestProductModel> products = (result.data as List).map((product) => BestProductModel.fromJson(product)).toList();
+      productSaleToday = [];
+      productSaleToday = products;
+
+      setState(() {
+        productSaleLoad = false;
+      });
+    } else {
+      setState(() {
+        productSaleLoad = false;
       });
     }
   }
@@ -1825,6 +1858,85 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       }
     }
+    List<Widget> productSaleTodayList = [];
+    for (int i = 0; i < productSaleToday.length; i++) {
+      var productSale = productSaleToday[i];
+      productSaleTodayList.add(
+        Container(
+          margin: const EdgeInsets.only(left: 0, right: 5, bottom: 3),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(width: 20, child: Text("${i + 1}.")),
+              SizedBox(
+                width: 60,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    image: (productSale.qty == 0)
+                        ? const DecorationImage(image: AssetImage('assets/img/noimg.png'), fit: BoxFit.fill)
+                        : const DecorationImage(image: AssetImage('assets/img/noimg.png'), fit: BoxFit.fill),
+                  ),
+                  child: const SizedBox(
+                    width: 50,
+                    height: 50,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Expanded(
+                  child: Text(
+                global.activeLangName(productSale.names),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              )),
+              Expanded(
+                  child: Text(
+                "${global.formatNumber(productSale.qty)} ${(productSale.unitcode != '' ? productSale.unitcode : 'ชิ้น')}",
+                textAlign: TextAlign.right,
+              ))
+            ],
+          ),
+        ),
+      );
+    }
+
+    widgetList.add(Container(
+      margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
+      padding: const EdgeInsets.all(12),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.orangeAccent.shade700,
+            spreadRadius: 0,
+            blurRadius: 4,
+            offset: const Offset(0, 0), // changes position of shadow
+          ),
+        ],
+        color: Colors.white,
+      ),
+      child: Column(children: [
+        Text(
+          "รายการขายสินค้าวันนี้",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+        ),
+        Divider(
+          height: 3,
+          thickness: 1,
+          color: Colors.orange.shade100,
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        if (productSaleTodayList.isNotEmpty)
+          for (int i = 0; i < productSaleTodayList.length; i++) productSaleTodayList[i],
+        if (productSaleLoad) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+      ]),
+    ));
 
     widgetList.add(Container(
       key: keys[11],
