@@ -1,4 +1,5 @@
 import 'package:dedeowner/environment.dart';
+import 'package:dedeowner/homePage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_storage/get_storage.dart';
@@ -27,13 +28,13 @@ void mainApp() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init("dedeowner");
-  if (!kIsWeb) {
-    await Firebase.initializeApp();
-  } else {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  }
+  // if (!kIsWeb) {
+  //   await Firebase.initializeApp();
+  // } else {
+  //   await Firebase.initializeApp(
+  //     options: DefaultFirebaseOptions.currentPlatform,
+  //   );
+  // }
   global.themeSelect(0);
 
   runApp(const MyApp());
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
         ),
         home: const LoginShop(),
         routes: <String, WidgetBuilder>{
+          '/home': (BuildContext context) => const HomePage(),
           '/dashboard': (BuildContext context) => const DashboardScreen(),
           '/selectlanguage': (BuildContext context) => const SelectLanguageScreen(),
         },

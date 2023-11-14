@@ -9,8 +9,7 @@ class SortDataModel {
 
   SortDataModel({required this.code, required this.xorder});
 
-  factory SortDataModel.fromJson(Map<String, dynamic> json) =>
-      _$SortDataModelFromJson(json);
+  factory SortDataModel.fromJson(Map<String, dynamic> json) => _$SortDataModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$SortDataModelToJson(this);
 }
@@ -27,23 +26,27 @@ class XSortModel {
     required this.code,
   });
 
-  factory XSortModel.fromJson(Map<String, dynamic> json) =>
-      _$XSortModelFromJson(json);
+  factory XSortModel.fromJson(Map<String, dynamic> json) => _$XSortModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$XSortModelToJson(this);
 }
 
+@JsonSerializable(explicitToJson: true)
 class LanguageModel {
   String code;
   String codeTranslator;
   String name;
   bool use;
 
-  LanguageModel(
-      {required this.code,
-      required this.codeTranslator,
-      required this.name,
-      required this.use});
+  LanguageModel({String? code, String? codeTranslator, String? name, bool? use})
+      : code = code ?? '',
+        codeTranslator = codeTranslator ?? '',
+        name = name ?? '',
+        use = use ?? false;
+
+  factory LanguageModel.fromJson(Map<String, dynamic> json) => _$LanguageModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LanguageModelToJson(this);
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -53,8 +56,7 @@ class LanguageDataModel {
 
   LanguageDataModel({required this.code, required this.name});
 
-  factory LanguageDataModel.fromJson(Map<String, dynamic> json) =>
-      _$LanguageDataModelFromJson(json);
+  factory LanguageDataModel.fromJson(Map<String, dynamic> json) => _$LanguageDataModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$LanguageDataModelToJson(this);
 }
@@ -66,8 +68,7 @@ class LanguageSystemModel {
 
   LanguageSystemModel({required this.code, required this.text});
 
-  factory LanguageSystemModel.fromJson(Map<String, dynamic> json) =>
-      _$LanguageSystemModelFromJson(json);
+  factory LanguageSystemModel.fromJson(Map<String, dynamic> json) => _$LanguageSystemModelFromJson(json);
   Map<String, dynamic> toJson() => _$LanguageSystemModelToJson(this);
 }
 
@@ -78,8 +79,7 @@ class LanguageSystemCodeModel {
 
   LanguageSystemCodeModel({required this.code, required this.langs});
 
-  factory LanguageSystemCodeModel.fromJson(Map<String, dynamic> json) =>
-      _$LanguageSystemCodeModelFromJson(json);
+  factory LanguageSystemCodeModel.fromJson(Map<String, dynamic> json) => _$LanguageSystemCodeModelFromJson(json);
   Map<String, dynamic> toJson() => _$LanguageSystemCodeModelToJson(this);
 }
 
@@ -91,8 +91,7 @@ class ImageUpload {
     required this.uri,
   });
 
-  factory ImageUpload.fromJson(Map<String, dynamic> json) =>
-      _$ImageUploadFromJson(json);
+  factory ImageUpload.fromJson(Map<String, dynamic> json) => _$ImageUploadFromJson(json);
 
   Map<String, dynamic> toJson() => _$ImageUploadToJson(this);
 }
@@ -107,8 +106,7 @@ class ImagesModel {
     required this.xorder,
   });
 
-  factory ImagesModel.fromJson(Map<String, dynamic> json) =>
-      _$ImagesModelFromJson(json);
+  factory ImagesModel.fromJson(Map<String, dynamic> json) => _$ImagesModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ImagesModelToJson(this);
 }

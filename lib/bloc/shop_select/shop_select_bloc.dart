@@ -1,3 +1,4 @@
+import 'package:dedeowner/model/global_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:dedeowner/repositories/user_repository.dart';
@@ -22,7 +23,8 @@ class ShopSelectBloc extends Bloc<ShopSelectEvent, ShopSelectState> {
 
       if (result.success) {
         final appConfig = GetStorage("AppConfig");
-        appConfig.write("name", event.shop.name);
+        appConfig.write(
+            "name", (event.shop.name.isEmpty) ? event.shop.names.firstWhere((ele) => ele.code == 'th', orElse: () => LanguageModel(code: 'th', name: '')).name : event.shop.name);
         appConfig.write("shopid", event.shop.shopid);
 
         emit(ShopSelectLoadSuccess(shop: event.shop));

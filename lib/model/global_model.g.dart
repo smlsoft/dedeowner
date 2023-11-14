@@ -31,6 +31,22 @@ Map<String, dynamic> _$XSortModelToJson(XSortModel instance) =>
       'xorder': instance.xorder,
     };
 
+LanguageModel _$LanguageModelFromJson(Map<String, dynamic> json) =>
+    LanguageModel(
+      code: json['code'] as String?,
+      codeTranslator: json['codeTranslator'] as String?,
+      name: json['name'] as String?,
+      use: json['use'] as bool?,
+    );
+
+Map<String, dynamic> _$LanguageModelToJson(LanguageModel instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'codeTranslator': instance.codeTranslator,
+      'name': instance.name,
+      'use': instance.use,
+    };
+
 LanguageDataModel _$LanguageDataModelFromJson(Map<String, dynamic> json) =>
     LanguageDataModel(
       code: json['code'] as String,

@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:dedeowner/model/best_product_model.dart';
+import 'package:dedeowner/model/product_sale_model.dart';
 import 'package:dedeowner/model/salesumary_model.dart';
 import 'package:dedeowner/model/salesumarybyday_model.dart';
 import 'package:dedeowner/repositories/client.dart';
@@ -194,7 +195,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bestsellerdelivery: [],
       bestsellershop: []);
   bool _isLoading = false;
-  List<BestProductModel> productSaleToday = [];
+  List<ProductSaleModel> productSaleToday = [];
   List<BestProductModel> bestSeller = [];
   List<BestProductModel> bestPosSeller = [];
   List<BestProductModel> bestDeliverySeller = [];
@@ -232,107 +233,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     toDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
-    // salesumary.cash = 6000;
-    // salesumary.takeAway = 5000;
-
-    // salesumary.qrcode.add(WalletPaymentModel(code: 'QR001', name: 'เฮียจืด', amount: 700));
-    // salesumary.qrcode.add(WalletPaymentModel(code: 'QR002', name: 'เจ๊จุ๋ม', amount: 600));
-    // salesumary.qrcode.add(WalletPaymentModel(code: 'QR003', name: 'เจ๊เพ็ญ', amount: 500));
-
-    // salesumary.wallet.add(WalletPaymentModel(code: 'TRUE', name: 'TrueMoney', amount: 300));
-    // salesumary.wallet.add(WalletPaymentModel(code: 'SHOPEE', name: 'Shopee', amount: 800));
-    // salesumary.wallet.add(WalletPaymentModel(code: 'MANEE', name: 'แม่มณีPay', amount: 1200));
-
-    // salesumary.delivery.add(DeliveryPaymentModel(code: 'foodpanda', name: 'Foodpanda', amount: 2000, gpPercent: 31, gpAmount: 0));
-    // salesumary.delivery.add(DeliveryPaymentModel(code: 'grab', name: 'Grab', amount: 1500, gpPercent: 30.5, gpAmount: 0));
-    // salesumary.delivery.add(DeliveryPaymentModel(code: 'lineman', name: 'LineMan', amount: 2000, gpPercent: 32.5, gpAmount: 0));
-    // salesumary.delivery.add(DeliveryPaymentModel(code: 'shopee', name: 'Shopee', amount: 3000, gpPercent: 32, gpAmount: 0));
-
-    // salesumary.bestseller.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2QrRYK6znPoFNyFbmaengspfZch.png",
-    //     barcode: "A00001",
-    //     name: "ไก่ทอดน้ำปลา",
-    //     qty: 15,
-    //     unit: "จาน"));
-    // salesumary.bestseller.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2QrRbJsMd1e3Tjy7QRjGOcffheT.png",
-    //     barcode: "A00002",
-    //     name: "ปลาทอดน้ำปลา",
-    //     qty: 13,
-    //     unit: "จาน"));
-    // salesumary.bestseller.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2QrRddGUcSt8aYujZlWfNKHlWpA.png",
-    //     barcode: "A00003",
-    //     name: "ปลาทอดสมุนไพร",
-    //     qty: 12,
-    //     unit: "จาน"));
-    // salesumary.bestseller.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2QrRfDwdjjUBmmfCYtshN7J6cK1.png",
-    //     barcode: "A00004",
-    //     name: "ไก่บ้านย่าง",
-    //     qty: 11,
-    //     unit: "ตัว"));
-    // salesumary.bestseller.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2Qude2dvSMo75l9jl08VIOEuxTJ.png",
-    //     barcode: "A00005",
-    //     name: "ส้มตำลาว",
-    //     qty: 10,
-    //     unit: "ตัว"));
-    // salesumary.bestseller.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2Qudmru0uANlmlPABwi84n7BSPu.png",
-    //     barcode: "A00006",
-    //     name: "ตำหมูยอ",
-    //     qty: 8,
-    //     unit: "ตัว"));
-
-    // salesumary.bestsellershop.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2QrRfDwdjjUBmmfCYtshN7J6cK1.png",
-    //     barcode: "A00002",
-    //     name: "ปลาทอดน้ำปลา",
-    //     qty: 13,
-    //     unit: "จาน"));
-    // salesumary.bestsellershop.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2Qude2dvSMo75l9jl08VIOEuxTJ.png",
-    //     barcode: "A00004",
-    //     name: "ไก่บ้านย่าง",
-    //     qty: 11,
-    //     unit: "ตัว"));
-    // salesumary.bestsellershop.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2Qudmru0uANlmlPABwi84n7BSPu.png",
-    //     barcode: "A00006",
-    //     name: "ตำหมูยอ",
-    //     qty: 8,
-    //     unit: "ตัว"));
-
-    // salesumary.bestsellerdelivery.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2QrRYK6znPoFNyFbmaengspfZch.png",
-    //     barcode: "A00001",
-    //     name: "ไก่ทอดน้ำปลา",
-    //     qty: 15,
-    //     unit: "จาน"));
-    // salesumary.bestsellerdelivery.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2QrRbJsMd1e3Tjy7QRjGOcffheT.png",
-    //     barcode: "A00003",
-    //     name: "ปลาทอดสมุนไพร",
-    //     qty: 12,
-    //     unit: "จาน"));
-    // salesumary.bestsellerdelivery.add(ProductModel(
-    //     imgUri: "https://dedeposblosstorage.blob.core.windows.net/dedeposdevcontainer/2QoilMQkX9i6vtAE88ilEubnrhz/2QrRddGUcSt8aYujZlWfNKHlWpA.png",
-    //     barcode: "A00005",
-    //     name: "ส้มตำลาว",
-    //     qty: 10,
-    //     unit: "ตัว"));
-
-    // calAmount();
-    // chartPOSData.addAll([
-    //   ChartData('เงินสด', salesumary.cash, Colors.orangeAccent),
-    //   ChartData('สั่งกลับบ้าน', salesumary.takeAway, Colors.blue),
-    //   ChartData('QRCode', salesumary.qrcodeAmount, Colors.green),
-    //   ChartData('Wallet', salesumary.walletAmount, Colors.red),
-    // ]);
-    // for (var delivery in salesumary.delivery) {
-    //   chartDeliveryData.add(ChartData(delivery.name, delivery.amount, getRandomColor()));
-    // }
 
     getAllReport();
     reFreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) async {
@@ -350,15 +250,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void getAllReport() async {
     getReport();
-    await Future.delayed(const Duration(seconds: 6));
-    getReportSaleWeek();
-    await Future.delayed(const Duration(seconds: 6));
+    await Future.delayed(const Duration(seconds: 3));
     getReportProductSale();
-    await Future.delayed(const Duration(seconds: 6));
+    await Future.delayed(const Duration(seconds: 3));
+    getReportSaleWeek();
+    await Future.delayed(const Duration(seconds: 4));
     getGraphStore();
-    await Future.delayed(const Duration(seconds: 6));
+    await Future.delayed(const Duration(seconds: 4));
     getGraphDelivery();
-    await Future.delayed(const Duration(seconds: 6));
+    await Future.delayed(const Duration(seconds: 4));
     if (bestSellLoad) {
       getSellLoad();
     }
@@ -539,8 +439,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryTodate = "";
     DateTime currentDate = DateTime.now();
 
-    queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
-    queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
+    if (selectedItem == 'รายวัน') {
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
+      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
+      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
+    } else if (selectedItem == 'รายสัปดาห์') {
+      DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
+      DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
+
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfWeek);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfWeek);
+      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
+      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
+    } else if (selectedItem == 'รายเดือน') {
+      DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
+      DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
+
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfMonth);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfMonth);
+      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfMonth)}";
+      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfMonth)}";
+    } else if (selectedItem == 'ยอดขาย3เดือน') {
+      DateTime firstDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month - 2, 1);
+      DateTime lastDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month + 1, 0);
+
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfLastThreeMonths);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfLastThreeMonths);
+      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfLastThreeMonths)}";
+      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfLastThreeMonths)}";
+    } else if (selectedItem == 'รายปี') {
+      DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
+      DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
+
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfYear);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfYear);
+      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfYear)}";
+      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfYear)}";
+    } else {
+      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text))}";
+      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text))}";
+    }
 
     ReportRepository reportRepository = ReportRepository();
 
@@ -549,7 +488,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
     ApiResponse result = await reportRepository.getProductSales(queryFromdate, queryTodate);
     if (result.success) {
-      List<BestProductModel> products = (result.data as List).map((product) => BestProductModel.fromJson(product)).toList();
+      List<ProductSaleModel> products = (result.data as List).map((product) => ProductSaleModel.fromJson(product)).toList();
       productSaleToday = [];
       productSaleToday = products;
 
@@ -574,7 +513,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _isLoading = true;
     });
-    print(queryFromdate + " : " + queryTodate);
+    print("$queryFromdate : $queryTodate");
     ReportRepository reportRepository = ReportRepository();
     chartWeeklyData = [];
     chartWeeklyData.addAll([
@@ -826,6 +765,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       });
 
       getReport();
+      getReportProductSale();
       getGraphStore();
       getGraphDelivery();
     }
@@ -855,6 +795,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               graphSelectedItem = selectedItem;
                               graphDeliverySelectedItem = selectedItem;
                               getReport();
+                              getReportProductSale();
                               getGraphStore();
                               getGraphDelivery();
                             }
@@ -1088,11 +1029,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Widget posSales = Expanded(
       child: InkWell(
         onTap: () {
-          if (isSaleShop) {
-            isSaleShop = false;
-          } else {
-            isSaleShop = true;
-          }
           showShopDetailDialog();
           setState(() {});
         },
@@ -1131,9 +1067,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         global.formatNumber(salesumary.cashierAmount),
                         style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
                       ),
-                const SizedBox(
-                  height: 2,
-                ),
                 const Text(
                   "กดเพื่อดูรายละเอียด",
                   maxLines: 1,
@@ -1150,11 +1083,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Widget deliverySales = Expanded(
       child: InkWell(
         onTap: () {
-          if (isDeliveryShop) {
-            isDeliveryShop = false;
-          } else {
-            isDeliveryShop = true;
-          }
           showSalechanelDialog();
           setState(() {});
         },
@@ -1193,9 +1121,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         global.formatNumber(salesumary.deliveryAmount),
                         style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
                       ),
-                const SizedBox(
-                  height: 2,
-                ),
                 const Text(
                   "กดเพื่อดูรายละเอียด",
                   maxLines: 1,
@@ -1217,292 +1142,112 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ));
 
     // widgetList.add(
-    //   Visibility(
-    //     visible: isSaleShop,
-    //     child: Container(
-    //       margin: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 10),
-    //       padding: const EdgeInsets.all(8),
-    //       decoration: BoxDecoration(
-    //         borderRadius: BorderRadius.circular(5),
-    //         boxShadow: [
-    //           BoxShadow(
-    //             color: Colors.orange.shade700,
-    //             spreadRadius: 0,
-    //             blurRadius: 4,
-    //             offset: const Offset(0, 0),
-    //           ),
-    //         ],
-    //         color: Colors.white,
-    //       ),
-    //       child: Column(
+    //   Column(
+    //     children: [
+    //       Row(
+    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //         crossAxisAlignment: CrossAxisAlignment.center,
     //         children: [
     //           const Text(
-    //             "รายละเอียดยอดขายหน้าร้าน",
-    //             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-    //             textAlign: TextAlign.center,
+    //             "เงินสด",
+    //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
     //           ),
-    //           Divider(height: 5, color: Colors.orange.shade600),
-    //           Row(
-    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //             crossAxisAlignment: CrossAxisAlignment.center,
-    //             children: [
-    //               const Text(
-    //                 "เงินสด",
-    //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //               ),
-    //               Opacity(
-    //                 opacity: opacityText,
-    //                 child: Text(
-    //                   global.formatNumber(salesumary.cash),
-    //                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //                 ),
-    //               )
-    //             ],
-    //           ),
-    //           const SizedBox(
-    //             height: 2,
-    //           ),
-    //           Row(
-    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //             crossAxisAlignment: CrossAxisAlignment.center,
-    //             children: [
-    //               const Text(
-    //                 "สั่งกลับบ้าน",
-    //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //               ),
-    //               Opacity(
-    //                 opacity: opacityText,
-    //                 child: Text(
-    //                   global.formatNumber(salesumary.takeAway),
-    //                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //                 ),
-    //               )
-    //             ],
-    //           ),
-    //           const SizedBox(
-    //             height: 2,
-    //           ),
-    //           Row(
-    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //             crossAxisAlignment: CrossAxisAlignment.center,
-    //             children: [
-    //               const Text(
-    //                 "QR code",
-    //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //               ),
-    //               Opacity(
-    //                 opacity: opacityText,
-    //                 child: Text(
-    //                   global.formatNumber(salesumary.qrcodeAmount),
-    //                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //                 ),
-    //               )
-    //             ],
-    //           ),
-    //           for (var data in salesumary.qrcode)
-    //             Row(
-    //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //               crossAxisAlignment: CrossAxisAlignment.center,
-    //               children: [
-    //                 Text(
-    //                   " - ${data.name}",
-    //                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-    //                 ),
-    //                 Text(
-    //                   global.formatNumber(data.amount),
-    //                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-    //                 )
-    //               ],
+    //           Opacity(
+    //             opacity: opacityText,
+    //             child: Text(
+    //               global.formatNumber(salesumary.cash),
+    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
     //             ),
-    //           const SizedBox(
-    //             height: 2,
-    //           ),
-    //           Row(
-    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //             crossAxisAlignment: CrossAxisAlignment.center,
-    //             children: [
-    //               const Text(
-    //                 "Wallet",
-    //                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //               ),
-    //               Opacity(
-    //                 opacity: opacityText,
-    //                 child: Text(
-    //                   global.formatNumber(salesumary.walletAmount),
-    //                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //                 ),
-    //               )
-    //             ],
-    //           ),
-    //           for (var data in salesumary.wallet)
-    //             Row(
-    //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //               crossAxisAlignment: CrossAxisAlignment.center,
-    //               children: [
-    //                 Text(
-    //                   " - ${data.name}",
-    //                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-    //                 ),
-    //                 Text(
-    //                   global.formatNumber(data.amount),
-    //                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-    //                 )
-    //               ],
-    //             ),
+    //           )
     //         ],
     //       ),
-    //     ),
+    //       Divider(height: 5, color: Colors.orange.shade600),
+    //       Row(
+    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //         crossAxisAlignment: CrossAxisAlignment.center,
+    //         children: [
+    //           const Text(
+    //             "สั่งกลับบ้าน",
+    //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //           ),
+    //           Opacity(
+    //             opacity: opacityText,
+    //             child: Text(
+    //               global.formatNumber(salesumary.takeAway),
+    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //             ),
+    //           )
+    //         ],
+    //       ),
+    //       Divider(height: 5, color: Colors.orange.shade600),
+    //       Row(
+    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //         crossAxisAlignment: CrossAxisAlignment.center,
+    //         children: [
+    //           const Text(
+    //             "QR code",
+    //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //           ),
+    //           Opacity(
+    //             opacity: opacityText,
+    //             child: Text(
+    //               global.formatNumber(salesumary.qrcodeAmount),
+    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //             ),
+    //           )
+    //         ],
+    //       ),
+    //       for (var data in salesumary.qrcode)
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           crossAxisAlignment: CrossAxisAlignment.center,
+    //           children: [
+    //             Text(
+    //               " - ${data.name}",
+    //               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+    //             ),
+    //             Text(
+    //               global.formatNumber(data.amount),
+    //               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+    //             )
+    //           ],
+    //         ),
+    //       Divider(height: 5, color: Colors.orange.shade600),
+    //       Row(
+    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //         crossAxisAlignment: CrossAxisAlignment.center,
+    //         children: [
+    //           const Text(
+    //             "Wallet",
+    //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+    //           ),
+    //           Opacity(
+    //             opacity: opacityText,
+    //             child: Text(
+    //               global.formatNumber(salesumary.walletAmount),
+    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+    //             ),
+    //           )
+    //         ],
+    //       ),
+    //       for (var data in salesumary.wallet)
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           crossAxisAlignment: CrossAxisAlignment.center,
+    //           children: [
+    //             Text(
+    //               " - ${data.name}",
+    //               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+    //             ),
+    //             Text(
+    //               global.formatNumber(data.amount),
+    //               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+    //             )
+    //           ],
+    //         ),
+    //     ],
     //   ),
     // );
-
-    // widgetList.add(Visibility(
-    //   visible: isDeliveryShop,
-    //   child: Container(
-    //     margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 10),
-    //     padding: const EdgeInsets.all(12),
-    //     decoration: BoxDecoration(
-    //       borderRadius: BorderRadius.circular(5),
-    //       boxShadow: [
-    //         BoxShadow(
-    //           color: Colors.orange.shade700,
-    //           spreadRadius: 0,
-    //           blurRadius: 4,
-    //           offset: const Offset(0, 0), // changes position of shadow
-    //         ),
-    //       ],
-    //       color: Colors.white,
-    //     ),
-    //     child: Column(
-    //       children: [
-    //         const Text(
-    //           "รายละเอียดบริการจัดส่ง",
-    //           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-    //           textAlign: TextAlign.center,
-    //         ),
-    //         Divider(height: 5, color: Colors.orange.shade700),
-    //         for (var data in salesumary.delivery)
-    //           Container(
-    //             margin: const EdgeInsets.only(top: 2),
-    //             child: Column(
-    //               children: [
-    //                 Row(
-    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                   crossAxisAlignment: CrossAxisAlignment.center,
-    //                   children: [
-    //                     Text(
-    //                       data.name,
-    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-    //                     ),
-    //                     Text(
-    //                       global.formatNumber(data.amount),
-    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-    //                     )
-    //                   ],
-    //                 ),
-    //                 Row(
-    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                   crossAxisAlignment: CrossAxisAlignment.center,
-    //                   children: [
-    //                     Text(
-    //                       "GP ${data.gpPercent}%",
-    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-    //                     ),
-    //                     Text(
-    //                       global.formatNumber(data.gpAmount * -1),
-    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-    //                     )
-    //                   ],
-    //                 ),
-    //                 Row(
-    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                   crossAxisAlignment: CrossAxisAlignment.center,
-    //                   children: [
-    //                     const Text(
-    //                       "รวม",
-    //                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-    //                     ),
-    //                     Text(
-    //                       global.formatNumber((data.amount - data.gpAmount)),
-    //                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-    //                     )
-    //                   ],
-    //                 ),
-    //                 const SizedBox(
-    //                   height: 5,
-    //                 ),
-    //                 Divider(
-    //                   height: 2,
-    //                   color: Colors.orange.shade700,
-    //                 ),
-    //                 const SizedBox(
-    //                   height: 5,
-    //                 )
-    //               ],
-    //             ),
-    //           ),
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           crossAxisAlignment: CrossAxisAlignment.center,
-    //           children: [
-    //             const Text(
-    //               "รวม",
-    //               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //             Text(
-    //               global.formatNumber(salesumary.deliveryAmount),
-    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //             )
-    //           ],
-    //         ),
-    //         const SizedBox(
-    //           height: 2,
-    //         ),
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           crossAxisAlignment: CrossAxisAlignment.center,
-    //           children: [
-    //             const Text(
-    //               "หักGPรวม",
-    //               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //             Text(
-    //               global.formatNumber(salesumary.gpAmount * -1),
-    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //             )
-    //           ],
-    //         ),
-    //         const SizedBox(
-    //           height: 2,
-    //         ),
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           crossAxisAlignment: CrossAxisAlignment.center,
-    //           children: [
-    //             const Text(
-    //               "สุทธิประมาณ",
-    //               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //             Text(
-    //               global.formatNumber(salesumary.deliveryAmount - salesumary.gpAmount),
-    //               style: const TextStyle(
-    //                 fontSize: 18,
-    //                 fontWeight: FontWeight.bold,
-    //                 color: Colors.black,
-    //               ),
-    //             )
-    //           ],
-    //         ),
-    //         const SizedBox(
-    //           height: 2,
-    //         ),
-    //         Divider(
-    //           height: 5,
-    //           color: Colors.orange.shade700,
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // ));
 
     // widgetList.add(Container(
     //     key: keys[0],
@@ -1612,7 +1357,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-    widgetList.add(chartWidget);
 
     // Widget graphSelectWidget = Padding(
     //   padding: const EdgeInsets.all(2),
@@ -1813,10 +1557,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 2,
     ));
     List<Widget> bestSellingList = [];
+    bestSellingList.add(
+      Container(
+        margin: const EdgeInsets.only(left: 0, right: 5, bottom: 3),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(width: 20, child: Text("#")),
+            SizedBox(
+              width: 60,
+              child: SizedBox(
+                width: 50,
+                height: 50,
+              ),
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Expanded(
+                child: Text(
+              "ชื่อ",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )),
+            Expanded(
+                child: Text(
+              "จำนวน",
+              textAlign: TextAlign.right,
+            )),
+            Expanded(
+                child: Text(
+              "มูลค่า",
+              textAlign: TextAlign.right,
+            ))
+          ],
+        ),
+      ),
+    );
     if (bestSellLoad) {
       for (int i = 0; i < bestSeller.length; i++) {
         var bestseller = bestSeller[i];
-        bestSellingList.add(
+        bestSellingList.addAll([
           Container(
             margin: const EdgeInsets.only(left: 0, right: 5, bottom: 3),
             child: Row(
@@ -1824,84 +1606,433 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(width: 20, child: Text("${i + 1}.")),
-                SizedBox(
-                  width: 60,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      image: (bestseller.qty == 0)
-                          ? DecorationImage(image: NetworkImage(bestseller.shopid), fit: BoxFit.fill)
-                          : const DecorationImage(image: AssetImage('assets/img/noimg.png'), fit: BoxFit.fill),
-                    ),
-                    child: const SizedBox(
-                      width: 50,
-                      height: 50,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 5,
-                ),
+                // SizedBox(
+                //   width: 60,
+                //   child: DecoratedBox(
+                //     decoration: BoxDecoration(
+                //       image: (bestseller.qty == 0)
+                //           ? DecorationImage(image: NetworkImage(bestseller.shopid), fit: BoxFit.fill)
+                //           : const DecorationImage(image: AssetImage('assets/img/noimg.png'), fit: BoxFit.fill),
+                //     ),
+                //     child: const SizedBox(
+                //       width: 50,
+                //       height: 50,
+                //     ),
+                //   ),
+                // ),
+
                 Expanded(
                     child: Text(
                   global.activeLangName(bestseller.names),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 )),
                 Expanded(
                     child: Text(
-                  "${global.formatNumber(bestseller.qty)} ${(bestseller.unitcode != '' ? bestseller.unitcode : 'ชิ้น')}",
+                  global.formatNumber(bestseller.qty),
+                  textAlign: TextAlign.right,
+                )),
+                Expanded(
+                    child: Text(
+                  global.formatNumber(bestseller.price * bestseller.qty),
                   textAlign: TextAlign.right,
                 ))
               ],
             ),
           ),
-        );
+          const Divider()
+        ]);
       }
     }
     List<Widget> productSaleTodayList = [];
+    productSaleTodayList.add(
+      Container(
+        margin: const EdgeInsets.only(left: 0, right: 5, bottom: 3),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(width: 20, child: Text("#")),
+            SizedBox(
+              width: 60,
+              child: SizedBox(
+                width: 50,
+                height: 50,
+              ),
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Expanded(
+                child: Text(
+              "ชื่อ",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )),
+            Expanded(
+                child: Text(
+              "จำนวน",
+              textAlign: TextAlign.right,
+            )),
+            Expanded(
+                child: Text(
+              "มูลค่า",
+              textAlign: TextAlign.right,
+            ))
+          ],
+        ),
+      ),
+    );
     for (int i = 0; i < productSaleToday.length; i++) {
       var productSale = productSaleToday[i];
-      productSaleTodayList.add(
+
+      productSaleTodayList.addAll([
         Container(
           margin: const EdgeInsets.only(left: 0, right: 5, bottom: 3),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(width: 20, child: Text("${i + 1}.")),
-              SizedBox(
-                width: 60,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    image: (productSale.qty == 0)
-                        ? const DecorationImage(image: AssetImage('assets/img/noimg.png'), fit: BoxFit.fill)
-                        : const DecorationImage(image: AssetImage('assets/img/noimg.png'), fit: BoxFit.fill),
-                  ),
-                  child: const SizedBox(
-                    width: 50,
-                    height: 50,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                width: 5,
-              ),
+              SizedBox(width: 35, child: Text("${i + 1}.")),
+              // SizedBox(
+              //   width: 60,
+              //   child: DecoratedBox(
+              //     decoration: BoxDecoration(
+              //       image: (productSale.qty == 0)
+              //           ? const DecorationImage(image: AssetImage('assets/img/noimg.png'), fit: BoxFit.fill)
+              //           : const DecorationImage(image: AssetImage('assets/img/noimg.png'), fit: BoxFit.fill),
+              //     ),
+              //     child: const SizedBox(
+              //       width: 50,
+              //       height: 50,
+              //     ),
+              //   ),
+              // ),
+
               Expanded(
+                  flex: 2,
                   child: Text(
-                global.activeLangName(productSale.names),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              )),
+                    "${global.activeLangName(productSale.names)}@${productSale.price}",
+                  )),
               Expanded(
+                  flex: 1,
                   child: Text(
-                "${global.formatNumber(productSale.qty)} ${(productSale.unitcode != '' ? productSale.unitcode : 'ชิ้น')}",
-                textAlign: TextAlign.right,
-              ))
+                    "${global.formatNumber(productSale.qty)} ",
+                    textAlign: TextAlign.right,
+                  )),
+              Expanded(
+                  flex: 1,
+                  child: Text(
+                    global.formatNumber(productSale.qty * productSale.price),
+                    textAlign: TextAlign.right,
+                  ))
             ],
           ),
         ),
-      );
+        const Divider()
+      ]);
     }
+
+    widgetList.add(Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(top: 0, bottom: 5, right: 8, left: 8),
+        child: ElevatedButton.icon(
+          style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.orange.shade700)),
+          onPressed: () {
+            if (isSaleShop) {
+              isSaleShop = false;
+            } else {
+              isSaleShop = true;
+            }
+            setState(() {});
+          },
+          icon: Icon((!isSaleShop) ? Icons.add : Icons.remove),
+          label: Text((!isSaleShop) ? "แสดงรายละเอียดการรับเงิน" : "ซ่อนรายละเอียดการรับเงิน"),
+        )));
+
+    widgetList.add(
+      Visibility(
+        visible: isSaleShop,
+        child: Container(
+          margin: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 5),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.orange.shade700,
+                spreadRadius: 0,
+                blurRadius: 4,
+                offset: const Offset(0, 0),
+              ),
+            ],
+            color: Colors.white,
+          ),
+          child: Column(
+            children: [
+              Text(
+                "รายละเอียดยอดขายหน้าร้าน",
+                style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              Divider(height: 5, color: Colors.orange.shade600),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "เงินสด",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  Opacity(
+                    opacity: opacityText,
+                    child: Text(
+                      global.formatNumber(salesumary.cash),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 2,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "สั่งกลับบ้าน",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  Opacity(
+                    opacity: opacityText,
+                    child: Text(
+                      global.formatNumber(salesumary.takeAway),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 2,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "QR code",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  Opacity(
+                    opacity: opacityText,
+                    child: Text(
+                      global.formatNumber(salesumary.qrcodeAmount),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+              for (var data in salesumary.qrcode)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      " - ${data.name}",
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    Text(
+                      global.formatNumber(data.amount),
+                      style: const TextStyle(color: Colors.black),
+                    )
+                  ],
+                ),
+              const SizedBox(
+                height: 2,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Wallet",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  Opacity(
+                    opacity: opacityText,
+                    child: Text(
+                      global.formatNumber(salesumary.walletAmount),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+              for (var data in salesumary.wallet)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      " - ${data.name}",
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    Text(
+                      global.formatNumber(data.amount),
+                      style: const TextStyle(color: Colors.black),
+                    )
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    widgetList.add(Visibility(
+      visible: isSaleShop,
+      child: Container(
+        margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.shade700,
+              spreadRadius: 0,
+              blurRadius: 4,
+              offset: const Offset(0, 0), // changes position of shadow
+            ),
+          ],
+          color: Colors.white,
+        ),
+        child: Column(
+          children: [
+            Text(
+              "รายละเอียดบริการจัดส่ง",
+              style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            Divider(height: 5, color: Colors.orange.shade700),
+            for (var data in salesumary.delivery)
+              Container(
+                margin: const EdgeInsets.only(top: 2),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          data.name,
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                        Text(
+                          global.formatNumber(data.amount),
+                          style: const TextStyle(color: Colors.black),
+                        )
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "GP ${data.gpPercent}%",
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                        Text(
+                          global.formatNumber(data.gpAmount * -1),
+                          style: const TextStyle(color: Colors.black),
+                        )
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "รวม",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        Text(
+                          global.formatNumber((data.amount - data.gpAmount)),
+                          style: const TextStyle(color: Colors.black),
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Divider(
+                      height: 2,
+                      color: Colors.orange.shade700,
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    )
+                  ],
+                ),
+              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  "รวม",
+                  style: TextStyle(color: Colors.black),
+                ),
+                Text(
+                  global.formatNumber(salesumary.deliveryAmount),
+                  style: const TextStyle(color: Colors.black),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 2,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  "หักGPรวม",
+                  style: TextStyle(color: Colors.black),
+                ),
+                Text(
+                  global.formatNumber(salesumary.gpAmount * -1),
+                  style: const TextStyle(color: Colors.black),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 2,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  "สุทธิประมาณ",
+                  style: TextStyle(color: Colors.black),
+                ),
+                Text(
+                  global.formatNumber(salesumary.deliveryAmount - salesumary.gpAmount),
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 2,
+            ),
+            Divider(
+              height: 5,
+              color: Colors.orange.shade700,
+            ),
+          ],
+        ),
+      ),
+    ));
 
     widgetList.add(Container(
       margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
@@ -1921,7 +2052,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       child: Column(children: [
         Text(
-          "รายการขายสินค้าวันนี้",
+          "รายการขายสินค้า",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
         ),
         Divider(
@@ -1937,6 +2068,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (productSaleLoad) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
       ]),
     ));
+
+    widgetList.add(chartWidget);
 
     widgetList.add(Container(
       key: keys[11],
@@ -1974,74 +2107,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ]),
     ));
 
-    widgetList.add(Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
-      padding: const EdgeInsets.all(12),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orangeAccent.shade700,
-            spreadRadius: 0,
-            blurRadius: 4,
-            offset: const Offset(0, 0), // changes position of shadow
-          ),
-        ],
-        color: Colors.white,
-      ),
-      child: Column(children: [
-        Text(
-          "10 อันดับสินค้าขายดีหน้าร้าน",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
-        ),
-        Divider(
-          height: 3,
-          thickness: 1,
-          color: Colors.orange.shade100,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        if (bestSellingList.isNotEmpty)
-          for (int i = 0; i < bestSellingList.length; i++) bestSellingList[i],
-        if (bestSellingList.isEmpty) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-      ]),
-    ));
-    widgetList.add(Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
-      padding: const EdgeInsets.all(12),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orangeAccent.shade700,
-            spreadRadius: 0,
-            blurRadius: 4,
-            offset: const Offset(0, 0), // changes position of shadow
-          ),
-        ],
-        color: Colors.white,
-      ),
-      child: Column(children: [
-        Text(
-          "10 อันดับสินค้าขายดีบริการจัดส่ง",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
-        ),
-        Divider(
-          height: 3,
-          thickness: 1,
-          color: Colors.orange.shade100,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        if (bestSellingList.isNotEmpty)
-          for (int i = 0; i < bestSellingList.length; i++) bestSellingList[i],
-        if (bestSellingList.isEmpty) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-      ]),
-    ));
+    // widgetList.add(Container(
+    //   margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
+    //   padding: const EdgeInsets.all(12),
+    //   width: double.infinity,
+    //   decoration: BoxDecoration(
+    //     borderRadius: BorderRadius.circular(5),
+    //     boxShadow: [
+    //       BoxShadow(
+    //         color: Colors.orangeAccent.shade700,
+    //         spreadRadius: 0,
+    //         blurRadius: 4,
+    //         offset: const Offset(0, 0), // changes position of shadow
+    //       ),
+    //     ],
+    //     color: Colors.white,
+    //   ),
+    //   child: Column(children: [
+    //     Text(
+    //       "10 อันดับสินค้าขายดีหน้าร้าน",
+    //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+    //     ),
+    //     Divider(
+    //       height: 3,
+    //       thickness: 1,
+    //       color: Colors.orange.shade100,
+    //     ),
+    //     const SizedBox(
+    //       height: 10,
+    //     ),
+    //     if (bestSellingList.isNotEmpty)
+    //       for (int i = 0; i < bestSellingList.length; i++) bestSellingList[i],
+    //     if (bestSellingList.isEmpty) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+    //   ]),
+    // ));
+    // widgetList.add(Container(
+    //   margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
+    //   padding: const EdgeInsets.all(12),
+    //   width: double.infinity,
+    //   decoration: BoxDecoration(
+    //     borderRadius: BorderRadius.circular(5),
+    //     boxShadow: [
+    //       BoxShadow(
+    //         color: Colors.orangeAccent.shade700,
+    //         spreadRadius: 0,
+    //         blurRadius: 4,
+    //         offset: const Offset(0, 0), // changes position of shadow
+    //       ),
+    //     ],
+    //     color: Colors.white,
+    //   ),
+    //   child: Column(children: [
+    //     Text(
+    //       "10 อันดับสินค้าขายดีบริการจัดส่ง",
+    //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+    //     ),
+    //     Divider(
+    //       height: 3,
+    //       thickness: 1,
+    //       color: Colors.orange.shade100,
+    //     ),
+    //     const SizedBox(
+    //       height: 10,
+    //     ),
+    //     if (bestSellingList.isNotEmpty)
+    //       for (int i = 0; i < bestSellingList.length; i++) bestSellingList[i],
+    //     if (bestSellingList.isEmpty) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+    //   ]),
+    // ));
 
     for (var data in widgetList) {
       loadSuccess.add(false);
