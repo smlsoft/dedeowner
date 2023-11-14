@@ -74,4 +74,26 @@ class ReportRepository {
       throw Exception(errorMessage);
     }
   }
+
+  Future<ApiResponse> getSaleByProduct(String keyword, int page) async {
+    Dio dio = Dio();
+    String search = "";
+    if (keyword.isNotEmpty) {
+      search = "&search=$keyword";
+    }
+
+    final token = appConfig.read("token");
+    print(token);
+    try {
+      final response = await dio.get('${Environment().config.reportApi}/salesummarypg/salebyitems?token=$token&page=$page$search');
+      try {
+        return ApiResponse.fromMap(response.data);
+      } catch (ex) {
+        throw Exception(ex);
+      }
+    } on DioError catch (ex) {
+      String errorMessage = ex.error.toString();
+      throw Exception(errorMessage);
+    }
+  }
 }

@@ -7,6 +7,9 @@ part of 'shop_model.dart';
 // **************************************************************************
 
 ShopModel _$ShopModelFromJson(Map<String, dynamic> json) => ShopModel(
+      names: (json['names'] as List<dynamic>?)
+          ?.map((e) => LanguageModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       shopid: json['shopid'] as String,
       name: json['name'] as String,
       branchcode: json['branchcode'] as String,
@@ -18,6 +21,7 @@ ShopModel _$ShopModelFromJson(Map<String, dynamic> json) => ShopModel(
 Map<String, dynamic> _$ShopModelToJson(ShopModel instance) => <String, dynamic>{
       'shopid': instance.shopid,
       'name': instance.name,
+      'names': instance.names,
       'branchcode': instance.branchcode,
       'role': instance.role,
       'isfavorite': instance.isfavorite,
