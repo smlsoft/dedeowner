@@ -9,21 +9,28 @@ class ProductSaleModel {
   String shopid;
   double qty;
   double price;
+  double sumamount;
   String unitcode;
   String barcode;
+  String owner;
+
   List<LanguageDataModel> names;
   ProductSaleModel({
     String? shopid,
+    String? owner,
     double? qty,
     double? price,
+    double? sumamount,
     String? unitcode,
     String? barcode,
     List<LanguageDataModel>? names,
   })  : shopid = shopid ?? "",
         unitcode = unitcode ?? "",
         barcode = barcode ?? "",
+        owner = owner ?? "",
         qty = qty ?? 0,
         price = price ?? 0,
+        sumamount = sumamount ?? 0,
         names = names ?? [];
 
   factory ProductSaleModel.fromJson(Map<String, dynamic> json) => _$ProductSaleModelFromJson(json);

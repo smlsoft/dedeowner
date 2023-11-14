@@ -254,7 +254,7 @@ class _ProductSaleScreenState extends State<ProductSaleScreen> {
                                 child: Align(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      global.formatNumber(productSaleList[index].qty * productSaleList[index].price),
+                                      global.formatNumber(productSaleList[index].sumamount),
                                       style: const TextStyle(fontSize: 14),
                                     )))
                           ],
