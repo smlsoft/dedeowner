@@ -39,7 +39,7 @@ class _ProductSaleScreenState extends State<ProductSaleScreen> {
 
   @override
   void initState() {
-    _loadMoreItems();
+    _searchData();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
         _loadMoreItems();
@@ -54,6 +54,7 @@ class _ProductSaleScreenState extends State<ProductSaleScreen> {
     setState(() {
       productSaleLoad = true;
     });
+    pageActive += 1;
 
     ReportRepository reportRepository = ReportRepository();
     try {
