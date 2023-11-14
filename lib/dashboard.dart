@@ -1642,22 +1642,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(width: 20, child: Text("#")),
-            SizedBox(
-              width: 60,
-              child: SizedBox(
-                width: 50,
-                height: 50,
-              ),
-            ),
-            SizedBox(
-              width: 5,
-            ),
             Expanded(
+                flex: 2,
                 child: Text(
-              "ชื่อ",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            )),
+                  "ชื่อ",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )),
             Expanded(
                 child: Text(
               "จำนวน",
@@ -1699,9 +1690,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // ),
 
                 Expanded(
+                    flex: 2,
                     child: Text(
-                  "${global.activeLangName(bestseller.names)}@${bestseller.price}",
-                )),
+                      "${global.activeLangName(bestseller.names)}@${bestseller.price}",
+                    )),
                 Expanded(
                     child: Text(
                   global.formatNumber(bestseller.qty),
