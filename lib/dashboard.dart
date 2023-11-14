@@ -486,10 +486,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       productSaleLoad = true;
     });
+    productSaleToday = [];
     ApiResponse result = await reportRepository.getProductSales(queryFromdate, queryTodate);
     if (result.success) {
       List<ProductSaleModel> products = (result.data as List).map((product) => ProductSaleModel.fromJson(product)).toList();
-      productSaleToday = [];
+
       productSaleToday = products;
 
       setState(() {
@@ -1140,6 +1141,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
     widgetList.add(const SizedBox(
       height: 4,
     ));
+    Map<String, double> summary = {};
+    for (var sale in productSaleToday) {
+      summary[sale.owner] = (summary[sale.owner] ?? 0) + sale.sumamount;
+    }
+
+    List<Widget> summaryList = [];
+    if (productSaleToday.isNotEmpty) {
+      summaryList = summary.entries.map((entry) {
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  (entry.key.isEmpty) ? appConfig.read("name") : entry.key,
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                ),
+                Text(
+                  global.formatNumber(entry.value),
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                ),
+              ],
+            ),
+            Divider(color: Colors.orange.shade300)
+          ],
+        );
+      }).toList();
+    }
+
+    widgetList.add(
+      Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(7),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.shade700,
+              spreadRadius: 0,
+              blurRadius: 3,
+              offset: const Offset(0, 0), // changes position of shadow
+            ),
+          ],
+          color: Colors.white,
+        ),
+        padding: const EdgeInsets.all(12),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Text(
+                  "ยอดขายแยกตามผู้ผลิต",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                ),
+              ),
+              const SizedBox(
+                height: 2,
+              ),
+              (productSaleLoad)
+                  ? const Center(child: CircularProgressIndicator())
+                  : summaryList.isNotEmpty
+                      ? Column(
+                          children: summaryList,
+                        )
+                      : const Center(
+                          child: Text(""),
+                        ),
+            ],
+          ),
+        ),
+      ),
+    );
 
     // widgetList.add(
     //   Column(
@@ -1623,7 +1700,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                 Expanded(
                     child: Text(
-                  global.activeLangName(bestseller.names),
+                  "${global.activeLangName(bestseller.names)}@${bestseller.price}",
                 )),
                 Expanded(
                     child: Text(
@@ -1632,7 +1709,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 )),
                 Expanded(
                     child: Text(
-                  global.formatNumber(bestseller.price * bestseller.qty),
+                  global.formatNumber(bestseller.sumamount),
                   textAlign: TextAlign.right,
                 ))
               ],
@@ -1721,7 +1798,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Expanded(
                   flex: 1,
                   child: Text(
-                    global.formatNumber(productSale.qty * productSale.price),
+                    global.formatNumber(productSale.sumamount),
                     textAlign: TextAlign.right,
                   ))
             ],

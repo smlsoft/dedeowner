@@ -10,17 +10,20 @@ class BestProductModel {
   double qty;
   String unitcode;
   double price;
+  double sumamount;
   List<LanguageDataModel> names;
   BestProductModel({
     String? shopid,
     double? qty,
     String? unitcode,
+    double? sumamount,
     double? price,
     List<LanguageDataModel>? names,
   })  : shopid = shopid ?? "",
         unitcode = unitcode ?? "",
         qty = qty ?? 0,
         price = price ?? 0,
+        sumamount = sumamount ?? 0,
         names = names ?? [];
 
   factory BestProductModel.fromJson(Map<String, dynamic> json) => _$BestProductModelFromJson(json);

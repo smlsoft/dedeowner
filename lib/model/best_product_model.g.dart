@@ -11,6 +11,7 @@ BestProductModel _$BestProductModelFromJson(Map<String, dynamic> json) =>
       shopid: json['shopid'] as String?,
       qty: (json['qty'] as num?)?.toDouble(),
       unitcode: json['unitcode'] as String?,
+      sumamount: (json['sumamount'] as num?)?.toDouble(),
       price: (json['price'] as num?)?.toDouble(),
       names: (json['names'] as List<dynamic>?)
           ?.map((e) => LanguageDataModel.fromJson(e as Map<String, dynamic>))
@@ -23,5 +24,6 @@ Map<String, dynamic> _$BestProductModelToJson(BestProductModel instance) =>
       'qty': instance.qty,
       'unitcode': instance.unitcode,
       'price': instance.price,
+      'sumamount': instance.sumamount,
       'names': instance.names,
     };
