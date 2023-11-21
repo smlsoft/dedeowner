@@ -13,11 +13,12 @@ class ProductSaleModel {
   String unitcode;
   String barcode;
   String owner;
-
+  String itemname;
   List<LanguageDataModel> names;
   ProductSaleModel({
     String? shopid,
     String? owner,
+    String? itemname,
     double? qty,
     double? price,
     double? sumamount,
@@ -26,6 +27,7 @@ class ProductSaleModel {
     List<LanguageDataModel>? names,
   })  : shopid = shopid ?? "",
         unitcode = unitcode ?? "",
+        itemname = itemname ?? "",
         barcode = barcode ?? "",
         owner = owner ?? "",
         qty = qty ?? 0,

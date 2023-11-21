@@ -10,6 +10,7 @@ ProductSaleModel _$ProductSaleModelFromJson(Map<String, dynamic> json) =>
     ProductSaleModel(
       shopid: json['shopid'] as String?,
       owner: json['owner'] as String?,
+      itemname: json['itemname'] as String?,
       qty: (json['qty'] as num?)?.toDouble(),
       price: (json['price'] as num?)?.toDouble(),
       sumamount: (json['sumamount'] as num?)?.toDouble(),
@@ -29,5 +30,6 @@ Map<String, dynamic> _$ProductSaleModelToJson(ProductSaleModel instance) =>
       'unitcode': instance.unitcode,
       'barcode': instance.barcode,
       'owner': instance.owner,
+      'itemname': instance.itemname,
       'names': instance.names,
     };

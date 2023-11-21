@@ -241,7 +241,7 @@ class _ProductSaleScreenState extends State<ProductSaleScreen> {
                                           code: 'en',
                                           name: '',
                                         )).name}@${productSaleList[index].price}"
-                                    : "${productSaleList[index].barcode}@${productSaleList[index].price}",
+                                    : "${productSaleList[index].itemname}@${productSaleList[index].price}",
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ),
