@@ -9,51 +9,83 @@ part of 'salesumary_model.dart';
 SalesumaryModel _$SalesumaryModelFromJson(Map<String, dynamic> json) =>
     SalesumaryModel(
       shopid: json['shopid'] as String?,
-      cashierAmount: (json['cashierAmount'] as num?)?.toDouble(),
-      cash: (json['cash'] as num?)?.toDouble(),
-      takeAway: (json['takeAway'] as num?)?.toDouble(),
-      discount: (json['discount'] as num?)?.toDouble(),
-      qrcode: (json['qrcode'] as List<dynamic>?)
-          ?.map((e) => WalletPaymentModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      wallet: (json['wallet'] as List<dynamic>?)
-          ?.map((e) => WalletPaymentModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      delivery: (json['delivery'] as List<dynamic>?)
-          ?.map((e) => DeliveryPaymentModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      qrcodeAmount: (json['qrcodeAmount'] as num?)?.toDouble(),
-      walletAmount: (json['walletAmount'] as num?)?.toDouble(),
-      deliveryAmount: (json['deliveryAmount'] as num?)?.toDouble(),
-      gpAmount: (json['gpAmount'] as num?)?.toDouble(),
-      bestseller: (json['bestseller'] as List<dynamic>?)
-          ?.map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      bestsellershop: (json['bestsellershop'] as List<dynamic>?)
-          ?.map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      bestsellerdelivery: (json['bestsellerdelivery'] as List<dynamic>?)
-          ?.map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      totalamount: (json['totalamount'] as num?)?.toDouble(),
+      totaldiscount: (json['totaldiscount'] as num?)?.toDouble(),
+      roundamount: (json['roundamount'] as num?)?.toDouble(),
+      paycashamount: (json['paycashamount'] as num?)?.toDouble(),
+      sumcreditcard: (json['sumcreditcard'] as num?)?.toDouble(),
+      summoneytransfer: (json['summoneytransfer'] as num?)?.toDouble(),
+      sumcredit: (json['sumcredit'] as num?)?.toDouble(),
+      sumqrcode: (json['sumqrcode'] as num?)?.toDouble(),
+      totaldiscountshop: (json['totaldiscountshop'] as num?)?.toDouble(),
+      totalamountshop: (json['totalamountshop'] as num?)?.toDouble(),
+      roundamountshop: (json['roundamountshop'] as num?)?.toDouble(),
+      paycashamountshop: (json['paycashamountshop'] as num?)?.toDouble(),
+      sumcreditcardshop: (json['sumcreditcardshop'] as num?)?.toDouble(),
+      summoneytransfershop: (json['summoneytransfershop'] as num?)?.toDouble(),
+      sumcreditshop: (json['sumcreditshop'] as num?)?.toDouble(),
+      sumqrcodeshop: (json['sumqrcodeshop'] as num?)?.toDouble(),
+      totaldiscounttakeaway:
+          (json['totaldiscounttakeaway'] as num?)?.toDouble(),
+      totalamounttakeaway: (json['totalamounttakeaway'] as num?)?.toDouble(),
+      roundamounttakeaway: (json['roundamounttakeaway'] as num?)?.toDouble(),
+      paycashamounttakeaway:
+          (json['paycashamounttakeaway'] as num?)?.toDouble(),
+      sumcreditcardtakeaway:
+          (json['sumcreditcardtakeaway'] as num?)?.toDouble(),
+      summoneytransfertakeaway:
+          (json['summoneytransfertakeaway'] as num?)?.toDouble(),
+      sumcredittakeaway: (json['sumcredittakeaway'] as num?)?.toDouble(),
+      sumqrcodetakeaway: (json['sumqrcodetakeaway'] as num?)?.toDouble(),
+      totaldiscountdelivery:
+          (json['totaldiscountdelivery'] as num?)?.toDouble(),
+      totalamountdelivery: (json['totalamountdelivery'] as num?)?.toDouble(),
+      roundamountdelivery: (json['roundamountdelivery'] as num?)?.toDouble(),
+      paycashamountdelivery:
+          (json['paycashamountdelivery'] as num?)?.toDouble(),
+      sumcreditcarddelivery:
+          (json['sumcreditcarddelivery'] as num?)?.toDouble(),
+      summoneytransferdelivery:
+          (json['summoneytransferdelivery'] as num?)?.toDouble(),
+      sumcreditdelivery: (json['sumcreditdelivery'] as num?)?.toDouble(),
+      sumqrcodedelivery: (json['sumqrcodedelivery'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$SalesumaryModelToJson(SalesumaryModel instance) =>
     <String, dynamic>{
       'shopid': instance.shopid,
-      'cashierAmount': instance.cashierAmount,
-      'cash': instance.cash,
-      'takeAway': instance.takeAway,
-      'discount': instance.discount,
-      'qrcodeAmount': instance.qrcodeAmount,
-      'walletAmount': instance.walletAmount,
-      'deliveryAmount': instance.deliveryAmount,
-      'gpAmount': instance.gpAmount,
-      'qrcode': instance.qrcode,
-      'wallet': instance.wallet,
-      'delivery': instance.delivery,
-      'bestseller': instance.bestseller,
-      'bestsellershop': instance.bestsellershop,
-      'bestsellerdelivery': instance.bestsellerdelivery,
+      'totalamount': instance.totalamount,
+      'totaldiscount': instance.totaldiscount,
+      'roundamount': instance.roundamount,
+      'paycashamount': instance.paycashamount,
+      'sumcreditcard': instance.sumcreditcard,
+      'summoneytransfer': instance.summoneytransfer,
+      'sumcredit': instance.sumcredit,
+      'sumqrcode': instance.sumqrcode,
+      'totaldiscountshop': instance.totaldiscountshop,
+      'totalamountshop': instance.totalamountshop,
+      'roundamountshop': instance.roundamountshop,
+      'paycashamountshop': instance.paycashamountshop,
+      'sumcreditcardshop': instance.sumcreditcardshop,
+      'summoneytransfershop': instance.summoneytransfershop,
+      'sumcreditshop': instance.sumcreditshop,
+      'sumqrcodeshop': instance.sumqrcodeshop,
+      'totaldiscounttakeaway': instance.totaldiscounttakeaway,
+      'totalamounttakeaway': instance.totalamounttakeaway,
+      'roundamounttakeaway': instance.roundamounttakeaway,
+      'paycashamounttakeaway': instance.paycashamounttakeaway,
+      'sumcreditcardtakeaway': instance.sumcreditcardtakeaway,
+      'summoneytransfertakeaway': instance.summoneytransfertakeaway,
+      'sumcredittakeaway': instance.sumcredittakeaway,
+      'sumqrcodetakeaway': instance.sumqrcodetakeaway,
+      'totaldiscountdelivery': instance.totaldiscountdelivery,
+      'totalamountdelivery': instance.totalamountdelivery,
+      'roundamountdelivery': instance.roundamountdelivery,
+      'paycashamountdelivery': instance.paycashamountdelivery,
+      'sumcreditcarddelivery': instance.sumcreditcarddelivery,
+      'summoneytransferdelivery': instance.summoneytransferdelivery,
+      'sumcreditdelivery': instance.sumcreditdelivery,
+      'sumqrcodedelivery': instance.sumqrcodedelivery,
     };
 
 WalletPaymentModel _$WalletPaymentModelFromJson(Map<String, dynamic> json) =>

@@ -6,51 +6,110 @@ part 'salesumary_model.g.dart';
 @JsonSerializable()
 class SalesumaryModel {
   String shopid;
-  double cashierAmount;
-  double cash;
-  double takeAway;
-  double discount;
-  double qrcodeAmount;
-  double walletAmount;
-  double deliveryAmount;
-  double gpAmount;
-  List<WalletPaymentModel> qrcode;
-  List<WalletPaymentModel> wallet;
-  List<DeliveryPaymentModel> delivery;
-  List<ProductModel> bestseller;
-  List<ProductModel> bestsellershop;
-  List<ProductModel> bestsellerdelivery;
+  double totalamount;
+  double totaldiscount;
+  double roundamount;
+  double paycashamount;
+  double sumcreditcard;
+  double summoneytransfer;
+  double sumcredit;
+  double sumqrcode;
+  double totaldiscountshop;
+  double totalamountshop;
+  double roundamountshop;
+  double paycashamountshop;
+  double sumcreditcardshop;
+  double summoneytransfershop;
+  double sumcreditshop;
+  double sumqrcodeshop;
+  double totaldiscounttakeaway;
+  double totalamounttakeaway;
+  double roundamounttakeaway;
+  double paycashamounttakeaway;
+  double sumcreditcardtakeaway;
+  double summoneytransfertakeaway;
+  double sumcredittakeaway;
+  double sumqrcodetakeaway;
+  double totaldiscountdelivery;
+  double totalamountdelivery;
+  double roundamountdelivery;
+  double paycashamountdelivery;
+  double sumcreditcarddelivery;
+  double summoneytransferdelivery;
+  double sumcreditdelivery;
+  double sumqrcodedelivery;
+
+  // List<WalletPaymentModel> qrcode;
+  // List<WalletPaymentModel> wallet;
+  // List<DeliveryPaymentModel> delivery;
+
   SalesumaryModel({
     String? shopid,
-    double? cashierAmount,
-    double? cash,
-    double? takeAway,
-    double? discount,
-    List<WalletPaymentModel>? qrcode,
-    List<WalletPaymentModel>? wallet,
-    List<DeliveryPaymentModel>? delivery,
-    double? qrcodeAmount,
-    double? walletAmount,
-    double? deliveryAmount,
-    double? gpAmount,
-    List<ProductModel>? bestseller,
-    List<ProductModel>? bestsellershop,
-    List<ProductModel>? bestsellerdelivery,
+    double? totalamount,
+    double? totaldiscount,
+    double? roundamount,
+    double? paycashamount,
+    double? sumcreditcard,
+    double? summoneytransfer,
+    double? sumcredit,
+    double? sumqrcode,
+    double? totaldiscountshop,
+    double? totalamountshop,
+    double? roundamountshop,
+    double? paycashamountshop,
+    double? sumcreditcardshop,
+    double? summoneytransfershop,
+    double? sumcreditshop,
+    double? sumqrcodeshop,
+    double? totaldiscounttakeaway,
+    double? totalamounttakeaway,
+    double? roundamounttakeaway,
+    double? paycashamounttakeaway,
+    double? sumcreditcardtakeaway,
+    double? summoneytransfertakeaway,
+    double? sumcredittakeaway,
+    double? sumqrcodetakeaway,
+    double? totaldiscountdelivery,
+    double? totalamountdelivery,
+    double? roundamountdelivery,
+    double? paycashamountdelivery,
+    double? sumcreditcarddelivery,
+    double? summoneytransferdelivery,
+    double? sumcreditdelivery,
+    double? sumqrcodedelivery,
   })  : shopid = shopid ?? "",
-        cashierAmount = cashierAmount ?? 0,
-        cash = cash ?? 0,
-        takeAway = takeAway ?? 0,
-        discount = discount ?? 0,
-        qrcode = qrcode ?? [],
-        wallet = wallet ?? [],
-        delivery = delivery ?? [],
-        qrcodeAmount = qrcodeAmount ?? 0,
-        walletAmount = walletAmount ?? 0,
-        deliveryAmount = deliveryAmount ?? 0,
-        gpAmount = gpAmount ?? 0,
-        bestseller = bestseller ?? [],
-        bestsellershop = bestsellershop ?? [],
-        bestsellerdelivery = bestsellerdelivery ?? [];
+        totalamount = totalamount ?? 0,
+        totaldiscount = totaldiscount ?? 0,
+        roundamount = roundamount ?? 0,
+        paycashamount = paycashamount ?? 0,
+        sumcreditcard = sumcreditcard ?? 0,
+        summoneytransfer = summoneytransfer ?? 0,
+        sumcredit = sumcredit ?? 0,
+        sumqrcode = sumqrcode ?? 0,
+        totaldiscountshop = totaldiscountshop ?? 0,
+        totalamountshop = totalamountshop ?? 0,
+        roundamountshop = roundamountshop ?? 0,
+        paycashamountshop = paycashamountshop ?? 0,
+        sumcreditcardshop = sumcreditcardshop ?? 0,
+        summoneytransfershop = summoneytransfershop ?? 0,
+        sumcreditshop = sumcreditshop ?? 0,
+        sumqrcodeshop = sumqrcodeshop ?? 0,
+        totaldiscounttakeaway = totaldiscounttakeaway ?? 0,
+        totalamounttakeaway = totalamounttakeaway ?? 0,
+        roundamounttakeaway = roundamounttakeaway ?? 0,
+        paycashamounttakeaway = paycashamounttakeaway ?? 0,
+        sumcreditcardtakeaway = sumcreditcardtakeaway ?? 0,
+        summoneytransfertakeaway = summoneytransfertakeaway ?? 0,
+        sumcredittakeaway = sumcredittakeaway ?? 0,
+        sumqrcodetakeaway = sumqrcodetakeaway ?? 0,
+        totaldiscountdelivery = totaldiscountdelivery ?? 0,
+        totalamountdelivery = totalamountdelivery ?? 0,
+        roundamountdelivery = roundamountdelivery ?? 0,
+        paycashamountdelivery = paycashamountdelivery ?? 0,
+        sumcreditcarddelivery = sumcreditcarddelivery ?? 0,
+        summoneytransferdelivery = summoneytransferdelivery ?? 0,
+        sumcreditdelivery = sumcreditdelivery ?? 0,
+        sumqrcodedelivery = sumqrcodedelivery ?? 0;
 
   factory SalesumaryModel.fromJson(Map<String, dynamic> json) => _$SalesumaryModelFromJson(json);
 

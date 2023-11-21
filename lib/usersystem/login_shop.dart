@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -30,6 +31,7 @@ class LoginShopState extends State<LoginShop> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _userControl = TextEditingController();
   final TextEditingController _passControl = TextEditingController();
+  final appConfig = GetStorage("AppConfig");
   bool _isListShop = false;
   bool _isListShopNotFound = false;
 
@@ -74,8 +76,8 @@ class LoginShopState extends State<LoginShop> {
 
   @override
   void initState() {
-    _userControl.text = "seoulmind";
-    _passControl.text = "seoulmind";
+    _userControl.text = "maxkorn";
+    _passControl.text = "maxkorn";
     createShopData = CreateShopModel(
       name1: "",
       telephone: "",
@@ -133,6 +135,7 @@ class LoginShopState extends State<LoginShop> {
               BlocListener<ShopSelectBloc, ShopSelectState>(
                 listener: (context, state) {
                   if (state is ShopSelectLoadSuccess) {
+                    appConfig.write('shopid', state.shop.shopid);
                     Navigator.pushNamed(context, '/home');
                   }
                 },

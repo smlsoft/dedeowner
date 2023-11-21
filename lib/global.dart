@@ -3,6 +3,8 @@
 import 'dart:io';
 
 import 'dart:async';
+import 'package:dedeowner/api/clickhouse/clickhouse_api.dart';
+import 'package:dedeowner/global_model.dart';
 import 'package:dedeowner/model/theme_model.dart';
 import 'package:dedeowner/utils/google_sheet.dart';
 import 'package:flutter/foundation.dart';
@@ -46,7 +48,23 @@ enum DateTimeFormatEnum { fullDate, date, dateTime, dateTimeDay, time, dateDay }
 
 enum TransactionTypeEnum { purchase, purchasereturn, sale, salereturn, stocktransfer, stockreceiveproduct, stockpickupproduct, stockreturnproduct, adjust, paid, pay }
 
-enum ReportEnum { product, saleinvoice, debtor, creditor, bookbank, purchase, purchasereturn, saleinvoicereturn, transfer, receive, pickup, returnproduct, stockadjustment, paid, pay }
+enum ReportEnum {
+  product,
+  saleinvoice,
+  debtor,
+  creditor,
+  bookbank,
+  purchase,
+  purchasereturn,
+  saleinvoicereturn,
+  transfer,
+  receive,
+  pickup,
+  returnproduct,
+  stockadjustment,
+  paid,
+  pay
+}
 
 enum PosVersionEnum { Pos, Restaurant, Vfgl }
 
@@ -471,6 +489,26 @@ Future<void> getDeviceModel(BuildContext context) async {
 String formatNumber(double val) {
   var formatter = NumberFormat('#,###.##');
   return formatter.format(val);
+}
+
+Future<void> checkDataClickhouse() async {
+  try {
+    var shopid = appConfig.read("shopid");
+    String selectQuery = "select shopid,code,name1,name2 from dedebi.creditors where shopid='$shopid'";
+    var value = await clickHouseSelect(selectQuery);
+    if (value.isNotEmpty) {
+      ResponseDataModel responseData = ResponseDataModel.fromJson(value);
+      // Print
+      String code = "";
+      bool updateOrder = false;
+      for (var order in responseData.data) {
+        code = order["code"];
+        print(code);
+      }
+    }
+  } catch (e) {
+    print(e);
+  }
 }
 
 String activeLangName(List<LanguageDataModel> names) {

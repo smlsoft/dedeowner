@@ -1,4 +1,5 @@
 import 'package:dedeowner/dashboard.dart';
+import 'package:dedeowner/global.dart';
 import 'package:dedeowner/product_sales.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    checkDataClickhouse();
+    super.initState();
   }
 
   @override
