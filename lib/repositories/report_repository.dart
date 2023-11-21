@@ -253,6 +253,43 @@ class ReportRepository {
     }
   }
 
+  Future<ApiResponse> getReportSaleSummaryByOwner(String fromdate, String todate, String owner) async {
+    try {
+      var shopid = appConfig.read("shopid");
+      var where = "";
+
+      if (owner.isNotEmpty) {
+        where += " AND c.name1 = '$owner' ";
+      }
+      if (fromdate.isNotEmpty && todate.isNotEmpty) {
+        where += "  AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  BETWEEN '$fromdate' AND '$todate' ";
+      } else if (fromdate.isNotEmpty) {
+        where += " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  >= '$fromdate' ";
+      } else if (todate.isNotEmpty) {
+        where += " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok')) <= '$todate' ";
+      }
+
+      String querySummary =
+          " SELECT doc.barcode as barcode,p.name0 as itemname,doc.unitcode as unitcode,doc.manufacturerguid as manufacturerguid,c.name1  as owner,sum(sumamount) as sumamount,doc.price as price,sum(qty) as qty ";
+      querySummary += " FROM dedebi.docdetail AS doc";
+      querySummary += " LEFT JOIN dedebi.creditors AS c ON doc.manufacturerguid = c.guidfixed and doc.shopid = c.shopid  ";
+      querySummary += " LEFT JOIN dedebi.productbarcode AS p ON doc.barcode  = p.barcode  and doc.shopid = p.shopid  ";
+      querySummary += " WHERE doc.shopid = '$shopid' $where ";
+      querySummary += " GROUP BY  doc.barcode,p.name0,doc.unitcode,doc.price,c.name1,doc.manufacturerguid  order by qty desc ";
+
+      var response = await clickHouseSelect(querySummary);
+
+      try {
+        return ApiResponse.fromMap(response);
+      } catch (e) {
+        throw Exception(e);
+      }
+    } catch (e) {
+      print(e);
+      throw Exception(e);
+    }
+  }
+
   // Future<ApiResponse> getReportSaleWeeklySummary(String fromdate, String todate) async {
   //   try {
   //     var shopid = appConfig.read("shopid");

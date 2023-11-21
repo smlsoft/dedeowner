@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dedeowner/bloc/list_shop/list_shop_bloc.dart';
 import 'package:dedeowner/bloc/shop_select/shop_select_bloc.dart';
 import 'package:dedeowner/dashboard.dart';
+import 'package:dedeowner/homePage.dart';
 import 'package:dedeowner/model/shop_model.dart';
 import 'package:flutter/material.dart';
 import 'package:dedeowner/global.dart' as global;
@@ -69,7 +70,7 @@ class SelectShopScreenState extends State<SelectShopScreen> {
             if (state is ShopSelectLoadSuccess) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                MaterialPageRoute(builder: (context) => const HomePage()),
               );
             }
           },

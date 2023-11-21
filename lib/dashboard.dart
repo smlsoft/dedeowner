@@ -8,6 +8,7 @@ import 'package:dedeowner/model/best_product_model.dart';
 import 'package:dedeowner/model/product_sale_model.dart';
 import 'package:dedeowner/model/salesumary_model.dart';
 import 'package:dedeowner/model/salesumarybyday_model.dart';
+import 'package:dedeowner/product_sale_by_owner.dart';
 import 'package:dedeowner/repositories/client.dart';
 import 'package:dedeowner/repositories/report_repository.dart';
 import 'package:dedeowner/select_shop_screen.dart';
@@ -1062,6 +1063,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     List<Widget> summaryList = [];
+    int xx = 0;
+    for (ProductSaleModel ss in productSaleToday) {
+      if (ss.owner == 'Proof') {
+        print(xx);
+      }
+      xx = xx + 1;
+    }
     if (productSaleToday.isNotEmpty) {
       summaryList = summary.entries.map((entry) {
         return Column(
@@ -1069,9 +1077,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  (entry.key.isEmpty) ? appConfig.read("name") : entry.key,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                Row(
+                  children: [
+                    Text(
+                      (entry.key.isEmpty) ? appConfig.read("name") + '-' + xx.toString() : entry.key + '-' + xx.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        String queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
+                        String queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
+                        Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => ProductSaleByOwner(fromdate: queryFromdate, todate: queryTodate, owner: entry.key, manufacturerguid: entry.key)));
+                      },
+                      icon: const Icon(Icons.search),
+                      color: Colors.orange.shade600,
+                    )
+                  ],
                 ),
                 Text(
                   global.formatNumber(entry.value),
