@@ -8,6 +8,7 @@ import 'package:dedeowner/model/best_product_model.dart';
 import 'package:dedeowner/model/product_sale_model.dart';
 import 'package:dedeowner/model/salesumary_model.dart';
 import 'package:dedeowner/model/salesumarybyday_model.dart';
+import 'package:dedeowner/product_sale_by_owner.dart';
 import 'package:dedeowner/repositories/client.dart';
 import 'package:dedeowner/repositories/report_repository.dart';
 import 'package:dedeowner/select_shop_screen.dart';
@@ -102,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool threeMonthlyLoad = true;
   bool yearlyLoad = true;
   bool bestSellLoad = true;
-  bool isSaleShop = false;
+  bool isSaleShop = true;
   bool isDeliveryShop = false;
   bool isLoading = false;
   bool productSaleLoad = true;
@@ -176,17 +177,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void getAllReport() async {
     getReport();
     await Future.delayed(const Duration(seconds: 3));
-    // getReportProductSale();
-    // await Future.delayed(const Duration(seconds: 3));
-    // getReportSaleWeek();
+    getReportProductSale();
+    await Future.delayed(const Duration(seconds: 3));
+    getReportSaleWeek();
     // await Future.delayed(const Duration(seconds: 4));
     // getGraphStore();
     // await Future.delayed(const Duration(seconds: 4));
     // getGraphDelivery();
-    // await Future.delayed(const Duration(seconds: 4));
-    // if (bestSellLoad) {
-    //   getSellLoad();
-    // }
+    await Future.delayed(const Duration(seconds: 4));
+    if (bestSellLoad) {
+      getSellLoad();
+    }
   }
 
   void getGraphDelivery() async {
@@ -362,43 +363,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (selectedItem == 'รายวัน') {
       fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
+      queryFromdate = DateFormat('yyyy-MM-dd').format(currentDate);
+      queryTodate = DateFormat('yyyy-MM-dd').format(currentDate);
     } else if (selectedItem == 'รายสัปดาห์') {
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
 
       fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfWeek);
       toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfWeek);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
+      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfWeek);
+      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfWeek);
     } else if (selectedItem == 'รายเดือน') {
       DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
       DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
 
       fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfMonth);
       toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfMonth);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfMonth)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfMonth)}";
+      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
     } else if (selectedItem == 'ยอดขาย3เดือน') {
       DateTime firstDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month - 2, 1);
       DateTime lastDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month + 1, 0);
 
       fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfLastThreeMonths);
       toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfLastThreeMonths);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfLastThreeMonths)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfLastThreeMonths)}";
+      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfLastThreeMonths);
+      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfLastThreeMonths);
     } else if (selectedItem == 'รายปี') {
       DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
       DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
 
       fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfYear);
       toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfYear);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfYear)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfYear)}";
+      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfYear);
+      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfYear);
     } else {
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text))}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text))}";
+      queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
+      queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
     }
 
     ReportRepository reportRepository = ReportRepository();
@@ -407,7 +408,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       productSaleLoad = true;
     });
     productSaleToday = [];
-    ApiResponse result = await reportRepository.getProductSales(queryFromdate, queryTodate);
+    ApiResponse result = await reportRepository.getReportSaleSummaryByManufacturer(queryFromdate, queryTodate);
     if (result.success) {
       List<ProductSaleModel> products = (result.data as List).map((product) => ProductSaleModel.fromJson(product)).toList();
       productSaleToday = products;
@@ -419,6 +420,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         productSaleLoad = false;
       });
     }
+
+    setState(() {});
   }
 
   Future<void> getReportSaleWeek() async {
@@ -862,6 +865,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: InkWell(
             onTap: () {
               getReport();
+              getReportProductSale();
             },
             child: Opacity(
               opacity: opacityText,
@@ -1059,6 +1063,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     List<Widget> summaryList = [];
+    int xx = 0;
+    for (ProductSaleModel ss in productSaleToday) {
+      if (ss.owner == 'Proof') {
+        print(xx);
+      }
+      xx = xx + 1;
+    }
     if (productSaleToday.isNotEmpty) {
       summaryList = summary.entries.map((entry) {
         return Column(
@@ -1066,9 +1077,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  (entry.key.isEmpty) ? appConfig.read("name") : entry.key,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                Row(
+                  children: [
+                    Text(
+                      (entry.key.isEmpty) ? appConfig.read("name") + '-' + xx.toString() : entry.key + '-' + xx.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        String queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
+                        String queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
+                        Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => ProductSaleByOwner(fromdate: queryFromdate, todate: queryTodate, owner: entry.key, manufacturerguid: entry.key)));
+                      },
+                      icon: const Icon(Icons.search),
+                      color: Colors.orange.shade600,
+                    )
+                  ],
                 ),
                 Text(
                   global.formatNumber(entry.value),
@@ -1691,7 +1716,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Expanded(
                   flex: 2,
                   child: Text(
-                    "${global.activeLangName(productSale.names)}@${productSale.price}",
+                    "${productSale.itemname}@${productSale.price}",
                   )),
               Expanded(
                   flex: 1,
@@ -1866,23 +1891,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(
                 height: 2,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    "เงินเชื่อ",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  Opacity(
-                    opacity: opacityText,
-                    child: Text(
-                      global.formatNumber(salesumary.sumcreditshop + salesumary.sumcredittakeaway),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  )
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   crossAxisAlignment: CrossAxisAlignment.center,
+              //   children: [
+              //     const Text(
+              //       "เงินเชื่อ",
+              //       style: TextStyle(color: Colors.black),
+              //     ),
+              //     Opacity(
+              //       opacity: opacityText,
+              //       child: Text(
+              //         global.formatNumber(salesumary.sumcreditshop + salesumary.sumcredittakeaway),
+              //         style: const TextStyle(color: Colors.black),
+              //       ),
+              //     )
+              //   ],
+              // ),
             ],
           ),
         ),
@@ -2190,14 +2215,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void showShopDetailDialog() {
-    final double _height = MediaQuery.of(context).size.height * 0.65;
+    final double height = MediaQuery.of(context).size.height * 0.65;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('รายละเอียดยอดขายหน้าร้าน'),
           content: Container(
-            constraints: BoxConstraints(maxHeight: _height),
+            constraints: BoxConstraints(maxHeight: height),
             child: SingleChildScrollView(
               child: Column(
                 children: [
@@ -2347,120 +2372,126 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void showSalechanelDialog() {
-    final double _height = MediaQuery.of(context).size.height * 0.65;
+    final double height = MediaQuery.of(context).size.height * 0.65;
+    double totalGPAmount = 0;
+    deliveryList.forEach((data) {
+      totalGPAmount += data.gpAmount;
+    });
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('รายละเอียดบริการจัดส่ง'),
           content: Container(
-            constraints: BoxConstraints(maxHeight: _height),
+            constraints: BoxConstraints(maxHeight: height),
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  // for (var data in salesumary.summary.delivery)
-                  //   Container(
-                  //     margin: const EdgeInsets.only(top: 2),
-                  //     child: Column(
-                  //       children: [
-                  //         Row(
-                  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //           crossAxisAlignment: CrossAxisAlignment.center,
-                  //           children: [
-                  //             Text(
-                  //               data.name,
-                  //               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                  //             ),
-                  //             Text(
-                  //               global.formatNumber(data.amount),
-                  //               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                  //             )
-                  //           ],
-                  //         ),
-                  //         Row(
-                  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //           crossAxisAlignment: CrossAxisAlignment.center,
-                  //           children: [
-                  //             Text(
-                  //               "GP ${data.gpPercent}%",
-                  //               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                  //             ),
-                  //             Text(
-                  //               global.formatNumber(data.gpAmount * -1),
-                  //               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                  //             )
-                  //           ],
-                  //         ),
-                  //         Row(
-                  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //           crossAxisAlignment: CrossAxisAlignment.center,
-                  //           children: [
-                  //             const Text(
-                  //               "รวม",
-                  //               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                  //             ),
-                  //             Text(
-                  //               global.formatNumber((data.amount - data.gpAmount)),
-                  //               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                  //             )
-                  //           ],
-                  //         ),
-                  //         const SizedBox(
-                  //           height: 5,
-                  //         ),
-                  //         Divider(
-                  //           height: 2,
-                  //           color: Colors.orange.shade700,
-                  //         ),
-                  //         const SizedBox(
-                  //           height: 5,
-                  //         )
-                  //       ],
-                  //     ),
-                  //   ),
+                  for (var data in deliveryList)
+                    Container(
+                      margin: const EdgeInsets.only(top: 2),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                data.name,
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                global.formatNumber(data.amount),
+                                style: const TextStyle(color: Colors.black),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "GP ${global.formatNumber(data.gpPercent)}%",
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                global.formatNumber(data.gpAmount * -1),
+                                style: const TextStyle(color: Colors.black),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "รวม",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                global.formatNumber((data.amount - data.gpAmount)),
+                                style: const TextStyle(color: Colors.black),
+                              )
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Divider(
+                            height: 2,
+                            color: Colors.orange.shade700,
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          )
+                        ],
+                      ),
+                    ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
                         "รวม",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                        style: TextStyle(color: Colors.black),
                       ),
                       Text(
-                        global.formatNumber(0),
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                        global.formatNumber(salesumary.totalamountdelivery),
+                        style: const TextStyle(color: Colors.black),
                       )
                     ],
                   ),
-                  Divider(height: 5, color: Colors.orange.shade700),
+                  const SizedBox(
+                    height: 2,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
                         "หักGPรวม",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                        style: TextStyle(color: Colors.black),
                       ),
                       Text(
-                        global.formatNumber(0),
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                        global.formatNumber(totalGPAmount * -1),
+                        style: const TextStyle(color: Colors.black),
                       )
                     ],
                   ),
-                  Divider(height: 5, color: Colors.orange.shade700),
+                  const SizedBox(
+                    height: 2,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
                         "สุทธิประมาณ",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                        style: TextStyle(color: Colors.black),
                       ),
                       Text(
-                        global.formatNumber(0),
+                        global.formatNumber(salesumary.totalamountdelivery - totalGPAmount),
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       )

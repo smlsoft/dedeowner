@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dedeowner/api/clickhouse/clickhouse_api.dart';
 import 'package:dedeowner/environment.dart';
 import 'package:dedeowner/global_model.dart';
@@ -106,6 +108,77 @@ class ReportRepository {
 
       var responseShop = await clickHouseSelect(querySummaryShop);
 
+      String querySummaryRaw = " SELECT CASE WHEN takeaway = 0 THEN paymentdetailraw ELSE '[]' END AS paymentdetailrawshop,";
+      querySummaryRaw += " CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN paymentdetailraw ELSE '[]' END AS paymentdetailrawtakeaway, ";
+      querySummaryRaw += " CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != ''  THEN paymentdetailraw ELSE '[]' END AS paymentdetailrawDelivery ";
+      querySummaryRaw += " FROM dedebi.doc ";
+      querySummaryRaw += " WHERE shopid = '$shopid' $where ";
+      double sumQr = 0.0;
+      double sumTransfer = 0.0;
+      double sumCraditCard = 0.0;
+      double sumQrTakeaway = 0.0;
+      double sumTransferTakeaway = 0.0;
+      double sumCraditCardTakeaway = 0.0;
+      double sumQrDelivery = 0.0;
+      double sumTransferDelivery = 0.0;
+      double sumCraditCardDelivery = 0.0;
+      var responseRaw = await clickHouseSelect(querySummaryRaw);
+      if (responseRaw['success']) {
+        for (var i = 0; i < responseRaw['data'].length; i++) {
+          var jsonArrayShop = jsonDecode(responseRaw['data'][i]['paymentdetailrawshop']);
+          if (jsonArrayShop is List) {
+            for (var item in jsonArrayShop) {
+              if (item['trans_flag'] == 5) {
+                sumQr += item['amount'];
+              } else if (item['trans_flag'] == 1) {
+                sumCraditCard += item['amount'];
+              } else if (item['trans_flag'] == 2) {
+                sumTransfer += item['amount'];
+              }
+            }
+          }
+          var jsonArrayTakeAway = jsonDecode(responseRaw['data'][i]['paymentdetailrawtakeaway']);
+          if (jsonArrayTakeAway is List) {
+            for (var item in jsonArrayTakeAway) {
+              if (item['trans_flag'] == 5) {
+                sumQrTakeaway += item['amount'];
+              } else if (item['trans_flag'] == 1) {
+                sumCraditCardTakeaway += item['amount'];
+              } else if (item['trans_flag'] == 2) {
+                sumTransferTakeaway += item['amount'];
+              }
+            }
+          }
+          var jsonArrayDelivery = jsonDecode(responseRaw['data'][i]['paymentdetailrawDelivery']);
+          if (jsonArrayDelivery is List) {
+            for (var item in jsonArrayDelivery) {
+              if (item['trans_flag'] == 5) {
+                sumQrDelivery += item['amount'];
+              } else if (item['trans_flag'] == 1) {
+                sumTransferDelivery += item['amount'];
+              } else if (item['trans_flag'] == 2) {
+                sumCraditCardDelivery += item['amount'];
+              }
+            }
+          }
+        }
+      }
+      if (responseShop['data'].length > 0) {
+        responseShop['data'][0]['sumqrcode'] = sumQr + sumQrTakeaway + sumQrDelivery;
+        responseShop['data'][0]['summoneytransfer'] = sumTransfer + sumTransferTakeaway + sumTransferDelivery;
+        responseShop['data'][0]['sumcreditcard'] = sumCraditCard + sumCraditCardTakeaway + sumCraditCardDelivery;
+
+        responseShop['data'][0]['sumqrcodeshop'] = sumQr;
+        responseShop['data'][0]['summoneytransfershop'] = sumTransfer;
+        responseShop['data'][0]['sumcreditcardshop'] = sumCraditCard;
+
+        responseShop['data'][0]['sumqrcodetakeaway'] = sumQrTakeaway;
+        responseShop['data'][0]['summoneytransfertakeaway'] = sumTransferTakeaway;
+        responseShop['data'][0]['sumcreditcardtakeaway'] = sumCraditCardTakeaway;
+        responseShop['data'][0]['sumqrcodedelivery'] = sumQrDelivery;
+        responseShop['data'][0]['summoneytransferdelivery'] = sumTransferDelivery;
+        responseShop['data'][0]['sumcreditcarddelivery'] = sumCraditCardDelivery;
+      }
       try {
         return ApiResponse.fromMap(responseShop);
       } catch (e) {
@@ -130,10 +203,10 @@ class ReportRepository {
       }
       String querySummaryShop = " SELECT ";
       querySummaryShop +=
-          "shopid,salechannelcode as code,salechannelcode as name,sum(totalamount) as amount,avg(salechannelgp) as gpPercent ,(avg(salechannelgp)*sum(totalamount))/100 as gpAmount ";
-      querySummaryShop += " FROM dedebi.doc  ";
+          " shopid,salechannelcode as code,sc.name as name,sum(totalamount) as amount,avg(salechannelgp) as gpPercent ,(avg(salechannelgp)*sum(totalamount))/100 as gpAmount";
+      querySummaryShop += " FROM dedebi.doc AS doc  LEFT JOIN dedebi.salechannel AS sc ON doc.salechannelcode  = sc.code and doc.shopid = sc.shopid ";
       querySummaryShop += " WHERE shopid = '$shopid' and salechannelcode IS NOT NULL and salechannelcode != ''  $where ";
-      querySummaryShop += " GROUP BY shopid,salechannelcode";
+      querySummaryShop += " GROUP BY doc.shopid,doc.salechannelcode,sc.name ";
 
       var responseShop = await clickHouseSelect(querySummaryShop);
 
@@ -147,6 +220,102 @@ class ReportRepository {
       throw Exception(e);
     }
   }
+
+  Future<ApiResponse> getReportSaleSummaryByManufacturer(String fromdate, String todate) async {
+    try {
+      var shopid = appConfig.read("shopid");
+      var where = "";
+      if (fromdate.isNotEmpty && todate.isNotEmpty) {
+        where = "  AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  BETWEEN '$fromdate' AND '$todate' ";
+      } else if (fromdate.isNotEmpty) {
+        where = " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  >= '$fromdate' ";
+      } else if (todate.isNotEmpty) {
+        where = " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok')) <= '$todate' ";
+      }
+      String querySummary =
+          " SELECT doc.barcode as barcode,p.name0 as itemname,doc.unitcode as unitcode,c.name1  as owner,sum(sumamount) as sumamount,doc.price as price,sum(qty) as qty ";
+      querySummary += " FROM dedebi.docdetail AS doc";
+      querySummary += " LEFT JOIN dedebi.creditors AS c ON doc.manufacturerguid = c.guidfixed and doc.shopid = c.shopid  ";
+      querySummary += " LEFT JOIN dedebi.productbarcode AS p ON doc.barcode  = p.barcode  and doc.shopid = p.shopid  ";
+      querySummary += " WHERE doc.shopid = '$shopid' $where ";
+      querySummary += " GROUP BY  doc.barcode,p.name0,doc.unitcode,doc.price,c.name1  order by qty desc ";
+
+      var response = await clickHouseSelect(querySummary);
+
+      try {
+        return ApiResponse.fromMap(response);
+      } catch (e) {
+        throw Exception(e);
+      }
+    } catch (e) {
+      print(e);
+      throw Exception(e);
+    }
+  }
+
+  Future<ApiResponse> getReportSaleSummaryByOwner(String fromdate, String todate, String owner) async {
+    try {
+      var shopid = appConfig.read("shopid");
+      var where = "";
+
+      if (owner.isNotEmpty) {
+        where += " AND c.name1 = '$owner' ";
+      }
+      if (fromdate.isNotEmpty && todate.isNotEmpty) {
+        where += "  AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  BETWEEN '$fromdate' AND '$todate' ";
+      } else if (fromdate.isNotEmpty) {
+        where += " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  >= '$fromdate' ";
+      } else if (todate.isNotEmpty) {
+        where += " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok')) <= '$todate' ";
+      }
+
+      String querySummary =
+          " SELECT doc.barcode as barcode,p.name0 as itemname,doc.unitcode as unitcode,doc.manufacturerguid as manufacturerguid,c.name1  as owner,sum(sumamount) as sumamount,doc.price as price,sum(qty) as qty ";
+      querySummary += " FROM dedebi.docdetail AS doc";
+      querySummary += " LEFT JOIN dedebi.creditors AS c ON doc.manufacturerguid = c.guidfixed and doc.shopid = c.shopid  ";
+      querySummary += " LEFT JOIN dedebi.productbarcode AS p ON doc.barcode  = p.barcode  and doc.shopid = p.shopid  ";
+      querySummary += " WHERE doc.shopid = '$shopid' $where ";
+      querySummary += " GROUP BY  doc.barcode,p.name0,doc.unitcode,doc.price,c.name1,doc.manufacturerguid  order by qty desc ";
+
+      var response = await clickHouseSelect(querySummary);
+
+      try {
+        return ApiResponse.fromMap(response);
+      } catch (e) {
+        throw Exception(e);
+      }
+    } catch (e) {
+      print(e);
+      throw Exception(e);
+    }
+  }
+
+  // Future<ApiResponse> getReportSaleWeeklySummary(String fromdate, String todate) async {
+  //   try {
+  //     var shopid = appConfig.read("shopid");
+  //     var where = "";
+  //     if (fromdate.isNotEmpty && todate.isNotEmpty) {
+  //       where = "  AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  BETWEEN '$fromdate' AND '$todate' ";
+  //     } else if (fromdate.isNotEmpty) {
+  //       where = " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  >= '$fromdate' ";
+  //     } else if (todate.isNotEmpty) {
+  //       where = " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok')) <= '$todate' ";
+  //     }
+  //     String querySummary =
+  //         " SELECT docdatetime::date,sum(totalamount) as totalamount FROM dedebi.doc where shopid='$shopid' $where  group by shopid,docdate order by docdatetime asc ";
+
+  //     var response = await clickHouseSelect(querySummary);
+
+  //     try {
+  //       return ApiResponse.fromMap(response);
+  //     } catch (e) {
+  //       throw Exception(e);
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     throw Exception(e);
+  //   }
+  // }
 
   Future<ApiResponse> getReportSaleWeeklySummary(String fromdate, String todate) async {
     Dio dio = Dio();
@@ -165,22 +334,22 @@ class ReportRepository {
     }
   }
 
-  Future<ApiResponse> getProductSales(String fromdate, String todate) async {
-    Dio dio = Dio();
-    final token = appConfig.read("token");
-    print("getProductSales");
-    try {
-      final response = await dio.get('${Environment().config.reportApi}/salesummarypg/productsales?token=$token$fromdate$todate');
-      try {
-        return ApiResponse.fromMap(response.data);
-      } catch (ex) {
-        throw Exception(ex);
-      }
-    } on DioError catch (ex) {
-      String errorMessage = ex.error.toString();
-      throw Exception(errorMessage);
-    }
-  }
+  // Future<ApiResponse> getProductSales(String fromdate, String todate) async {
+  //   Dio dio = Dio();
+  //   final token = appConfig.read("token");
+  //   print("getProductSales");
+  //   try {
+  //     final response = await dio.get('${Environment().config.reportApi}/salesummarypg/productsales?token=$token$fromdate$todate');
+  //     try {
+  //       return ApiResponse.fromMap(response.data);
+  //     } catch (ex) {
+  //       throw Exception(ex);
+  //     }
+  //   } on DioError catch (ex) {
+  //     String errorMessage = ex.error.toString();
+  //     throw Exception(errorMessage);
+  //   }
+  // }
 
   Future<ApiResponse> getReportBestSellSummary(String fromdate, String todate) async {
     Dio dio = Dio();
