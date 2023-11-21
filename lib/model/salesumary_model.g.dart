@@ -49,6 +49,15 @@ SalesumaryModel _$SalesumaryModelFromJson(Map<String, dynamic> json) =>
           (json['summoneytransferdelivery'] as num?)?.toDouble(),
       sumcreditdelivery: (json['sumcreditdelivery'] as num?)?.toDouble(),
       sumqrcodedelivery: (json['sumqrcodedelivery'] as num?)?.toDouble(),
+      qrcodeshoplist: (json['qrcodeshoplist'] as List<dynamic>?)
+          ?.map((e) => WalletPaymentModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      qrcodetakeawaylist: (json['qrcodetakeawaylist'] as List<dynamic>?)
+          ?.map((e) => WalletPaymentModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      qrcodedeliverylist: (json['qrcodedeliverylist'] as List<dynamic>?)
+          ?.map((e) => DeliveryPaymentModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$SalesumaryModelToJson(SalesumaryModel instance) =>
@@ -86,13 +95,16 @@ Map<String, dynamic> _$SalesumaryModelToJson(SalesumaryModel instance) =>
       'summoneytransferdelivery': instance.summoneytransferdelivery,
       'sumcreditdelivery': instance.sumcreditdelivery,
       'sumqrcodedelivery': instance.sumqrcodedelivery,
+      'qrcodeshoplist': instance.qrcodeshoplist,
+      'qrcodetakeawaylist': instance.qrcodetakeawaylist,
+      'qrcodedeliverylist': instance.qrcodedeliverylist,
     };
 
 WalletPaymentModel _$WalletPaymentModelFromJson(Map<String, dynamic> json) =>
     WalletPaymentModel(
-      code: json['code'] as String,
-      name: json['name'] as String,
-      amount: (json['amount'] as num).toDouble(),
+      code: json['code'] as String?,
+      name: json['name'] as String?,
+      amount: (json['amount'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$WalletPaymentModelToJson(WalletPaymentModel instance) =>

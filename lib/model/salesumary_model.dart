@@ -39,9 +39,9 @@ class SalesumaryModel {
   double sumcreditdelivery;
   double sumqrcodedelivery;
 
-  // List<WalletPaymentModel> qrcode;
-  // List<WalletPaymentModel> wallet;
-  // List<DeliveryPaymentModel> delivery;
+  List<WalletPaymentModel> qrcodeshoplist;
+  List<WalletPaymentModel> qrcodetakeawaylist;
+  List<DeliveryPaymentModel> qrcodedeliverylist;
 
   SalesumaryModel({
     String? shopid,
@@ -77,6 +77,9 @@ class SalesumaryModel {
     double? summoneytransferdelivery,
     double? sumcreditdelivery,
     double? sumqrcodedelivery,
+    List<WalletPaymentModel>? qrcodeshoplist,
+    List<WalletPaymentModel>? qrcodetakeawaylist,
+    List<DeliveryPaymentModel>? qrcodedeliverylist,
   })  : shopid = shopid ?? "",
         totalamount = totalamount ?? 0,
         totaldiscount = totaldiscount ?? 0,
@@ -109,7 +112,10 @@ class SalesumaryModel {
         sumcreditcarddelivery = sumcreditcarddelivery ?? 0,
         summoneytransferdelivery = summoneytransferdelivery ?? 0,
         sumcreditdelivery = sumcreditdelivery ?? 0,
-        sumqrcodedelivery = sumqrcodedelivery ?? 0;
+        sumqrcodedelivery = sumqrcodedelivery ?? 0,
+        qrcodeshoplist = qrcodeshoplist ?? [],
+        qrcodetakeawaylist = qrcodetakeawaylist ?? [],
+        qrcodedeliverylist = qrcodedeliverylist ?? [];
 
   factory SalesumaryModel.fromJson(Map<String, dynamic> json) => _$SalesumaryModelFromJson(json);
 
@@ -122,7 +128,10 @@ class WalletPaymentModel {
   String name;
   double amount;
 
-  WalletPaymentModel({required this.code, required this.name, required this.amount});
+  WalletPaymentModel({String? code, String? name, double? amount})
+      : code = code ?? "",
+        name = name ?? "",
+        amount = amount ?? 0;
 
   factory WalletPaymentModel.fromJson(Map<String, dynamic> json) => _$WalletPaymentModelFromJson(json);
 

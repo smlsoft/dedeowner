@@ -1064,12 +1064,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     List<Widget> summaryList = [];
     int xx = 0;
-    for (ProductSaleModel ss in productSaleToday) {
-      if (ss.owner == 'Proof') {
-        print(xx);
-      }
-      xx = xx + 1;
-    }
+
     if (productSaleToday.isNotEmpty) {
       summaryList = summary.entries.map((entry) {
         return Column(
@@ -1080,7 +1075,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   children: [
                     Text(
-                      (entry.key.isEmpty) ? appConfig.read("name") + '-' + xx.toString() : entry.key + '-' + xx.toString(),
+                      (entry.key.isEmpty) ? appConfig.read("name") + ' ' + productSaleToday.length.toString() + 'รายการ' : '${entry.key}-${productSaleToday.length}รายการ',
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
                     ),
                     IconButton(
@@ -1806,7 +1801,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
-                    "QR code",
+                    "QRPayment",
                     style: TextStyle(color: Colors.black),
                   ),
                   Opacity(
@@ -1818,21 +1813,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   )
                 ],
               ),
-              // for (var data in salesumary.summary.qrcode)
-              //   Row(
-              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //     crossAxisAlignment: CrossAxisAlignment.center,
-              //     children: [
-              //       Text(
-              //         " - ${data.name}",
-              //         style: const TextStyle(color: Colors.black),
-              //       ),
-              //       Text(
-              //         global.formatNumber(data.amount),
-              //         style: const TextStyle(color: Colors.black),
-              //       )
-              //     ],
-              //   ),
+              for (var data in qrcodeList)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      " - ${data.name}",
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    Text(
+                      global.formatNumber(data.amount),
+                      style: const TextStyle(color: Colors.black),
+                    )
+                  ],
+                ),
               const SizedBox(
                 height: 2,
               ),
@@ -2252,7 +2247,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
-                        "QR code",
+                        "QRPayment",
                         style: TextStyle(color: Colors.black),
                       ),
                       Opacity(

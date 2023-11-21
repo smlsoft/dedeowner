@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dedeowner/api/clickhouse/clickhouse_api.dart';
 import 'package:dedeowner/environment.dart';
 import 'package:dedeowner/global_model.dart';
+import 'package:dedeowner/model/salesumary_model.dart';
 import 'package:get_storage/get_storage.dart';
 
 import 'client.dart';
@@ -123,12 +124,16 @@ class ReportRepository {
       double sumTransferDelivery = 0.0;
       double sumCraditCardDelivery = 0.0;
       var responseRaw = await clickHouseSelect(querySummaryRaw);
+      List<WalletPaymentModel> qrcodeShopList = [];
+      List<WalletPaymentModel> qrcodeTakeAwayList = [];
+      List<WalletPaymentModel> qrcodeDeliveryList = [];
       if (responseRaw['success']) {
         for (var i = 0; i < responseRaw['data'].length; i++) {
           var jsonArrayShop = jsonDecode(responseRaw['data'][i]['paymentdetailrawshop']);
           if (jsonArrayShop is List) {
             for (var item in jsonArrayShop) {
               if (item['trans_flag'] == 5) {
+                qrcodeShopList.add(WalletPaymentModel(code: item['provider_code'], name: item['provider_name'], amount: item['amount']));
                 sumQr += item['amount'];
               } else if (item['trans_flag'] == 1) {
                 sumCraditCard += item['amount'];
@@ -141,6 +146,8 @@ class ReportRepository {
           if (jsonArrayTakeAway is List) {
             for (var item in jsonArrayTakeAway) {
               if (item['trans_flag'] == 5) {
+                qrcodeTakeAwayList.add(WalletPaymentModel(code: item['provider_code'], name: item['provider_name'], amount: item['amount']));
+
                 sumQrTakeaway += item['amount'];
               } else if (item['trans_flag'] == 1) {
                 sumCraditCardTakeaway += item['amount'];
@@ -153,6 +160,8 @@ class ReportRepository {
           if (jsonArrayDelivery is List) {
             for (var item in jsonArrayDelivery) {
               if (item['trans_flag'] == 5) {
+                qrcodeDeliveryList.add(WalletPaymentModel(code: item['provider_code'], name: item['provider_name'], amount: item['amount']));
+
                 sumQrDelivery += item['amount'];
               } else if (item['trans_flag'] == 1) {
                 sumTransferDelivery += item['amount'];
@@ -164,6 +173,9 @@ class ReportRepository {
         }
       }
       if (responseShop['data'].length > 0) {
+        responseShop['data'][0]['qrcodeshoplist'] = qrcodeShopList.map((e) => e.toJson()).toList();
+        responseShop['data'][0]['qrcodetakeawaylist'] = qrcodeTakeAwayList.map((e) => e.toJson()).toList();
+        responseShop['data'][0]['qrcodedeliverylist'] = qrcodeDeliveryList.map((e) => e.toJson()).toList();
         responseShop['data'][0]['sumqrcode'] = sumQr + sumQrTakeaway + sumQrDelivery;
         responseShop['data'][0]['summoneytransfer'] = sumTransfer + sumTransferTakeaway + sumTransferDelivery;
         responseShop['data'][0]['sumcreditcard'] = sumCraditCard + sumCraditCardTakeaway + sumCraditCardDelivery;

@@ -1,3 +1,5 @@
+// ignore_for_file: sized_box_for_whitespace
+
 import 'package:dedeowner/imports_repositories.dart';
 import 'package:dedeowner/model/product_sale_model.dart';
 import 'package:dedeowner/repositories/report_repository.dart';
@@ -58,6 +60,10 @@ class _ProductSaleByOwnerState extends State<ProductSaleByOwner> {
                   ListTile(
                     title: Row(
                       children: [
+                        Container(
+                          width: 50,
+                          child: const Text("#"),
+                        ),
                         Expanded(
                           flex: 2,
                           child: Text("สินค้า", style: TextStyle(color: Colors.grey.shade800)),
@@ -78,6 +84,10 @@ class _ProductSaleByOwnerState extends State<ProductSaleByOwner> {
                               ListTile(
                                 title: Row(
                                   children: [
+                                    Container(
+                                      width: 50,
+                                      child: Text("${index + 1}"),
+                                    ),
                                     Expanded(
                                       flex: 2,
                                       child: Text(
@@ -112,7 +122,7 @@ class _ProductSaleByOwnerState extends State<ProductSaleByOwner> {
                   ),
                 ],
               )
-            : Center(child: Text("ไม่พบข้อมูล")),
+            : const Center(child: Text("ไม่พบข้อมูล")),
       ),
     );
   }
