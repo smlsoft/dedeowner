@@ -58,7 +58,7 @@ class _ProductSaleScreenState extends State<ProductSaleScreen> {
 
     ReportRepository reportRepository = ReportRepository();
     try {
-      ApiResponse result = await reportRepository.getSaleByProduct(searchController.text, pageActive);
+      ApiResponse result = await reportRepository.getSaleByProductCH(searchController.text, pageActive);
       if (result.success) {
         List<ProductSaleModel> products = (result.data as List).map((product) => ProductSaleModel.fromJson(product)).toList();
 
@@ -95,7 +95,7 @@ class _ProductSaleScreenState extends State<ProductSaleScreen> {
     pageActive = 0;
     ReportRepository reportRepository = ReportRepository();
     try {
-      ApiResponse result = await reportRepository.getSaleByProduct(searchController.text, pageActive);
+      ApiResponse result = await reportRepository.getSaleByProductCH(searchController.text, pageActive);
       if (result.success) {
         List<ProductSaleModel> products = (result.data as List).map((product) => ProductSaleModel.fromJson(product)).toList();
 

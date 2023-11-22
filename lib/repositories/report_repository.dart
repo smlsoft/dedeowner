@@ -305,23 +305,16 @@ class ReportRepository {
       if (search.isNotEmpty) {
         var searchTerms = search.split(" ");
 
-        //   if (searchTerms.length > 0) {
-        //     searchTerms.forEach((term) => {
-        //       term = term.trim();
-        //       if (term) {
-        //         where += " AND (st.barcode LIKE '%${term}%' OR EXISTS (
-        //           SELECT 1
-        //           FROM jsonb_array_elements_text(st.itemnames) AS element
-        //           WHERE element LIKE '%${term}%'
-        //         )) "
-        //       }
-        //     });
-        //   } else {
-        //     where += " and (st.barcode like '%${search}%' or EXISTS (
-        //     SELECT 1
-        //     FROM jsonb_array_elements_text(st.itemnames) AS element
-        //     WHERE element LIKE '%${search}%'
-        // )) ";
+        if (searchTerms.isNotEmpty) {
+          for (var term in searchTerms) {
+            term = term.trim();
+            if (term.isNotEmpty) {
+              where += " AND (doc.barcode LIKE '%$term%' OR p.name0 LIKE '%$term%' ) ";
+            }
+          }
+        } else {
+          where += " and (doc.barcode like '%$search%' OR p.name0  LIKE '%$search%') ";
+        }
       }
 
       String querySummary =
@@ -329,7 +322,7 @@ class ReportRepository {
       querySummary += " FROM dedebi.docdetail AS doc";
       querySummary += " LEFT JOIN dedebi.productbarcode AS p ON doc.barcode  = p.barcode  and doc.shopid = p.shopid  ";
       querySummary += " WHERE doc.shopid = '$shopid' $where ";
-      querySummary += " GROUP BY  doc.shopid,doc.barcode,p.name0,doc.unitcode,doc.price  order by sumamount desc limit 10";
+      querySummary += " GROUP BY  doc.shopid,doc.barcode,p.name0,doc.unitcode,doc.price  order by sumamount desc  limit $limit offset ${limit * pageactive} ";
 
       var response = await clickHouseSelect(querySummary);
 
