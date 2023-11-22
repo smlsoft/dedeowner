@@ -508,12 +508,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
     DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
 
-    queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfYear)}";
-    queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfYear)}";
+    queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfYear);
+    queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfYear);
 
     ReportRepository reportRepository = ReportRepository();
 
-    ApiResponse result = await reportRepository.getReportBestSellSummary(queryFromdate, queryTodate);
+    ApiResponse result = await reportRepository.getSellLoadCH(queryFromdate, queryTodate);
 
     if (result.success) {
       List<BestProductModel> products = (result.data as List).map((product) => BestProductModel.fromJson(product)).toList();
@@ -1075,7 +1075,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   children: [
                     Text(
-                      (entry.key.isEmpty) ? appConfig.read("name") + ' ' + productSaleToday.length.toString() + 'รายการ' : '${entry.key}-${productSaleToday.length}รายการ',
+                      (entry.key.isEmpty) ? appConfig.read("name") : entry.key,
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
                     ),
                     IconButton(
@@ -1624,7 +1624,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Expanded(
                     flex: 2,
                     child: Text(
-                      "${global.activeLangName(bestseller.names)}@${bestseller.price}",
+                      "${bestseller.itemname}@${bestseller.price}",
                     )),
                 Expanded(
                     child: Text(

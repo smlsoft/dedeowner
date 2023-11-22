@@ -250,7 +250,86 @@ class ReportRepository {
       querySummary += " LEFT JOIN dedebi.creditors AS c ON doc.manufacturerguid = c.guidfixed and doc.shopid = c.shopid  ";
       querySummary += " LEFT JOIN dedebi.productbarcode AS p ON doc.barcode  = p.barcode  and doc.shopid = p.shopid  ";
       querySummary += " WHERE doc.shopid = '$shopid' $where ";
-      querySummary += " GROUP BY  doc.barcode,p.name0,doc.unitcode,doc.price,c.name1  order by qty desc ";
+      querySummary += " GROUP BY  doc.barcode,p.name0,doc.unitcode,doc.price,c.name1  order by sumamount desc ";
+
+      var response = await clickHouseSelect(querySummary);
+
+      try {
+        return ApiResponse.fromMap(response);
+      } catch (e) {
+        throw Exception(e);
+      }
+    } catch (e) {
+      print(e);
+      throw Exception(e);
+    }
+  }
+
+  Future<ApiResponse> getSellLoadCH(String fromdate, String todate) async {
+    try {
+      var shopid = appConfig.read("shopid");
+      var where = "";
+      if (fromdate.isNotEmpty && todate.isNotEmpty) {
+        where = "  AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  BETWEEN '$fromdate' AND '$todate' ";
+      } else if (fromdate.isNotEmpty) {
+        where = " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok'))  >= '$fromdate' ";
+      } else if (todate.isNotEmpty) {
+        where = " AND toDate(toDateTime(docdatetime, 'Asia/Bangkok')) <= '$todate' ";
+      }
+      String querySummary =
+          " SELECT doc.shopid,doc.barcode as barcode,p.name0 as itemname,doc.unitcode as unitcode,sum(sumamount) as sumamount,doc.price as price,sum(qty) as qty ";
+      querySummary += " FROM dedebi.docdetail AS doc";
+      querySummary += " LEFT JOIN dedebi.productbarcode AS p ON doc.barcode  = p.barcode  and doc.shopid = p.shopid  ";
+      querySummary += " WHERE doc.shopid = '$shopid' $where ";
+      querySummary += " GROUP BY  doc.shopid,doc.barcode,p.name0,doc.unitcode,doc.price  order by sumamount desc limit 10";
+
+      var response = await clickHouseSelect(querySummary);
+
+      try {
+        return ApiResponse.fromMap(response);
+      } catch (e) {
+        throw Exception(e);
+      }
+    } catch (e) {
+      print(e);
+      throw Exception(e);
+    }
+  }
+
+  Future<ApiResponse> getSaleByProductCH(String search, int pageactive) async {
+    try {
+      var shopid = appConfig.read("shopid");
+      var where = "";
+      var limit = 30;
+
+      if (search.isNotEmpty) {
+        var searchTerms = search.split(" ");
+
+        //   if (searchTerms.length > 0) {
+        //     searchTerms.forEach((term) => {
+        //       term = term.trim();
+        //       if (term) {
+        //         where += " AND (st.barcode LIKE '%${term}%' OR EXISTS (
+        //           SELECT 1
+        //           FROM jsonb_array_elements_text(st.itemnames) AS element
+        //           WHERE element LIKE '%${term}%'
+        //         )) "
+        //       }
+        //     });
+        //   } else {
+        //     where += " and (st.barcode like '%${search}%' or EXISTS (
+        //     SELECT 1
+        //     FROM jsonb_array_elements_text(st.itemnames) AS element
+        //     WHERE element LIKE '%${search}%'
+        // )) ";
+      }
+
+      String querySummary =
+          " SELECT doc.shopid,doc.barcode as barcode,p.name0 as itemname,doc.unitcode as unitcode,sum(sumamount) as sumamount,doc.price as price,sum(qty) as qty ";
+      querySummary += " FROM dedebi.docdetail AS doc";
+      querySummary += " LEFT JOIN dedebi.productbarcode AS p ON doc.barcode  = p.barcode  and doc.shopid = p.shopid  ";
+      querySummary += " WHERE doc.shopid = '$shopid' $where ";
+      querySummary += " GROUP BY  doc.shopid,doc.barcode,p.name0,doc.unitcode,doc.price  order by sumamount desc limit 10";
 
       var response = await clickHouseSelect(querySummary);
 
@@ -287,7 +366,7 @@ class ReportRepository {
       querySummary += " LEFT JOIN dedebi.creditors AS c ON doc.manufacturerguid = c.guidfixed and doc.shopid = c.shopid  ";
       querySummary += " LEFT JOIN dedebi.productbarcode AS p ON doc.barcode  = p.barcode  and doc.shopid = p.shopid  ";
       querySummary += " WHERE doc.shopid = '$shopid' $where ";
-      querySummary += " GROUP BY  doc.barcode,p.name0,doc.unitcode,doc.price,c.name1,doc.manufacturerguid  order by qty desc ";
+      querySummary += " GROUP BY  doc.barcode,p.name0,doc.unitcode,doc.price,c.name1,doc.manufacturerguid  order by sumamount desc ";
 
       var response = await clickHouseSelect(querySummary);
 

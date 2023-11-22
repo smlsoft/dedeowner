@@ -9,6 +9,7 @@ part of 'best_product_model.dart';
 BestProductModel _$BestProductModelFromJson(Map<String, dynamic> json) =>
     BestProductModel(
       shopid: json['shopid'] as String?,
+      itemname: json['itemname'] as String?,
       qty: (json['qty'] as num?)?.toDouble(),
       unitcode: json['unitcode'] as String?,
       sumamount: (json['sumamount'] as num?)?.toDouble(),
@@ -25,5 +26,6 @@ Map<String, dynamic> _$BestProductModelToJson(BestProductModel instance) =>
       'unitcode': instance.unitcode,
       'price': instance.price,
       'sumamount': instance.sumamount,
+      'itemname': instance.itemname,
       'names': instance.names,
     };

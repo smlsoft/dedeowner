@@ -11,15 +11,18 @@ class BestProductModel {
   String unitcode;
   double price;
   double sumamount;
+  String itemname;
   List<LanguageDataModel> names;
   BestProductModel({
     String? shopid,
+    String? itemname,
     double? qty,
     String? unitcode,
     double? sumamount,
     double? price,
     List<LanguageDataModel>? names,
   })  : shopid = shopid ?? "",
+        itemname = itemname ?? "",
         unitcode = unitcode ?? "",
         qty = qty ?? 0,
         price = price ?? 0,
