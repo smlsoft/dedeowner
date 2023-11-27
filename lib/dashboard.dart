@@ -346,11 +346,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         isLoading = false;
       });
     }
-
+    deliveryList = [];
     ApiResponse resultDetail = await reportRepository.getReportSaleSummaryDetail(queryFromdate, queryTodate);
     if (resultDetail.success) {
       if (resultDetail.data.length > 0) {
-        deliveryList = (resultDetail.data as List).map((salechannel) => DeliveryPaymentModel.fromJson(salechannel)).toList();
+        setState(() {
+          deliveryList = (resultDetail.data as List).map((salechannel) => DeliveryPaymentModel.fromJson(salechannel)).toList();
+        });
       }
     }
   }
@@ -505,11 +507,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryFromdate = "";
     String queryTodate = "";
     DateTime currentDate = DateTime.now();
-    DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
-    DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
 
-    queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfYear);
-    queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfYear);
+    if (selectedItem == 'รายวัน') {
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
+      queryFromdate = DateFormat('yyyy-MM-dd').format(currentDate);
+      queryTodate = DateFormat('yyyy-MM-dd').format(currentDate);
+    } else if (selectedItem == 'รายสัปดาห์') {
+      DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
+      DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
+
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfWeek);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfWeek);
+      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfWeek);
+      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfWeek);
+    } else if (selectedItem == 'รายเดือน') {
+      DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
+      DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
+
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfMonth);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfMonth);
+      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
+      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
+    } else if (selectedItem == 'ยอดขาย3เดือน') {
+      DateTime firstDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month - 2, 1);
+      DateTime lastDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month + 1, 0);
+
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfLastThreeMonths);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfLastThreeMonths);
+      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfLastThreeMonths);
+      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfLastThreeMonths);
+    } else if (selectedItem == 'รายปี') {
+      DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
+      DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
+
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfYear);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfYear);
+      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfYear);
+      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfYear);
+    } else {
+      queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
+      queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
+    }
 
     ReportRepository reportRepository = ReportRepository();
 
