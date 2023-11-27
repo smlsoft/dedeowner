@@ -127,150 +127,114 @@ class _ProductSaleScreenState extends State<ProductSaleScreen> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        elevation: 1,
-        shadowColor: Colors.orange.shade700,
-        automaticallyImplyLeading: false,
-        title: Align(
-          alignment: Alignment.center,
-          child: Text(
-            appConfig.read("name"),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-        backgroundColor: Colors.orange.shade700,
-        leading: IconButton(
-          icon: const Icon(Icons.swap_vert),
-          onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const SelectShopScreen()), (route) => false);
-          },
-        ),
-        actions: [
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginShop()),
-                  );
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey),
+              ),
+              height: 50.0,
+              child: TextField(
+                autofocus: false,
+                onChanged: _onSearchChanged,
+                onSubmitted: (value) {
+                  _searchData();
                 },
-              ),
-            ],
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.all(5),
-            padding: const EdgeInsets.all(0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey),
-            ),
-            height: 50.0,
-            child: TextField(
-              autofocus: false,
-              onChanged: _onSearchChanged,
-              onSubmitted: (value) {
-                _searchData();
-              },
-              controller: searchController,
-              decoration: InputDecoration(
-                hintStyle: const TextStyle(fontSize: 17),
-                hintText: 'ค้นหาสินค้า...',
-                prefixIcon: IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orangeAccent.shade400,
-                        shadowColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintStyle: const TextStyle(fontSize: 17),
+                  hintText: 'ค้นหาสินค้า...',
+                  prefixIcon: IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent.shade400,
+                          shadowColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
                         ),
-                      ),
-                      onPressed: () {
-                        _searchData();
-                      },
-                      child: const Text(
-                        'ค้นหา',
-                        style: TextStyle(fontSize: 14, color: Colors.white),
-                      )),
+                        onPressed: () {
+                          _searchData();
+                        },
+                        child: const Text(
+                          'ค้นหา',
+                          style: TextStyle(fontSize: 14, color: Colors.white),
+                        )),
+                  ),
+                  border: InputBorder.none,
                 ),
-                border: InputBorder.none,
               ),
             ),
-          ),
-          ListTile(
-            title: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Text("สินค้า", style: TextStyle(color: Colors.grey.shade800)),
-                ),
-                Expanded(child: Center(child: Text("จำนวน", style: TextStyle(color: Colors.grey.shade800)))),
-                Expanded(child: Align(alignment: Alignment.centerRight, child: Text("มูลค่า", style: TextStyle(color: Colors.grey.shade800))))
-              ],
+            ListTile(
+              title: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text("สินค้า", style: TextStyle(color: Colors.grey.shade800)),
+                  ),
+                  Expanded(child: Center(child: Text("จำนวน", style: TextStyle(color: Colors.grey.shade800)))),
+                  Expanded(child: Align(alignment: Alignment.centerRight, child: Text("มูลค่า", style: TextStyle(color: Colors.grey.shade800))))
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Container(
-              color: Colors.white,
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: productSaleList.length + (productSaleLoad ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == productSaleList.length && productSaleLoad) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return Column(
-                    children: [
-                      ListTile(
-                        title: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                (productSaleList[index].names.isNotEmpty)
-                                    ? "${productSaleList[index].names.firstWhere((ele) => ele.code == "th", orElse: () => LanguageDataModel(
-                                          code: 'en',
-                                          name: '',
-                                        )).name}@${productSaleList[index].price}"
-                                    : "${productSaleList[index].itemname}@${productSaleList[index].price}",
-                                style: const TextStyle(fontSize: 14),
+            Expanded(
+              child: Container(
+                color: Colors.white,
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: productSaleList.length + (productSaleLoad ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == productSaleList.length && productSaleLoad) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return Column(
+                      children: [
+                        ListTile(
+                          title: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  (productSaleList[index].names.isNotEmpty)
+                                      ? "${productSaleList[index].names.firstWhere((ele) => ele.code == "th", orElse: () => LanguageDataModel(
+                                            code: 'en',
+                                            name: '',
+                                          )).name}@${productSaleList[index].price}"
+                                      : "${productSaleList[index].itemname}@${productSaleList[index].price}",
+                                  style: const TextStyle(fontSize: 14),
+                                ),
                               ),
-                            ),
-                            Expanded(
-                                child: Center(
-                                    child: Text(
-                              global.formatNumber(productSaleList[index].qty),
-                              style: const TextStyle(fontSize: 14),
-                            ))),
-                            Expanded(
-                                child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      global.formatNumber(productSaleList[index].sumamount),
-                                      style: const TextStyle(fontSize: 14),
-                                    )))
-                          ],
+                              Expanded(
+                                  child: Center(
+                                      child: Text(
+                                global.formatNumber(productSaleList[index].qty),
+                                style: const TextStyle(fontSize: 14),
+                              ))),
+                              Expanded(
+                                  child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        global.formatNumber(productSaleList[index].sumamount),
+                                        style: const TextStyle(fontSize: 14),
+                                      )))
+                            ],
+                          ),
                         ),
-                      ),
-                      Divider(
-                        color: Colors.orange.shade200,
-                      )
-                    ],
-                  );
-                },
+                        Divider(
+                          color: Colors.orange.shade200,
+                        )
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

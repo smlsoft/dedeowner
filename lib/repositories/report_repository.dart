@@ -80,7 +80,7 @@ class ReportRepository {
       querySummaryShop += " SUM(CASE WHEN takeaway = 0 THEN totaldiscount ELSE 0 END) AS totaldiscountshop, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 0 THEN totalamount ELSE 0 END) AS totalamountshop, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 0 THEN roundamount ELSE 0 END) AS roundamountshop, ";
-      querySummaryShop += " SUM(CASE WHEN takeaway = 0 THEN paycashamount ELSE 0 END) AS paycashamountshop, ";
+      querySummaryShop += " SUM(CASE WHEN takeaway = 0 THEN paycashamount-paycashchange ELSE 0 END) AS paycashamountshop, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 0 THEN sumcreditcard ELSE 0 END) AS sumcreditcardshop, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 0 THEN summoneytransfer ELSE 0 END) AS summoneytransfershop, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 0 THEN sumcredit ELSE 0 END) AS sumcreditshop, ";
@@ -89,7 +89,8 @@ class ReportRepository {
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN totaldiscount ELSE 0 END) AS totaldiscounttakeaway, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN totalamount ELSE 0 END) AS totalamounttakeaway, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN roundamount ELSE 0 END) AS roundamounttakeaway, ";
-      querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN paycashamount ELSE 0 END) AS paycashamounttakeaway, ";
+      querySummaryShop +=
+          " SUM(CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN paycashamount-paycashchange ELSE 0 END) AS paycashamounttakeaway, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN sumcreditcard ELSE 0 END) AS sumcreditcardtakeaway, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN summoneytransfer ELSE 0 END) AS summoneytransfertakeaway, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND (salechannelcode IS NULL OR salechannelcode = '') THEN sumcredit ELSE 0 END) AS sumcredittakeaway, ";
@@ -98,7 +99,8 @@ class ReportRepository {
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != '' THEN totaldiscount ELSE 0 END) AS totaldiscountdelivery, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != '' THEN totalamount ELSE 0 END) AS totalamountdelivery, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != '' THEN roundamount ELSE 0 END) AS roundamountdelivery, ";
-      querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != '' THEN paycashamount ELSE 0 END) AS paycashamountdelivery, ";
+      querySummaryShop +=
+          " SUM(CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != '' THEN paycashamount-paycashchange ELSE 0 END) AS paycashamountdelivery, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != '' THEN sumcreditcard ELSE 0 END) AS sumcreditcarddelivery, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != '' THEN summoneytransfer ELSE 0 END) AS summoneytransferdelivery, ";
       querySummaryShop += " SUM(CASE WHEN takeaway = 1 AND salechannelcode IS NOT NULL AND salechannelcode != '' THEN sumcredit ELSE 0 END) AS sumcreditdelivery, ";

@@ -29,7 +29,7 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProviderStateMixin {
   final List<GlobalKey> keys = List.generate(
     13,
     (index) => GlobalKey(),
@@ -45,6 +45,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final widgetKeyDeliveryThreeMonthly = GlobalKey();
   final widgetKeyYearly = GlobalKey();
   final widgetKeyDeliveryYearly = GlobalKey();
+  late TabController _tabController;
   int Piekey = 0;
   DateTime selectedDateGraph = DateTime.now();
 
@@ -139,13 +140,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _scrollController = ScrollController();
   TextEditingController fromDateController = TextEditingController();
   TextEditingController toDateController = TextEditingController();
-  List<String> dropdownSelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
-  List<String> graphSelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
-  List<String> graphDeliverySelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
-  String selectedItem = 'รายวัน';
-  String graphSelectedItem = 'รายวัน';
-  String graphDeliverySelectedItem = 'รายวัน';
-
+  List<String> dropdownSelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
+  List<String> graphSelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
+  List<String> graphDeliverySelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
+  String selectedItem = 'วันนี้';
+  String graphSelectedItem = 'วันนี้';
+  String graphDeliverySelectedItem = 'วันนี้';
+  bool showcalendar = false;
   double opacityText = 1;
   final appConfig = GetStorage("AppConfig");
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
@@ -157,15 +158,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   void initState() {
+    _tabController = TabController(length: 5, vsync: this);
     fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     toDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
-
+    _tabController.addListener(_handleTabIndex);
     getAllReport();
     reFreshTimer = Timer.periodic(const Duration(seconds: 60), (timer) async {
       getAllReport();
     });
 
     super.initState();
+  }
+
+  void _handleTabIndex() {
+    setState(() {
+      setState(() {
+        selectedItem = dropdownSelect[_tabController.index];
+
+        if (selectedItem != 'Custom') {
+          graphSelectedItem = selectedItem;
+          graphDeliverySelectedItem = selectedItem;
+          getReport();
+          getReportProductSale();
+          getGraphStore();
+          getGraphDelivery();
+        }
+      });
+    });
   }
 
   @override
@@ -176,27 +195,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void getAllReport() async {
     getReport();
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 1));
     getReportProductSale();
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 1));
     getReportSaleWeek();
     // await Future.delayed(const Duration(seconds: 4));
     // getGraphStore();
     // await Future.delayed(const Duration(seconds: 4));
     // getGraphDelivery();
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 1));
     if (bestSellLoad) {
       getSellLoad();
     }
   }
 
   void getGraphDelivery() async {
-    if (graphDeliverySelectedItem == 'รายวัน') {
+    if (graphDeliverySelectedItem == 'วันนี้') {
       DateTime currentDate = DateTime.now();
       String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       getGraph(1, queryFromdate, queryTodate);
-    } else if (graphDeliverySelectedItem == 'รายสัปดาห์') {
+    }
+    if (graphDeliverySelectedItem == 'เมื่อวาน') {
+      //yesterday
+      DateTime currentDate = DateTime.now();
+      DateTime yesterday = currentDate.subtract(const Duration(days: 1));
+      String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(yesterday)}";
+      String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(yesterday)}";
+      getGraph(1, queryFromdate, queryTodate);
+    } else if (graphDeliverySelectedItem == 'สัปดาห์นี้') {
       DateTime currentDate = DateTime.now();
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
@@ -231,12 +258,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void getGraphStore() async {
-    if (graphSelectedItem == 'รายวัน') {
+    if (graphSelectedItem == 'วันนี้') {
       DateTime currentDate = DateTime.now();
       String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
       getGraph(0, queryFromdate, queryTodate);
-    } else if (graphSelectedItem == 'รายสัปดาห์') {
+    }
+    if (graphSelectedItem == 'เมื่อวาน') {
+      //yesterday
+      DateTime currentDate = DateTime.now();
+      DateTime yesterday = currentDate.subtract(const Duration(days: 1));
+      String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(yesterday)}";
+      String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(yesterday)}";
+      getGraph(0, queryFromdate, queryTodate);
+    } else if (graphSelectedItem == 'สัปดาห์นี้') {
       DateTime currentDate = DateTime.now();
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
@@ -281,12 +316,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       isLoading = true;
     });
 
-    if (selectedItem == 'รายวัน') {
+    if (selectedItem == 'วันนี้') {
       fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       queryFromdate = DateFormat('yyyy-MM-dd').format(currentDate);
       queryTodate = DateFormat('yyyy-MM-dd').format(currentDate);
-    } else if (selectedItem == 'รายสัปดาห์') {
+    }
+    if (selectedItem == 'เมื่อวาน') {
+      //yesterday
+      DateTime currentDate = DateTime.now();
+      DateTime yesterday = currentDate.subtract(const Duration(days: 1));
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+      queryFromdate = DateFormat('yyyy-MM-dd').format(yesterday);
+      queryTodate = DateFormat('yyyy-MM-dd').format(yesterday);
+    } else if (selectedItem == 'สัปดาห์นี้') {
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
 
@@ -362,12 +406,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryTodate = "";
     DateTime currentDate = DateTime.now();
 
-    if (selectedItem == 'รายวัน') {
+    if (selectedItem == 'วันนี้') {
       fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       queryFromdate = DateFormat('yyyy-MM-dd').format(currentDate);
       queryTodate = DateFormat('yyyy-MM-dd').format(currentDate);
-    } else if (selectedItem == 'รายสัปดาห์') {
+    } else if (selectedItem == 'เมื่อวาน') {
+      //yesterday
+      DateTime currentDate = DateTime.now();
+      DateTime yesterday = currentDate.subtract(const Duration(days: 1));
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+      queryFromdate = DateFormat('yyyy-MM-dd').format(yesterday);
+      queryTodate = DateFormat('yyyy-MM-dd').format(yesterday);
+    } else if (selectedItem == 'สัปดาห์นี้') {
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
 
@@ -508,12 +560,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryTodate = "";
     DateTime currentDate = DateTime.now();
 
-    if (selectedItem == 'รายวัน') {
+    if (selectedItem == 'วันนี้') {
       fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
       queryFromdate = DateFormat('yyyy-MM-dd').format(currentDate);
       queryTodate = DateFormat('yyyy-MM-dd').format(currentDate);
-    } else if (selectedItem == 'รายสัปดาห์') {
+    } else if (selectedItem == 'เมื่อวาน') {
+      //yesterday
+      DateTime yesterday = currentDate.subtract(const Duration(days: 1));
+      fromDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+      toDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+      queryFromdate = DateFormat('yyyy-MM-dd').format(yesterday);
+      queryTodate = DateFormat('yyyy-MM-dd').format(yesterday);
+    } else if (selectedItem == 'สัปดาห์นี้') {
       DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
       DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
 
@@ -597,93 +656,252 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Scaffold(
         backgroundColor: Colors.grey.shade100,
         resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          elevation: 1,
-          shadowColor: Colors.orange.shade700,
-          automaticallyImplyLeading: false,
-          title: Align(
-            alignment: Alignment.center,
-            child: Text(
-              appConfig.read("name"),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+        body: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.orange.shade700,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade300,
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: const Offset(0, 1), // changes position of shadow
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                          child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            for (int i = 0; i < dropdownSelect.length; i++)
+                              Container(
+                                margin: const EdgeInsets.all(2),
+                                padding: const EdgeInsets.all(1),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedItem = dropdownSelect[i];
+
+                                      if (selectedItem != 'Custom') {
+                                        graphSelectedItem = selectedItem;
+                                        graphDeliverySelectedItem = selectedItem;
+                                        getReport();
+                                        getReportProductSale();
+                                        getGraphStore();
+                                        getGraphDelivery();
+                                      }
+                                    });
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.white),
+                                    foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.orange.shade700 : Colors.grey.shade700),
+                                    side: MaterialStateProperty.all<BorderSide>(
+                                        BorderSide(color: (selectedItem == dropdownSelect[i]) ? Colors.orange.shade700 : Colors.white, width: 2)),
+                                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text(dropdownSelect[i]),
+                                ),
+                              ),
+                          ],
+                        ),
+                      )),
+                      Container(
+                        color: Colors.orange.shade700,
+                        width: 50,
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              showcalendar = !showcalendar;
+                            });
+                          },
+                          icon: const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          backgroundColor: Colors.orange.shade700,
-          leading: IconButton(
-            icon: const Icon(Icons.swap_vert),
-            onPressed: () {
-              reFreshTimer?.cancel();
-              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const SelectShopScreen()), (route) => false);
-            },
-          ),
-          actions: [
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.logout),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const LoginShop()),
-                    );
+            Visibility(
+              visible: showcalendar,
+              child: Container(
+                height: 75,
+                padding: const EdgeInsets.only(top: 10, left: 10, bottom: 5, right: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.white,
+                ),
+                child: TextField(
+                  readOnly: true,
+                  decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                      border: const OutlineInputBorder(),
+                      labelText: "จากวันที่",
+                      suffixIcon: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            color: Colors.orange.shade700,
+                            focusNode: FocusNode(skipTraversal: true),
+                            icon: const Icon(Icons.calendar_month),
+                            onPressed: () {
+                              _selectDocDate("fromdate", fromDateController.text);
+                            },
+                          ),
+                        ],
+                      )),
+                  controller: fromDateController,
+                  onChanged: (value) {
+                    setState(() {
+                      try {
+                        List<String> valueSplit = value.replaceAll(".", "/").split("/");
+                        if (valueSplit.length == 3) {
+                          if (valueSplit[2].length == 2) {
+                            valueSplit[2] = '25${valueSplit[2]}';
+                          }
+                          int year = int.tryParse(valueSplit[2]) ?? 0;
+                          year = year - 543;
+                          int month = int.tryParse(valueSplit[1]) ?? 0;
+                          int day = int.tryParse(valueSplit[0]) ?? 0;
+                          value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+                        }
+                      } catch (e) {
+                        print(e);
+                      }
+                    });
+                  },
+                  onSubmitted: (value) {
+                    //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
                   },
                 ),
-              ],
-            )
-          ],
-        ),
-        body: SingleChildScrollView(
-          controller: _scrollController,
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (int loop = 0; loop < widgetList.length; loop++)
-                  VisibilityDetector(
-                      onVisibilityChanged: (visibilityInfo) {
-                        print(visibilityInfo);
-                        if (visibilityInfo.visibleFraction == 1) {
-                          print("$loop : Visible");
-
-                          if (loadSuccess[loop] == false) {
-                            if (widgetList[loop].key != null) {
-                              print("get key : $loop");
-                              if (loop == 11) {
-                                getSellLoad();
-                              }
-                              // if (loop == 20) {
-                              //   //รายสัปดาห์นี้
-                              //   getGraphWeekly();
-                              // }
-                              // if (loop == 29) {
-                              //   //รายเดือน
-                              //   getGraphMonthly();
-                              // }
-                              // if (loop == 38) {
-                              //   //3รายเดือน
-                              //   getGraphThreeMonthly();
-                              // }
-                              // if (loop == 47) {
-                              //   //ปีนี้
-                              //   getGraphYearly();
-                              // }
-                              // if (loop == 56) {
-                              //   //ขายดี
-                              // }
-                            }
-
-                            loadSuccess[loop] = true;
-                          }
-                        }
-                      },
-                      key: Key(loop.toString()),
-                      child: widgetList[loop])
-              ],
+              ),
             ),
-          ),
+            Visibility(
+              visible: showcalendar,
+              child: Container(
+                height: 75,
+                padding: const EdgeInsets.only(top: 3, left: 10, bottom: 0, right: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.white,
+                ),
+                child: TextField(
+                  readOnly: true,
+                  decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                      border: const OutlineInputBorder(),
+                      labelText: "ถึงวันที่",
+                      suffixIcon: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            color: Colors.orange.shade700,
+                            focusNode: FocusNode(skipTraversal: true),
+                            icon: const Icon(Icons.calendar_month),
+                            onPressed: () {
+                              _selectDocDate("todate", toDateController.text);
+                            },
+                          ),
+                        ],
+                      )),
+                  controller: toDateController,
+                  onChanged: (value) {
+                    setState(() {
+                      try {
+                        List<String> valueSplit = value.replaceAll(".", "/").split("/");
+                        if (valueSplit.length == 3) {
+                          if (valueSplit[2].length == 2) {
+                            valueSplit[2] = '25${valueSplit[2]}';
+                          }
+                          int year = int.tryParse(valueSplit[2]) ?? 0;
+                          year = year - 543;
+                          int month = int.tryParse(valueSplit[1]) ?? 0;
+                          int day = int.tryParse(valueSplit[0]) ?? 0;
+                          value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+                        }
+                      } catch (e) {
+                        print(e);
+                      }
+                    });
+                  },
+                  onSubmitted: (value) {
+                    //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (int loop = 0; loop < widgetList.length; loop++)
+                        VisibilityDetector(
+                            onVisibilityChanged: (visibilityInfo) {
+                              print(visibilityInfo);
+                              if (visibilityInfo.visibleFraction == 1) {
+                                print("$loop : Visible");
+
+                                if (loadSuccess[loop] == false) {
+                                  if (widgetList[loop].key != null) {
+                                    print("get key : $loop");
+                                    if (loop == 11) {
+                                      getSellLoad();
+                                    }
+                                    // if (loop == 20) {
+                                    //   //สัปดาห์นี้นี้
+                                    //   getGraphWeekly();
+                                    // }
+                                    // if (loop == 29) {
+                                    //   //รายเดือน
+                                    //   getGraphMonthly();
+                                    // }
+                                    // if (loop == 38) {
+                                    //   //3รายเดือน
+                                    //   getGraphThreeMonthly();
+                                    // }
+                                    // if (loop == 47) {
+                                    //   //ปีนี้
+                                    //   getGraphYearly();
+                                    // }
+                                    // if (loop == 56) {
+                                    //   //ขายดี
+                                    // }
+                                  }
+
+                                  loadSuccess[loop] = true;
+                                }
+                              }
+                            },
+                            key: Key(loop.toString()),
+                            child: widgetList[loop])
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -729,158 +947,160 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Widget> buildReport() {
     widgetList = [];
     loadSuccess = [];
-    widgetList.add(
-      Center(
-        child: Padding(
-            padding: const EdgeInsets.all(2),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (int i = 0; i < dropdownSelect.length; i++)
-                    Container(
-                      margin: const EdgeInsets.all(2),
-                      padding: const EdgeInsets.all(1),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedItem = dropdownSelect[i];
+    // widgetList.add(
+    //   Center(
+    //     child: Padding(
+    //         padding: const EdgeInsets.all(2),
+    //         child: SingleChildScrollView(
+    //           scrollDirection: Axis.horizontal,
+    //           child: Row(
+    //             children: [
+    //               for (int i = 0; i < dropdownSelect.length; i++)
+    //                 Container(
+    //                   margin: const EdgeInsets.all(2),
+    //                   padding: const EdgeInsets.all(1),
+    //                   child: ElevatedButton(
+    //                     onPressed: () {
+    //                       setState(() {
+    //                         selectedItem = dropdownSelect[i];
 
-                            if (selectedItem != 'Custom') {
-                              graphSelectedItem = selectedItem;
-                              graphDeliverySelectedItem = selectedItem;
-                              getReport();
-                              getReportProductSale();
-                              getGraphStore();
-                              getGraphDelivery();
-                            }
-                          });
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.white),
-                          foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.orange.shade900 : Colors.grey.shade700),
-                          side: MaterialStateProperty.all<BorderSide>(BorderSide(color: (selectedItem == dropdownSelect[i]) ? Colors.orange.shade700 : Colors.white, width: 2)),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                        ),
-                        child: Text(dropdownSelect[i]),
-                      ),
-                    ),
-                ],
-              ),
-            )),
-      ),
-    );
+    //                         if (selectedItem != 'Custom') {
+    //                           graphSelectedItem = selectedItem;
+    //                           graphDeliverySelectedItem = selectedItem;
+    //                           getReport();
+    //                           getReportProductSale();
+    //                           getGraphStore();
+    //                           getGraphDelivery();
+    //                         }
+    //                       });
+    //                     },
+    //                     style: ButtonStyle(
+    //                       backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.white),
+    //                       foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.orange.shade900 : Colors.grey.shade700),
+    //                       side: MaterialStateProperty.all<BorderSide>(BorderSide(color: (selectedItem == dropdownSelect[i]) ? Colors.orange.shade700 : Colors.white, width: 2)),
+    //                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+    //                         RoundedRectangleBorder(
+    //                           borderRadius: BorderRadius.circular(5),
+    //                         ),
+    //                       ),
+    //                     ),
+    //                     child: Text(dropdownSelect[i]),
+    //                   ),
+    //                 ),
+    //             ],
+    //           ),
+    //         )),
+    //   ),
+    // );
 
-    widgetList.add(
-      Container(
-        height: 75,
-        padding: const EdgeInsets.only(top: 10, left: 10, bottom: 5, right: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: Colors.white,
-        ),
-        child: TextField(
-          readOnly: true,
-          decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-              border: const OutlineInputBorder(),
-              labelText: "จากวันที่",
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    color: Colors.orange.shade700,
-                    focusNode: FocusNode(skipTraversal: true),
-                    icon: const Icon(Icons.calendar_month),
-                    onPressed: () {
-                      _selectDocDate("fromdate", fromDateController.text);
-                    },
-                  ),
-                ],
-              )),
-          controller: fromDateController,
-          onChanged: (value) {
-            setState(() {
-              try {
-                List<String> valueSplit = value.replaceAll(".", "/").split("/");
-                if (valueSplit.length == 3) {
-                  if (valueSplit[2].length == 2) {
-                    valueSplit[2] = '25${valueSplit[2]}';
-                  }
-                  int year = int.tryParse(valueSplit[2]) ?? 0;
-                  year = year - 543;
-                  int month = int.tryParse(valueSplit[1]) ?? 0;
-                  int day = int.tryParse(valueSplit[0]) ?? 0;
-                  value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
-                }
-              } catch (e) {
-                print(e);
-              }
-            });
-          },
-          onSubmitted: (value) {
-            //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
-          },
-        ),
-      ),
-    );
-    widgetList.add(Container(
-      height: 75,
-      padding: const EdgeInsets.only(top: 3, left: 10, bottom: 0, right: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.white,
-      ),
-      child: TextField(
-        readOnly: true,
-        decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-            border: const OutlineInputBorder(),
-            labelText: "ถึงวันที่",
-            suffixIcon: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  color: Colors.orange.shade700,
-                  focusNode: FocusNode(skipTraversal: true),
-                  icon: const Icon(Icons.calendar_month),
-                  onPressed: () {
-                    _selectDocDate("todate", toDateController.text);
-                  },
-                ),
-              ],
-            )),
-        controller: toDateController,
-        onChanged: (value) {
-          setState(() {
-            try {
-              List<String> valueSplit = value.replaceAll(".", "/").split("/");
-              if (valueSplit.length == 3) {
-                if (valueSplit[2].length == 2) {
-                  valueSplit[2] = '25${valueSplit[2]}';
-                }
-                int year = int.tryParse(valueSplit[2]) ?? 0;
-                year = year - 543;
-                int month = int.tryParse(valueSplit[1]) ?? 0;
-                int day = int.tryParse(valueSplit[0]) ?? 0;
-                value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
-              }
-            } catch (e) {
-              print(e);
-            }
-          });
-        },
-        onSubmitted: (value) {
-          //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
-        },
-      ),
-    ));
+    // widgetList.add(
+    //   Container(
+    //     height: 75,
+    //     padding: const EdgeInsets.only(top: 10, left: 10, bottom: 5, right: 10),
+    //     decoration: BoxDecoration(
+    //       borderRadius: BorderRadius.circular(5),
+    //       color: Colors.white,
+    //     ),
+    //     child: TextField(
+    //       readOnly: true,
+    //       decoration: InputDecoration(
+    //           contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+    //           border: const OutlineInputBorder(),
+    //           labelText: "จากวันที่",
+    //           suffixIcon: Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween, // added line
+    //             mainAxisSize: MainAxisSize.min,
+    //             children: [
+    //               IconButton(
+    //                 color: Colors.orange.shade700,
+    //                 focusNode: FocusNode(skipTraversal: true),
+    //                 icon: const Icon(Icons.calendar_month),
+    //                 onPressed: () {
+    //                   _selectDocDate("fromdate", fromDateController.text);
+    //                 },
+    //               ),
+    //             ],
+    //           )),
+    //       controller: fromDateController,
+    //       onChanged: (value) {
+    //         setState(() {
+    //           try {
+    //             List<String> valueSplit = value.replaceAll(".", "/").split("/");
+    //             if (valueSplit.length == 3) {
+    //               if (valueSplit[2].length == 2) {
+    //                 valueSplit[2] = '25${valueSplit[2]}';
+    //               }
+    //               int year = int.tryParse(valueSplit[2]) ?? 0;
+    //               year = year - 543;
+    //               int month = int.tryParse(valueSplit[1]) ?? 0;
+    //               int day = int.tryParse(valueSplit[0]) ?? 0;
+    //               value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+    //             }
+    //           } catch (e) {
+    //             print(e);
+    //           }
+    //         });
+    //       },
+    //       onSubmitted: (value) {
+    //         //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
+    //       },
+    //     ),
+    //   ),
+    // );
+    // widgetList.add(
+    //   Container(
+    //     height: 75,
+    //     padding: const EdgeInsets.only(top: 3, left: 10, bottom: 0, right: 10),
+    //     decoration: BoxDecoration(
+    //       borderRadius: BorderRadius.circular(5),
+    //       color: Colors.white,
+    //     ),
+    //     child: TextField(
+    //       readOnly: true,
+    //       decoration: InputDecoration(
+    //           contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+    //           border: const OutlineInputBorder(),
+    //           labelText: "ถึงวันที่",
+    //           suffixIcon: Row(
+    //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //             mainAxisSize: MainAxisSize.min,
+    //             children: [
+    //               IconButton(
+    //                 color: Colors.orange.shade700,
+    //                 focusNode: FocusNode(skipTraversal: true),
+    //                 icon: const Icon(Icons.calendar_month),
+    //                 onPressed: () {
+    //                   _selectDocDate("todate", toDateController.text);
+    //                 },
+    //               ),
+    //             ],
+    //           )),
+    //       controller: toDateController,
+    //       onChanged: (value) {
+    //         setState(() {
+    //           try {
+    //             List<String> valueSplit = value.replaceAll(".", "/").split("/");
+    //             if (valueSplit.length == 3) {
+    //               if (valueSplit[2].length == 2) {
+    //                 valueSplit[2] = '25${valueSplit[2]}';
+    //               }
+    //               int year = int.tryParse(valueSplit[2]) ?? 0;
+    //               year = year - 543;
+    //               int month = int.tryParse(valueSplit[1]) ?? 0;
+    //               int day = int.tryParse(valueSplit[0]) ?? 0;
+    //               value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+    //             }
+    //           } catch (e) {
+    //             print(e);
+    //           }
+    //         });
+    //       },
+    //       onSubmitted: (value) {
+    //         //  fromDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.parse(screenData.docdatetime));
+    //       },
+    //     ),
+    //   ),
+    // );
 
     widgetList.add(const SizedBox(height: 10));
 
@@ -1301,7 +1521,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     //     key: keys[0],
     //     margin: const EdgeInsets.only(top: 10, bottom: 0),
     //     child: const Text(
-    //       "กราฟเปรียบเทียบยอดชำระหน้าร้านรายวัน",
+    //       "กราฟเปรียบเทียบยอดชำระหน้าร้านวันนี้",
     //       style: TextStyle(fontSize: 16),
     //     )));
     // widgetList.add(const Divider(
@@ -1809,7 +2029,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             children: [
               Text(
-                "รายละเอียดยอดขายหน้าร้าน",
+                "รายละเอียดการรับเงินหน้าร้าน",
                 style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -1925,6 +2145,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(
                 height: 2,
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "ส่วนลด",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  Opacity(
+                    opacity: opacityText,
+                    child: Text(
+                      global.formatNumber(salesumary.totaldiscountshop + salesumary.totaldiscounttakeaway),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
               //   crossAxisAlignment: CrossAxisAlignment.center,
@@ -2134,8 +2372,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ]),
     ));
 
-    widgetList.add(chartWidget);
-
     widgetList.add(Container(
       key: keys[11],
       margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
@@ -2171,6 +2407,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (bestSellingList.isEmpty) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
       ]),
     ));
+
+    widgetList.add(chartWidget);
 
     // widgetList.add(Container(
     //   margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),

@@ -1,5 +1,6 @@
 import 'package:dedeowner/dashboard.dart';
 import 'package:dedeowner/global.dart';
+import 'package:dedeowner/menu.dart';
 import 'package:dedeowner/product_sales.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   final List<Widget> _children = [
     const DashboardScreen(),
     const ProductSaleScreen(),
+    const MoreMenuScreen(),
   ];
 
   void onTabTapped(int index) {
@@ -52,6 +54,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'ยอดขายตามสินค้า',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.more_horiz),
+            label: 'เมนู',
           ),
         ],
       ),
