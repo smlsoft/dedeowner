@@ -71,6 +71,7 @@ class MyApp extends StatelessWidget {
         title: 'DEDE MERCHANT',
         theme: ThemeData(
           primarySwatch: Colors.blue,
+          useMaterial3: false,
         ),
         home: const LoginShop(),
         routes: <String, WidgetBuilder>{
