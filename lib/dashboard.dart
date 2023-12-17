@@ -31,7 +31,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final List<GlobalKey> keys = List.generate(
-    13,
+    15,
     (index) => GlobalKey(),
   );
   Timer? reFreshTimer;
@@ -106,7 +106,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isSaleShop = true;
   bool isDeliveryShop = false;
   bool isLoading = false;
-  bool productSaleLoad = true;
+  bool isproductSaleLoad = true;
+  bool productSaleLoad = false;
   List<Widget> widgetList = [];
   List<bool> loadSuccess = [];
   SalesumaryModel salesumary = SalesumaryModel();
@@ -143,17 +144,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<String> graphSelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
   List<String> graphDeliverySelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
   String selectedItem = 'รายวัน';
-  String graphSelectedItem = 'รายวัน';
-  String graphDeliverySelectedItem = 'รายวัน';
 
   double opacityText = 1;
   final appConfig = GetStorage("AppConfig");
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-
-  // Future<void> _handleRefresh() async {
-  //   await Future.delayed(const Duration(seconds: 2));
-  //   getReport();
-  // }
 
   @override
   void initState() {
@@ -176,153 +170,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void getAllReport() async {
     getReport();
-    await Future.delayed(const Duration(seconds: 3));
-    getReportProductSale();
+
     await Future.delayed(const Duration(seconds: 3));
     getReportSaleWeek();
-    // await Future.delayed(const Duration(seconds: 4));
-    // getGraphStore();
-    // await Future.delayed(const Duration(seconds: 4));
-    // getGraphDelivery();
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 3));
+    if (productSaleLoad) {
+      getReportProductSale();
+    }
+
+    await Future.delayed(const Duration(seconds: 3));
     if (bestSellLoad) {
       getSellLoad();
-    }
-  }
-
-  void getGraphDelivery() async {
-    if (graphDeliverySelectedItem == 'รายวัน') {
-      DateTime currentDate = DateTime.now();
-      String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
-      String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
-      getGraph(1, queryFromdate, queryTodate);
-    } else if (graphDeliverySelectedItem == 'รายสัปดาห์') {
-      DateTime currentDate = DateTime.now();
-      DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
-      DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
-      String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
-      String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
-      getGraph(1, queryFromdate, queryTodate);
-    } else if (graphDeliverySelectedItem == 'รายเดือน') {
-      String queryFromdate = "";
-      String queryTodate = "";
-      DateTime currentDate = DateTime.now();
-      DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
-      DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfMonth)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfMonth)}";
-      getGraph(1, queryFromdate, queryTodate);
-    } else if (graphDeliverySelectedItem == 'รายปี') {
-      String queryFromdate = "";
-      String queryTodate = "";
-      DateTime currentDate = DateTime.now();
-      DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
-      DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfYear)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfYear)}";
-      getGraph(1, queryFromdate, queryTodate);
-    } else {
-      String queryFromdate = "";
-      String queryTodate = "";
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text))}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text))}";
-      getGraph(1, queryFromdate, queryTodate);
-    }
-  }
-
-  void getGraphStore() async {
-    if (graphSelectedItem == 'รายวัน') {
-      DateTime currentDate = DateTime.now();
-      String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
-      String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(currentDate)}";
-      getGraph(0, queryFromdate, queryTodate);
-    } else if (graphSelectedItem == 'รายสัปดาห์') {
-      DateTime currentDate = DateTime.now();
-      DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
-      DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
-      String queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
-      String queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
-
-      getGraph(0, queryFromdate, queryTodate);
-    } else if (graphSelectedItem == 'รายเดือน') {
-      String queryFromdate = "";
-      String queryTodate = "";
-      DateTime currentDate = DateTime.now();
-      DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
-      DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfMonth)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfMonth)}";
-
-      getGraph(0, queryFromdate, queryTodate);
-    } else if (graphSelectedItem == 'รายปี') {
-      String queryFromdate = "";
-      String queryTodate = "";
-      DateTime currentDate = DateTime.now();
-      DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
-      DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfYear)}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfYear)}";
-
-      getGraph(0, queryFromdate, queryTodate);
-    } else {
-      String queryFromdate = "";
-      String queryTodate = "";
-      queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text))}";
-      queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text))}";
-      getGraph(0, queryFromdate, queryTodate);
     }
   }
 
   Future<void> getReport() async {
     String queryFromdate = "";
     String queryTodate = "";
-    DateTime currentDate = DateTime.now();
+
     setState(() {
       isLoading = true;
     });
 
-    if (selectedItem == 'รายวัน') {
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(currentDate);
-      queryTodate = DateFormat('yyyy-MM-dd').format(currentDate);
-    } else if (selectedItem == 'รายสัปดาห์') {
-      DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
-      DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
-
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfWeek);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfWeek);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfWeek);
-      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfWeek);
-    } else if (selectedItem == 'รายเดือน') {
-      DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
-      DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
-
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfMonth);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfMonth);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
-      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
-    } else if (selectedItem == 'ยอดขาย3เดือน') {
-      DateTime firstDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month - 2, 1);
-      DateTime lastDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month + 1, 0);
-
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfLastThreeMonths);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfLastThreeMonths);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfLastThreeMonths);
-      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfLastThreeMonths);
-    } else if (selectedItem == 'รายปี') {
-      DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
-      DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
-
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfYear);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfYear);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfYear);
-      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfYear);
-    } else {
-      queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
-      queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
-    }
-
+    queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
+    queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
     salesumary = SalesumaryModel();
     ReportRepository reportRepository = ReportRepository();
 
@@ -332,8 +203,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         isLoading = false;
       });
       salesumary = SalesumaryModel.fromJson(result.data[0]);
-      calAmount();
-
       setState(() {
         opacityText = 0.1;
       });
@@ -347,10 +216,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       });
     }
 
+    deliveryList = [];
     ApiResponse resultDetail = await reportRepository.getReportSaleSummaryDetail(queryFromdate, queryTodate);
     if (resultDetail.success) {
       if (resultDetail.data.length > 0) {
         deliveryList = (resultDetail.data as List).map((salechannel) => DeliveryPaymentModel.fromJson(salechannel)).toList();
+        setState(() {});
       }
     }
   }
@@ -360,52 +231,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryTodate = "";
     DateTime currentDate = DateTime.now();
 
-    if (selectedItem == 'รายวัน') {
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(currentDate);
-      queryTodate = DateFormat('yyyy-MM-dd').format(currentDate);
-    } else if (selectedItem == 'รายสัปดาห์') {
-      DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
-      DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
-
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfWeek);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfWeek);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfWeek);
-      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfWeek);
-    } else if (selectedItem == 'รายเดือน') {
-      DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
-      DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
-
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfMonth);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfMonth);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
-      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
-    } else if (selectedItem == 'ยอดขาย3เดือน') {
-      DateTime firstDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month - 2, 1);
-      DateTime lastDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month + 1, 0);
-
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfLastThreeMonths);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfLastThreeMonths);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfLastThreeMonths);
-      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfLastThreeMonths);
-    } else if (selectedItem == 'รายปี') {
-      DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
-      DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
-
-      fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfYear);
-      toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfYear);
-      queryFromdate = DateFormat('yyyy-MM-dd').format(firstDayOfYear);
-      queryTodate = DateFormat('yyyy-MM-dd').format(lastDayOfYear);
-    } else {
-      queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
-      queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
-    }
+    queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
+    queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
 
     ReportRepository reportRepository = ReportRepository();
 
     setState(() {
-      productSaleLoad = true;
+      isproductSaleLoad = true;
     });
     productSaleToday = [];
     ApiResponse result = await reportRepository.getReportSaleSummaryByManufacturer(queryFromdate, queryTodate);
@@ -413,11 +245,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       List<ProductSaleModel> products = (result.data as List).map((product) => ProductSaleModel.fromJson(product)).toList();
       productSaleToday = products;
       setState(() {
-        productSaleLoad = false;
+        isproductSaleLoad = false;
+        productSaleLoad = true;
       });
     } else {
       setState(() {
-        productSaleLoad = false;
+        isproductSaleLoad = false;
       });
     }
 
@@ -435,7 +268,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       _isLoading = true;
     });
-    print("$queryFromdate : $queryTodate");
     ReportRepository reportRepository = ReportRepository();
     chartWeeklyData = [];
     chartWeeklyData.addAll([
@@ -469,38 +301,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> getGraph(int mode, String queryFromdate, String queryTodate) async {
-    ReportRepository reportRepository = ReportRepository();
-
-    // ApiResponse result = await reportRepository.getReportSaleSummary(queryFromdate, queryTodate);
-
-    // if (result.success) {
-    //   SalesumaryModel resData = SalesumaryModel.fromJson(result.data);
-
-    //   if (mode == 0) {
-    //     chartPOSData = [];
-    //     chartPOSData.addAll([
-    //       ChartData('เงินสด', resData.paycashamount, Colors.orangeAccent),
-    //       ChartData('สั่งกลับบ้าน', 5000, Colors.blue),
-    //       ChartData('QRCode', 1000, Colors.green),
-    //       ChartData('Wallet', 12522, Colors.red),
-    //     ]);
-    //   } else {
-    //     chartDeliveryData = [];
-    //     chartDeliveryData.add(ChartData('Panda', 1500, getRandomColor()));
-    //     chartDeliveryData.add(ChartData('Grab', 2000, getRandomColor()));
-    //     chartDeliveryData.add(ChartData('Shopee', 3000, getRandomColor()));
-    //     chartDeliveryData.add(ChartData('Line', 4000, getRandomColor()));
-    //     // for (var delivery in resData.delivery) {
-    //     //   chartDeliveryData.add(ChartData(delivery.name, delivery.amount, getRandomColor()));
-    //     // }
-    //   }
-    //   saleSummaryLoad = true;
-
-    //   setState(() {});
-    // }
-  }
-
   Future<void> getSellLoad() async {
     String queryFromdate = "";
     String queryTodate = "";
@@ -522,25 +322,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bestSellLoad = true;
       setState(() {});
     }
-  }
-
-  void calAmount() {
-    // double calwalletAmount = 0;
-    // double caldeliveryAmount = 0;
-    // double calgpAmount = 0;
-    // // for (var qrcode in salesumary.summary.qrcode) {}
-    // // for (var wallet in salesumary.summary.wallet) {
-    // //   calwalletAmount += wallet.amount;
-    // // }
-    // // for (var delivery in salesumary.summary.delivery) {
-    // //   caldeliveryAmount += delivery.amount;
-    // //   delivery.gpAmount = (delivery.amount * delivery.gpPercent) / 100;
-    // //   calgpAmount += delivery.gpAmount;
-    // //   chartDeliveryData.add(ChartData(delivery.name, delivery.amount, getRandomColor()));
-    // // }
-
-    // // salesumary.summary.cashierAmount =
-    // //     salesumary.summary.paycashamount + salesumary.summary.sumcreditcard + salesumary.summary.summoneytransfer + salesumary.summary.sumcredit + salesumary.summary.sumqrcode;
   }
 
   Color getRandomColor() {
@@ -605,35 +386,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 for (int loop = 0; loop < widgetList.length; loop++)
                   VisibilityDetector(
                       onVisibilityChanged: (visibilityInfo) {
-                        print(visibilityInfo);
                         if (visibilityInfo.visibleFraction == 1) {
-                          print("$loop : Visible");
-
                           if (loadSuccess[loop] == false) {
                             if (widgetList[loop].key != null) {
                               print("get key : $loop");
-                              if (loop == 11) {
-                                getSellLoad();
+                              if (loop == 8) {
+                                if (!productSaleLoad) {
+                                  getReportProductSale();
+                                }
                               }
-                              // if (loop == 20) {
-                              //   //รายสัปดาห์นี้
-                              //   getGraphWeekly();
-                              // }
-                              // if (loop == 29) {
-                              //   //รายเดือน
-                              //   getGraphMonthly();
-                              // }
-                              // if (loop == 38) {
-                              //   //3รายเดือน
-                              //   getGraphThreeMonthly();
-                              // }
-                              // if (loop == 47) {
-                              //   //ปีนี้
-                              //   getGraphYearly();
-                              // }
-                              // if (loop == 56) {
-                              //   //ขายดี
-                              // }
+                              if (loop == 13) {
+                                if (!productSaleLoad) {
+                                  getReportProductSale();
+                                }
+                              }
+                              if (loop == 15) {
+                                if (!bestSellLoad) {
+                                  getSellLoad();
+                                }
+                              }
                             }
 
                             loadSuccess[loop] = true;
@@ -670,8 +441,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (pickedDate != null) {
       setState(() {
         selectedItem = 'กำหนดเอง';
-        graphSelectedItem = 'xx';
-        graphDeliverySelectedItem = 'xx';
+
         DateTime? pickDateTimeFormat = DateTime.parse('${DateFormat('yyyy-MM-dd').format(pickedDate)} ${DateFormat('HH:mm:ss.sss').format(DateTime.now())}');
         if (cmd == 'fromdate') {
           fromDateController.text = DateFormat('dd/MM/yyyy').format(pickDateTimeFormat);
@@ -682,8 +452,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       getReport();
       getReportProductSale();
-      getGraphStore();
-      getGraphDelivery();
     }
   }
 
@@ -706,14 +474,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onPressed: () {
                           setState(() {
                             selectedItem = dropdownSelect[i];
+                            DateTime currentDate = DateTime.now();
+                            if (selectedItem == 'รายวัน') {
+                              fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
+                              toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
+                            } else if (selectedItem == 'รายสัปดาห์') {
+                              DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
+                              DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
+
+                              fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfWeek);
+                              toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfWeek);
+                            } else if (selectedItem == 'รายเดือน') {
+                              DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
+                              DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
+
+                              fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfMonth);
+                              toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfMonth);
+                            } else if (selectedItem == 'ยอดขาย3เดือน') {
+                              DateTime firstDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month - 2, 1);
+                              DateTime lastDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month + 1, 0);
+
+                              fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfLastThreeMonths);
+                              toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfLastThreeMonths);
+                            } else if (selectedItem == 'รายปี') {
+                              DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
+                              DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
+
+                              fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfYear);
+                              toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfYear);
+                            }
 
                             if (selectedItem != 'Custom') {
-                              graphSelectedItem = selectedItem;
-                              graphDeliverySelectedItem = selectedItem;
                               getReport();
                               getReportProductSale();
-                              getGraphStore();
-                              getGraphDelivery();
                             }
                           });
                         },
@@ -898,47 +691,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
 
-    // widgetList.add(
-    //   Container(
-    //       decoration: BoxDecoration(
-    //         borderRadius: BorderRadius.circular(5),
-    //         boxShadow: [
-    //           BoxShadow(
-    //             color: Colors.grey.withOpacity(0.8),
-    //             spreadRadius: 0,
-    //             blurRadius: 3,
-    //             offset: const Offset(0, 1), // changes position of shadow
-    //           ),
-    //         ],
-    //         color: Colors.purple.shade400,
-    //       ),
-    //       height: 100,
-    //       padding: const EdgeInsets.all(12),
-    //       child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           crossAxisAlignment: CrossAxisAlignment.center,
-    //           children: [
-    //             const Expanded(
-    //               child: Text(
-    //                 "ยอดขายทั้งหมด",
-    //                 maxLines: 1,
-    //                 overflow: TextOverflow.ellipsis,
-    //                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-    //               ),
-    //             ),
-    //             Opacity(
-    //               opacity: opacityText,
-    //               child: Text(
-    //                 global.formatNumber(salesumary.cashierAmount + salesumary.deliveryAmount),
-    //                 style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
-    //               ),
-    //             ),
-    //           ],
-    //         ),
-    //       ])),
-    // );
-
     widgetList.add(const SizedBox(
       height: 5,
     ));
@@ -1104,6 +856,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     widgetList.add(
       Container(
+        key: keys[5],
         width: double.infinity,
         margin: const EdgeInsets.all(7),
         decoration: BoxDecoration(
@@ -1135,7 +888,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(
                 height: 2,
               ),
-              (productSaleLoad)
+              (isproductSaleLoad)
                   ? const Center(child: CircularProgressIndicator())
                   : summaryList.isNotEmpty
                       ? Column(
@@ -1149,130 +902,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-
-    // widgetList.add(
-    //   Column(
-    //     children: [
-    //       Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         children: [
-    //           const Text(
-    //             "เงินสด",
-    //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //           ),
-    //           Opacity(
-    //             opacity: opacityText,
-    //             child: Text(
-    //               global.formatNumber(salesumary.cash),
-    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //           )
-    //         ],
-    //       ),
-    //       Divider(height: 5, color: Colors.orange.shade600),
-    //       Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         children: [
-    //           const Text(
-    //             "สั่งกลับบ้าน",
-    //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //           ),
-    //           Opacity(
-    //             opacity: opacityText,
-    //             child: Text(
-    //               global.formatNumber(salesumary.takeAway),
-    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //           )
-    //         ],
-    //       ),
-    //       Divider(height: 5, color: Colors.orange.shade600),
-    //       Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         children: [
-    //           const Text(
-    //             "QR code",
-    //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //           ),
-    //           Opacity(
-    //             opacity: opacityText,
-    //             child: Text(
-    //               global.formatNumber(salesumary.qrcodeAmount),
-    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //           )
-    //         ],
-    //       ),
-    //       for (var data in salesumary.qrcode)
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           crossAxisAlignment: CrossAxisAlignment.center,
-    //           children: [
-    //             Text(
-    //               " - ${data.name}",
-    //               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //             Text(
-    //               global.formatNumber(data.amount),
-    //               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-    //             )
-    //           ],
-    //         ),
-    //       Divider(height: 5, color: Colors.orange.shade600),
-    //       Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         children: [
-    //           const Text(
-    //             "Wallet",
-    //             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //           ),
-    //           Opacity(
-    //             opacity: opacityText,
-    //             child: Text(
-    //               global.formatNumber(salesumary.walletAmount),
-    //               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //           )
-    //         ],
-    //       ),
-    //       for (var data in salesumary.wallet)
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           crossAxisAlignment: CrossAxisAlignment.center,
-    //           children: [
-    //             Text(
-    //               " - ${data.name}",
-    //               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-    //             ),
-    //             Text(
-    //               global.formatNumber(data.amount),
-    //               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-    //             )
-    //           ],
-    //         ),
-    //     ],
-    //   ),
-    // );
-
-    // widgetList.add(Container(
-    //     key: keys[0],
-    //     margin: const EdgeInsets.only(top: 10, bottom: 0),
-    //     child: const Text(
-    //       "กราฟเปรียบเทียบยอดชำระหน้าร้านรายวัน",
-    //       style: TextStyle(fontSize: 16),
-    //     )));
-    // widgetList.add(const Divider(
-    //   height: 3,
-    //   thickness: 1,
-    //   color: Colors.grey,
-    // ));
-    // widgetList.add(const SizedBox(
-    //   height: 2,
-    // ));
 
     var series = [
       charts.Series(
@@ -1366,201 +995,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-
-    // Widget graphSelectWidget = Padding(
-    //   padding: const EdgeInsets.all(2),
-    //   child: Row(
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //     crossAxisAlignment: CrossAxisAlignment.center,
-    //     children: [
-    //       for (int i = 0; i < graphSelect.length; i++)
-    //         Container(
-    //           margin: const EdgeInsets.all(2),
-    //           child: ElevatedButton(
-    //             onPressed: () {
-    //               setState(() {
-    //                 graphSelectedItem = graphSelect[i];
-    //               });
-    //               getGraphStore();
-    //             },
-    //             style: ButtonStyle(
-    //               backgroundColor: MaterialStateProperty.all<Color>((graphSelectedItem == graphSelect[i]) ? Colors.blue : Colors.white),
-    //               foregroundColor: MaterialStateProperty.all<Color>((graphSelectedItem == graphSelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
-    //               side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
-    //               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-    //                 RoundedRectangleBorder(
-    //                   borderRadius: BorderRadius.circular(25),
-    //                 ),
-    //               ),
-    //             ),
-    //             child: Text(graphSelect[i]),
-    //           ),
-    //         ),
-    //     ],
-    //   ),
-    // );
-
-    // Widget graphSelectDeliveryWidget = Padding(
-    //   padding: const EdgeInsets.all(2),
-    //   child: Row(
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //     crossAxisAlignment: CrossAxisAlignment.center,
-    //     children: [
-    //       for (int i = 0; i < graphDeliverySelect.length; i++)
-    //         Container(
-    //           margin: const EdgeInsets.all(2),
-    //           child: ElevatedButton(
-    //             onPressed: () {
-    //               setState(() {
-    //                 graphDeliverySelectedItem = graphDeliverySelect[i];
-    //               });
-    //               getGraphDelivery();
-    //             },
-    //             style: ButtonStyle(
-    //               backgroundColor: MaterialStateProperty.all<Color>((graphDeliverySelectedItem == graphDeliverySelect[i]) ? Colors.blue : Colors.white),
-    //               foregroundColor:
-    //                   MaterialStateProperty.all<Color>((graphDeliverySelectedItem == graphDeliverySelect[i]) ? Colors.white : Colors.blue), // This changes the color of the text
-    //               side: MaterialStateProperty.all<BorderSide>(const BorderSide(color: Colors.blue, width: 2)),
-    //               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-    //                 RoundedRectangleBorder(
-    //                   borderRadius: BorderRadius.circular(25),
-    //                 ),
-    //               ),
-    //             ),
-    //             child: Text(graphDeliverySelect[i]),
-    //           ),
-    //         ),
-    //     ],
-    //   ),
-    // );
-
-    Map<String, double> dataMap = {"Empty": 0};
-    Map<String, String> legendLabels = {"Empty": "Empty"};
-    if (chartPOSData.isNotEmpty) {
-      dataMap = {};
-      legendLabels = {};
-      for (var data in chartPOSData) {
-        dataMap[data.label] = data.value;
-        legendLabels[data.label] = data.label;
-      }
-    }
-
-    final pieChartGen = PieChart(
-      key: const ValueKey(1),
-      dataMap: dataMap,
-      animationDuration: const Duration(milliseconds: 800),
-      chartLegendSpacing: 32,
-      chartRadius: 300,
-      colorList: colorList,
-      initialAngleInDegree: 0,
-      chartType: ChartType.disc,
-      centerText: null,
-      legendLabels: legendLabels,
-      legendOptions: const LegendOptions(
-        showLegendsInRow: true,
-        legendPosition: LegendPosition.bottom,
-        showLegends: true,
-        legendShape: BoxShape.circle,
-        legendTextStyle: TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      chartValuesOptions: const ChartValuesOptions(
-        showChartValueBackground: true,
-        showChartValues: true,
-        showChartValuesInPercentage: true,
-        showChartValuesOutside: false,
-      ),
-      ringStrokeWidth: 32,
-      emptyColor: Colors.grey,
-      gradientList: gradientList,
-      emptyColorGradient: const [
-        Color(0xff6c5ce7),
-        Colors.blue,
-      ],
-      baseChartColor: Colors.transparent,
-    );
-
-    Map<String, double> dataMapDelivery = {"Empty": 0};
-    Map<String, String> legendLabelsDelivery = {"Empty": "Empty"};
-    if (chartDeliveryData.isNotEmpty) {
-      dataMapDelivery = {};
-      legendLabelsDelivery = {};
-      for (var data in chartDeliveryData) {
-        dataMapDelivery[data.label] = data.value;
-        legendLabelsDelivery[data.label] = data.label;
-      }
-    }
-
-    final pieChartDeliveryGen = PieChart(
-      key: const ValueKey(2),
-      dataMap: dataMapDelivery,
-      animationDuration: const Duration(milliseconds: 800),
-      chartLegendSpacing: 32,
-      chartRadius: 300,
-      colorList: colorList,
-      initialAngleInDegree: 0,
-      chartType: ChartType.disc,
-      centerText: null,
-      legendLabels: legendLabelsDelivery,
-      legendOptions: const LegendOptions(
-        showLegendsInRow: true,
-        legendPosition: LegendPosition.bottom,
-        showLegends: true,
-        legendShape: BoxShape.circle,
-        legendTextStyle: TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      chartValuesOptions: const ChartValuesOptions(
-        showChartValueBackground: true,
-        showChartValues: true,
-        showChartValuesInPercentage: true,
-        showChartValuesOutside: false,
-      ),
-      ringStrokeWidth: 32,
-      emptyColor: Colors.grey,
-      gradientList: gradientList,
-      emptyColorGradient: const [
-        Color(0xff6c5ce7),
-        Colors.blue,
-      ],
-      baseChartColor: Colors.transparent,
-    );
-
-    // widgetList.add(Card(
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(8.0),
-    //     child: Column(children: [
-    //       const Text(
-    //         "เปรียบเทียบการรับเงินหน้าร้าน",
-    //         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //       ),
-    //       // graphSelectWidget,
-    //       (dailyLoad) ? pieChartGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-    //     ]),
-    //   ),
-    // ));
-
-    // widgetList.add(Card(
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(8.0),
-    //     child: Column(children: [
-    //       const Text(
-    //         "เปรียบเทียบยอดขายบริการจัดส่งอาหาร",
-    //         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    //       ),
-    //       // graphSelectDeliveryWidget,
-    //       (dailyLoad) ? pieChartDeliveryGen : const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-    //     ]),
-    //   ),
-    // ));
-
-    if (dailyLoad) {
-      //  widgetList.add(chartWidget);
-    } else {
-      widgetList.add(const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())));
-    }
 
     widgetList.add(const SizedBox(
       height: 2,
@@ -1792,7 +1226,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   )
                 ],
               ),
-
               const SizedBox(
                 height: 2,
               ),
@@ -1848,21 +1281,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   )
                 ],
               ),
-              // for (var data in salesumary.summary.wallet)
-              //   Row(
-              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //     crossAxisAlignment: CrossAxisAlignment.center,
-              //     children: [
-              //       Text(
-              //         " - ${data.name}",
-              //         style: const TextStyle(color: Colors.black),
-              //       ),
-              //       Text(
-              //         global.formatNumber(data.amount),
-              //         style: const TextStyle(color: Colors.black),
-              //       )
-              //     ],
-              //   ),
               const SizedBox(
                 height: 2,
               ),
@@ -1886,32 +1304,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(
                 height: 2,
               ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   crossAxisAlignment: CrossAxisAlignment.center,
-              //   children: [
-              //     const Text(
-              //       "เงินเชื่อ",
-              //       style: TextStyle(color: Colors.black),
-              //     ),
-              //     Opacity(
-              //       opacity: opacityText,
-              //       child: Text(
-              //         global.formatNumber(salesumary.sumcreditshop + salesumary.sumcredittakeaway),
-              //         style: const TextStyle(color: Colors.black),
-              //       ),
-              //     )
-              //   ],
-              // ),
             ],
           ),
         ),
       ),
     );
     double totalGPAmount = 0;
-    deliveryList.forEach((data) {
+    for (var data in deliveryList) {
       totalGPAmount += data.gpAmount;
-    });
+    }
 
     widgetList.add(Visibility(
       visible: isSaleShop,
@@ -2061,6 +1462,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ));
 
     widgetList.add(Container(
+      key: keys[10],
       margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
       padding: const EdgeInsets.all(12),
       width: double.infinity,
@@ -2091,7 +1493,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         if (productSaleTodayList.isNotEmpty)
           for (int i = 0; i < productSaleTodayList.length; i++) productSaleTodayList[i],
-        if (productSaleLoad) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+        if (isproductSaleLoad) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
       ]),
     ));
 
@@ -2133,75 +1535,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ]),
     ));
 
-    // widgetList.add(Container(
-    //   margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
-    //   padding: const EdgeInsets.all(12),
-    //   width: double.infinity,
-    //   decoration: BoxDecoration(
-    //     borderRadius: BorderRadius.circular(5),
-    //     boxShadow: [
-    //       BoxShadow(
-    //         color: Colors.orangeAccent.shade700,
-    //         spreadRadius: 0,
-    //         blurRadius: 4,
-    //         offset: const Offset(0, 0), // changes position of shadow
-    //       ),
-    //     ],
-    //     color: Colors.white,
-    //   ),
-    //   child: Column(children: [
-    //     Text(
-    //       "10 อันดับสินค้าขายดีหน้าร้าน",
-    //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
-    //     ),
-    //     Divider(
-    //       height: 3,
-    //       thickness: 1,
-    //       color: Colors.orange.shade100,
-    //     ),
-    //     const SizedBox(
-    //       height: 10,
-    //     ),
-    //     if (bestSellingList.isNotEmpty)
-    //       for (int i = 0; i < bestSellingList.length; i++) bestSellingList[i],
-    //     if (bestSellingList.isEmpty) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-    //   ]),
-    // ));
-    // widgetList.add(Container(
-    //   margin: const EdgeInsets.only(top: 10, bottom: 4, right: 8, left: 8),
-    //   padding: const EdgeInsets.all(12),
-    //   width: double.infinity,
-    //   decoration: BoxDecoration(
-    //     borderRadius: BorderRadius.circular(5),
-    //     boxShadow: [
-    //       BoxShadow(
-    //         color: Colors.orangeAccent.shade700,
-    //         spreadRadius: 0,
-    //         blurRadius: 4,
-    //         offset: const Offset(0, 0), // changes position of shadow
-    //       ),
-    //     ],
-    //     color: Colors.white,
-    //   ),
-    //   child: Column(children: [
-    //     Text(
-    //       "10 อันดับสินค้าขายดีบริการจัดส่ง",
-    //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
-    //     ),
-    //     Divider(
-    //       height: 3,
-    //       thickness: 1,
-    //       color: Colors.orange.shade100,
-    //     ),
-    //     const SizedBox(
-    //       height: 10,
-    //     ),
-    //     if (bestSellingList.isNotEmpty)
-    //       for (int i = 0; i < bestSellingList.length; i++) bestSellingList[i],
-    //     if (bestSellingList.isEmpty) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
-    //   ]),
-    // ));
-
     for (var data in widgetList) {
       loadSuccess.add(false);
     }
@@ -2238,7 +1571,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       )
                     ],
                   ),
-
                   const SizedBox(
                     height: 2,
                   ),
@@ -2259,21 +1591,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       )
                     ],
                   ),
-                  // for (var data in salesumary.summary.qrcode)
-                  //   Row(
-                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //     crossAxisAlignment: CrossAxisAlignment.center,
-                  //     children: [
-                  //       Text(
-                  //         " - ${data.name}",
-                  //         style: const TextStyle(color: Colors.black),
-                  //       ),
-                  //       Text(
-                  //         global.formatNumber(data.amount),
-                  //         style: const TextStyle(color: Colors.black),
-                  //       )
-                  //     ],
-                  //   ),
                   const SizedBox(
                     height: 2,
                   ),
@@ -2294,21 +1611,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       )
                     ],
                   ),
-                  // for (var data in salesumary.summary.wallet)
-                  //   Row(
-                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //     crossAxisAlignment: CrossAxisAlignment.center,
-                  //     children: [
-                  //       Text(
-                  //         " - ${data.name}",
-                  //         style: const TextStyle(color: Colors.black),
-                  //       ),
-                  //       Text(
-                  //         global.formatNumber(data.amount),
-                  //         style: const TextStyle(color: Colors.black),
-                  //       )
-                  //     ],
-                  //   ),
                   const SizedBox(
                     height: 2,
                   ),
@@ -2369,9 +1671,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void showSalechanelDialog() {
     final double height = MediaQuery.of(context).size.height * 0.65;
     double totalGPAmount = 0;
-    deliveryList.forEach((data) {
+    for (var data in deliveryList) {
       totalGPAmount += data.gpAmount;
-    });
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
