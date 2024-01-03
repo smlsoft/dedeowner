@@ -76,8 +76,8 @@ class LoginShopState extends State<LoginShop> {
 
   @override
   void initState() {
-    _userControl.text = "seoulmind";
-    _passControl.text = "seoulmind";
+    _userControl.text = "solao";
+    _passControl.text = "solao";
     createShopData = CreateShopModel(
       name1: "",
       telephone: "",

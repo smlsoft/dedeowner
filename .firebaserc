@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "dedeowner-7baee"
-  }
+    "default": "dedeowner-7baee",
+    "build/web": "dedeowner-a6cbd"
+  },
+  "targets": {},
+  "etags": {}
 }

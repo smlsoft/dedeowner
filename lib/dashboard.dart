@@ -140,10 +140,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _scrollController = ScrollController();
   TextEditingController fromDateController = TextEditingController();
   TextEditingController toDateController = TextEditingController();
-  List<String> dropdownSelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
-  List<String> graphSelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
-  List<String> graphDeliverySelect = ['รายวัน', 'รายสัปดาห์', 'รายเดือน', 'รายปี'];
-  String selectedItem = 'รายวัน';
+  List<String> dropdownSelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
+  List<String> graphSelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
+  List<String> graphDeliverySelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
+  String selectedItem = 'วันนี้';
 
   double opacityText = 1;
   final appConfig = GetStorage("AppConfig");
@@ -475,10 +475,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           setState(() {
                             selectedItem = dropdownSelect[i];
                             DateTime currentDate = DateTime.now();
-                            if (selectedItem == 'รายวัน') {
+
+                            if (selectedItem == 'วันนี้') {
                               fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
                               toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
-                            } else if (selectedItem == 'รายสัปดาห์') {
+                            } else if (selectedItem == 'เมื่อวาน') {
+                              DateTime yesterday = currentDate.subtract(const Duration(days: 1));
+                              fromDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+                              toDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+                            } else if (selectedItem == 'สัปดาห์นี้') {
                               DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
                               DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
 
@@ -490,12 +495,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                               fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfMonth);
                               toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfMonth);
-                            } else if (selectedItem == 'ยอดขาย3เดือน') {
-                              DateTime firstDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month - 2, 1);
-                              DateTime lastDayOfLastThreeMonths = DateTime(currentDate.year, currentDate.month + 1, 0);
-
-                              fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfLastThreeMonths);
-                              toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfLastThreeMonths);
                             } else if (selectedItem == 'รายปี') {
                               DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
                               DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
