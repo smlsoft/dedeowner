@@ -158,8 +158,7 @@ class _CreateShopState extends State<CreateShop> {
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        primary: Colors.redAccent,
+                        ), backgroundColor: Colors.redAccent,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,
                           vertical: 20,

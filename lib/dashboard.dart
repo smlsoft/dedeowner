@@ -140,14 +140,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ScrollController _scrollController = ScrollController();
   TextEditingController fromDateController = TextEditingController();
   TextEditingController toDateController = TextEditingController();
-  List<String> dropdownSelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
-  List<String> graphSelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
-  List<String> graphDeliverySelect = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'รายเดือน', 'รายปี'];
+  List<String> dropdownSelect = [
+    'วันนี้',
+    'เมื่อวาน',
+    'สัปดาห์นี้',
+    'รายเดือน',
+    'รายปี'
+  ];
+  List<String> graphSelect = [
+    'วันนี้',
+    'เมื่อวาน',
+    'สัปดาห์นี้',
+    'รายเดือน',
+    'รายปี'
+  ];
+  List<String> graphDeliverySelect = [
+    'วันนี้',
+    'เมื่อวาน',
+    'สัปดาห์นี้',
+    'รายเดือน',
+    'รายปี'
+  ];
   String selectedItem = 'วันนี้';
 
   double opacityText = 1;
   final appConfig = GetStorage("AppConfig");
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -192,12 +211,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       isLoading = true;
     });
 
-    queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
-    queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
+    queryFromdate = DateFormat('yyyy-MM-dd')
+        .format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
+    queryTodate = DateFormat('yyyy-MM-dd')
+        .format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
     salesumary = SalesumaryModel();
     ReportRepository reportRepository = ReportRepository();
 
-    ApiResponse result = await reportRepository.getReportSaleSummary(queryFromdate, queryTodate);
+    ApiResponse result =
+        await reportRepository.getReportSaleSummary(queryFromdate, queryTodate);
     if (result.data.length > 0) {
       setState(() {
         isLoading = false;
@@ -217,10 +239,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     deliveryList = [];
-    ApiResponse resultDetail = await reportRepository.getReportSaleSummaryDetail(queryFromdate, queryTodate);
+    ApiResponse resultDetail = await reportRepository
+        .getReportSaleSummaryDetail(queryFromdate, queryTodate);
     if (resultDetail.success) {
       if (resultDetail.data.length > 0) {
-        deliveryList = (resultDetail.data as List).map((salechannel) => DeliveryPaymentModel.fromJson(salechannel)).toList();
+        deliveryList = (resultDetail.data as List)
+            .map((salechannel) => DeliveryPaymentModel.fromJson(salechannel))
+            .toList();
         setState(() {});
       }
     }
@@ -231,18 +256,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryTodate = "";
     DateTime currentDate = DateTime.now();
 
-    queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
-    queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
+    queryFromdate = DateFormat('yyyy-MM-dd')
+        .format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
+    queryTodate = DateFormat('yyyy-MM-dd')
+        .format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
 
     ReportRepository reportRepository = ReportRepository();
-
-    setState(() {
-      isproductSaleLoad = true;
-    });
+    if (mounted) {
+      setState(() {
+        isproductSaleLoad = true;
+      });
+    }
     productSaleToday = [];
-    ApiResponse result = await reportRepository.getReportSaleSummaryByManufacturer(queryFromdate, queryTodate);
+    ApiResponse result = await reportRepository
+        .getReportSaleSummaryByManufacturer(queryFromdate, queryTodate);
     if (result.success) {
-      List<ProductSaleModel> products = (result.data as List).map((product) => ProductSaleModel.fromJson(product)).toList();
+      List<ProductSaleModel> products = (result.data as List)
+          .map((product) => ProductSaleModel.fromJson(product))
+          .toList();
       productSaleToday = products;
       setState(() {
         isproductSaleLoad = false;
@@ -261,9 +292,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String queryFromdate = "";
     String queryTodate = "";
 
-    DateTime firstDayOfWeek = selectedDateGraph.subtract(Duration(days: selectedDateGraph.weekday - 1));
+    DateTime firstDayOfWeek = selectedDateGraph
+        .subtract(Duration(days: selectedDateGraph.weekday - 1));
     DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
-    queryFromdate = "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
+    queryFromdate =
+        "&fromdate=${DateFormat('yyyy-MM-dd').format(firstDayOfWeek)}";
     queryTodate = "&todate=${DateFormat('yyyy-MM-dd').format(lastDayOfWeek)}";
     setState(() {
       _isLoading = true;
@@ -279,17 +312,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ChartData('Sat', 0, Colors.purple),
       ChartData('Sun', 0, Colors.red),
     ]);
-    ApiResponse result = await reportRepository.getReportSaleWeeklySummary(queryFromdate, queryTodate);
+    ApiResponse result = await reportRepository.getReportSaleWeeklySummary(
+        queryFromdate, queryTodate);
     if (result.success) {
       chartWeeklyData = [];
       chartWeeklyData.addAll([
-        ChartData('Mon', double.parse(result.data['Mon'].toString()), Colors.yellow),
-        ChartData('Tue', double.parse(result.data['Tue'].toString()), Colors.pink),
-        ChartData('Wed', double.parse(result.data['Wed'].toString()), Colors.green),
-        ChartData('Thu', double.parse(result.data['Thu'].toString()), Colors.orange),
-        ChartData('Fri', double.parse(result.data['Fri'].toString()), Colors.blue),
-        ChartData('Sat', double.parse(result.data['Sat'].toString()), Colors.purple),
-        ChartData('Sun', double.parse(result.data['Sun'].toString()), Colors.red),
+        ChartData(
+            'Mon', double.parse(result.data['Mon'].toString()), Colors.yellow),
+        ChartData(
+            'Tue', double.parse(result.data['Tue'].toString()), Colors.pink),
+        ChartData(
+            'Wed', double.parse(result.data['Wed'].toString()), Colors.green),
+        ChartData(
+            'Thu', double.parse(result.data['Thu'].toString()), Colors.orange),
+        ChartData(
+            'Fri', double.parse(result.data['Fri'].toString()), Colors.blue),
+        ChartData(
+            'Sat', double.parse(result.data['Sat'].toString()), Colors.purple),
+        ChartData(
+            'Sun', double.parse(result.data['Sun'].toString()), Colors.red),
       ]);
       setState(() {
         _isLoading = false;
@@ -313,10 +354,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     ReportRepository reportRepository = ReportRepository();
 
-    ApiResponse result = await reportRepository.getSellLoadCH(queryFromdate, queryTodate);
+    ApiResponse result =
+        await reportRepository.getSellLoadCH(queryFromdate, queryTodate);
 
     if (result.success) {
-      List<BestProductModel> products = (result.data as List).map((product) => BestProductModel.fromJson(product)).toList();
+      List<BestProductModel> products = (result.data as List)
+          .map((product) => BestProductModel.fromJson(product))
+          .toList();
       bestSeller = [];
       bestSeller = products;
       bestSellLoad = true;
@@ -326,10 +370,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Color getRandomColor() {
     Random random = Random();
-    int r = random.nextInt(256); // Generate a random value for the red channel (0-255)
-    int g = random.nextInt(256); // Generate a random value for the green channel (0-255)
-    int b = random.nextInt(256); // Generate a random value for the blue channel (0-255)
-    return Color.fromRGBO(r, g, b, 1.0); // Create a Color object with the random RGB values
+    int r = random
+        .nextInt(256); // Generate a random value for the red channel (0-255)
+    int g = random
+        .nextInt(256); // Generate a random value for the green channel (0-255)
+    int b = random
+        .nextInt(256); // Generate a random value for the blue channel (0-255)
+    return Color.fromRGBO(
+        r, g, b, 1.0); // Create a Color object with the random RGB values
   }
 
   @override
@@ -356,7 +404,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: const Icon(Icons.swap_vert),
             onPressed: () {
               reFreshTimer?.cancel();
-              Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const SelectShopScreen()), (route) => false);
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const SelectShopScreen()),
+                  (route) => false);
             },
           ),
           actions: [
@@ -367,7 +417,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginShop()),
+                      MaterialPageRoute(
+                          builder: (context) => const LoginShop()),
                     );
                   },
                 ),
@@ -442,11 +493,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         selectedItem = 'กำหนดเอง';
 
-        DateTime? pickDateTimeFormat = DateTime.parse('${DateFormat('yyyy-MM-dd').format(pickedDate)} ${DateFormat('HH:mm:ss.sss').format(DateTime.now())}');
+        DateTime? pickDateTimeFormat = DateTime.parse(
+            '${DateFormat('yyyy-MM-dd').format(pickedDate)} ${DateFormat('HH:mm:ss.sss').format(DateTime.now())}');
         if (cmd == 'fromdate') {
-          fromDateController.text = DateFormat('dd/MM/yyyy').format(pickDateTimeFormat);
+          fromDateController.text =
+              DateFormat('dd/MM/yyyy').format(pickDateTimeFormat);
         } else {
-          toDateController.text = DateFormat('dd/MM/yyyy').format(pickDateTimeFormat);
+          toDateController.text =
+              DateFormat('dd/MM/yyyy').format(pickDateTimeFormat);
         }
       });
 
@@ -477,30 +531,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             DateTime currentDate = DateTime.now();
 
                             if (selectedItem == 'วันนี้') {
-                              fromDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
-                              toDateController.text = DateFormat('dd/MM/yyyy').format(currentDate);
+                              fromDateController.text =
+                                  DateFormat('dd/MM/yyyy').format(currentDate);
+                              toDateController.text =
+                                  DateFormat('dd/MM/yyyy').format(currentDate);
                             } else if (selectedItem == 'เมื่อวาน') {
-                              DateTime yesterday = currentDate.subtract(const Duration(days: 1));
-                              fromDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
-                              toDateController.text = DateFormat('dd/MM/yyyy').format(yesterday);
+                              DateTime yesterday =
+                                  currentDate.subtract(const Duration(days: 1));
+                              fromDateController.text =
+                                  DateFormat('dd/MM/yyyy').format(yesterday);
+                              toDateController.text =
+                                  DateFormat('dd/MM/yyyy').format(yesterday);
                             } else if (selectedItem == 'สัปดาห์นี้') {
-                              DateTime firstDayOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
-                              DateTime lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
+                              DateTime firstDayOfWeek = currentDate.subtract(
+                                  Duration(days: currentDate.weekday - 1));
+                              DateTime lastDayOfWeek =
+                                  firstDayOfWeek.add(const Duration(days: 6));
 
-                              fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfWeek);
-                              toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfWeek);
+                              fromDateController.text = DateFormat('dd/MM/yyyy')
+                                  .format(firstDayOfWeek);
+                              toDateController.text = DateFormat('dd/MM/yyyy')
+                                  .format(lastDayOfWeek);
                             } else if (selectedItem == 'รายเดือน') {
-                              DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
-                              DateTime lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
+                              DateTime firstDayOfMonth = DateTime(
+                                  currentDate.year, currentDate.month, 1);
+                              DateTime lastDayOfMonth = DateTime(
+                                  currentDate.year, currentDate.month + 1, 0);
 
-                              fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfMonth);
-                              toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfMonth);
+                              fromDateController.text = DateFormat('dd/MM/yyyy')
+                                  .format(firstDayOfMonth);
+                              toDateController.text = DateFormat('dd/MM/yyyy')
+                                  .format(lastDayOfMonth);
                             } else if (selectedItem == 'รายปี') {
-                              DateTime firstDayOfYear = DateTime(currentDate.year, 1, 1);
-                              DateTime lastDayOfYear = DateTime(currentDate.year, 12, 31);
+                              DateTime firstDayOfYear =
+                                  DateTime(currentDate.year, 1, 1);
+                              DateTime lastDayOfYear =
+                                  DateTime(currentDate.year, 12, 31);
 
-                              fromDateController.text = DateFormat('dd/MM/yyyy').format(firstDayOfYear);
-                              toDateController.text = DateFormat('dd/MM/yyyy').format(lastDayOfYear);
+                              fromDateController.text = DateFormat('dd/MM/yyyy')
+                                  .format(firstDayOfYear);
+                              toDateController.text = DateFormat('dd/MM/yyyy')
+                                  .format(lastDayOfYear);
                             }
 
                             if (selectedItem != 'Custom') {
@@ -510,10 +581,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           });
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.white : Colors.white),
-                          foregroundColor: MaterialStateProperty.all<Color>((selectedItem == dropdownSelect[i]) ? Colors.orange.shade900 : Colors.grey.shade700),
-                          side: MaterialStateProperty.all<BorderSide>(BorderSide(color: (selectedItem == dropdownSelect[i]) ? Colors.orange.shade700 : Colors.white, width: 2)),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              (selectedItem == dropdownSelect[i])
+                                  ? Colors.white
+                                  : Colors.white),
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                              (selectedItem == dropdownSelect[i])
+                                  ? Colors.orange.shade900
+                                  : Colors.grey.shade700),
+                          side: MaterialStateProperty.all<BorderSide>(
+                              BorderSide(
+                                  color: (selectedItem == dropdownSelect[i])
+                                      ? Colors.orange.shade700
+                                      : Colors.white,
+                                  width: 2)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -539,7 +622,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: TextField(
           readOnly: true,
           decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
               border: const OutlineInputBorder(),
               labelText: "จากวันที่",
               suffixIcon: Row(
@@ -569,7 +653,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   year = year - 543;
                   int month = int.tryParse(valueSplit[1]) ?? 0;
                   int day = int.tryParse(valueSplit[0]) ?? 0;
-                  value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+                  value =
+                      "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
                 }
               } catch (e) {
                 print(e);
@@ -592,7 +677,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: TextField(
         readOnly: true,
         decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
             border: const OutlineInputBorder(),
             labelText: "ถึงวันที่",
             suffixIcon: Row(
@@ -622,7 +708,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 year = year - 543;
                 int month = int.tryParse(valueSplit[1]) ?? 0;
                 int day = int.tryParse(valueSplit[0]) ?? 0;
-                value = "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+                value =
+                    "$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
               }
             } catch (e) {
               print(e);
@@ -671,7 +758,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         )
                       : Text(
                           global.formatNumber(salesumary.totalamount),
-                          style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: Colors.indigo.shade800),
+                          style: TextStyle(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.indigo.shade800),
                         ),
                   const SizedBox(
                     height: 4,
@@ -680,7 +770,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     "รวมยอดขาย",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700),
                   ),
                 ],
               ),
@@ -724,7 +817,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   "ขายหน้าร้าน",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700),
                 ),
                 const SizedBox(
                   height: 2,
@@ -732,14 +828,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 (isLoading)
                     ? const CircularProgressIndicator()
                     : Text(
-                        global.formatNumber(salesumary.totalamountshop + salesumary.totalamounttakeaway),
-                        style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                        global.formatNumber(salesumary.totalamountshop +
+                            salesumary.totalamounttakeaway),
+                        style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.indigo.shade800),
                       ),
                 const Text(
                   "กดเพื่อดูรายละเอียด",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black),
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                 ),
               ],
             ),
@@ -778,7 +881,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   "บริการจัดส่งอาหาร",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700),
                 ),
                 const SizedBox(
                   height: 2,
@@ -787,13 +893,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ? const CircularProgressIndicator()
                     : Text(
                         global.formatNumber(salesumary.totalamountdelivery),
-                        style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                        style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.indigo.shade800),
                       ),
                 const Text(
                   "กดเพื่อดูรายละเอียด",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black),
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
                 ),
               ],
             ),
@@ -827,14 +939,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     Text(
                       (entry.key.isEmpty) ? appConfig.read("name") : entry.key,
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.indigo.shade800),
                     ),
                     IconButton(
                       onPressed: () {
-                        String queryFromdate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(fromDateController.text));
-                        String queryTodate = DateFormat('yyyy-MM-dd').format(DateFormat('dd/MM/yyyy').parse(toDateController.text));
-                        Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => ProductSaleByOwner(fromdate: queryFromdate, todate: queryTodate, owner: entry.key, manufacturerguid: entry.key)));
+                        String queryFromdate = DateFormat('yyyy-MM-dd').format(
+                            DateFormat('dd/MM/yyyy')
+                                .parse(fromDateController.text));
+                        String queryTodate = DateFormat('yyyy-MM-dd').format(
+                            DateFormat('dd/MM/yyyy')
+                                .parse(toDateController.text));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => ProductSaleByOwner(
+                                fromdate: queryFromdate,
+                                todate: queryTodate,
+                                owner: entry.key,
+                                manufacturerguid: entry.key)));
                       },
                       icon: const Icon(Icons.search),
                       color: Colors.orange.shade600,
@@ -843,7 +965,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 Text(
                   global.formatNumber(entry.value),
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade800),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.indigo.shade800),
                 ),
               ],
             ),
@@ -881,7 +1005,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   "ยอดขายแยกตามผู้ผลิต",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700),
                 ),
               ),
               const SizedBox(
@@ -906,7 +1033,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       charts.Series(
         domainFn: (ChartData data, _) => data.label,
         measureFn: (ChartData data, _) => data.value,
-        colorFn: (ChartData data, _) => charts.ColorUtil.fromDartColor(data.color),
+        colorFn: (ChartData data, _) =>
+            charts.ColorUtil.fromDartColor(data.color),
         labelAccessorFn: (ChartData data, _) => '${data.value}',
         id: 'chartWeeklyData',
         data: chartWeeklyData,
@@ -915,7 +1043,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     var chart = charts.BarChart(
       series,
       animate: true,
-      barRendererDecorator: charts.BarLabelDecorator<String>(outsideLabelStyleSpec: const charts.TextStyleSpec(fontSize: 9), labelPosition: charts.BarLabelPosition.outside),
+      barRendererDecorator: charts.BarLabelDecorator<String>(
+          outsideLabelStyleSpec: const charts.TextStyleSpec(fontSize: 9),
+          labelPosition: charts.BarLabelPosition.outside),
       domainAxis: const charts.OrdinalAxisSpec(
         renderSpec: charts.SmallTickRendererSpec(
           labelStyle: charts.TextStyleSpec(
@@ -925,13 +1055,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
 
-    DateTime firstDayOfWeekGraph = selectedDateGraph.subtract(Duration(days: selectedDateGraph.weekday - 1));
-    DateTime lastDayOfWeekGraph = firstDayOfWeekGraph.add(const Duration(days: 6));
+    DateTime firstDayOfWeekGraph = selectedDateGraph
+        .subtract(Duration(days: selectedDateGraph.weekday - 1));
+    DateTime lastDayOfWeekGraph =
+        firstDayOfWeekGraph.add(const Duration(days: 6));
     var chartWidget = GestureDetector(
       onHorizontalDragEnd: (details) {
         if (details.primaryVelocity! > 0) {
           setState(() {
-            selectedDateGraph = selectedDateGraph.subtract(const Duration(days: 7));
+            selectedDateGraph =
+                selectedDateGraph.subtract(const Duration(days: 7));
             getReportSaleWeek();
           });
         } else if (details.primaryVelocity! < 0) {
@@ -962,7 +1095,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 margin: const EdgeInsets.only(top: 10, bottom: 0),
                 child: Text(
                   "กราฟแสดงยอดขายตามวัน",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700),
                 )),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -973,7 +1109,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: const Icon(Icons.arrow_back),
                     onPressed: _selectPreviousWeek,
                   ),
-                  Expanded(child: Center(child: Text('${DateFormat('dd/MM/yyyy').format(firstDayOfWeekGraph)} ถึง ${DateFormat('dd/MM/yyyy').format(lastDayOfWeekGraph)}'))),
+                  Expanded(
+                      child: Center(
+                          child: Text(
+                              '${DateFormat('dd/MM/yyyy').format(firstDayOfWeekGraph)} ถึง ${DateFormat('dd/MM/yyyy').format(lastDayOfWeekGraph)}'))),
                   IconButton(
                     icon: const Icon(Icons.arrow_forward),
                     onPressed: _selectNextWeek,
@@ -1169,7 +1308,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         width: double.infinity,
         margin: const EdgeInsets.only(top: 0, bottom: 5, right: 8, left: 8),
         child: ElevatedButton.icon(
-          style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.orange.shade700)),
+          style: ButtonStyle(
+              backgroundColor:
+                  MaterialStateProperty.all<Color>(Colors.orange.shade700)),
           onPressed: () {
             if (isSaleShop) {
               isSaleShop = false;
@@ -1179,7 +1320,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             setState(() {});
           },
           icon: Icon((!isSaleShop) ? Icons.add : Icons.remove),
-          label: Text((!isSaleShop) ? "แสดงรายละเอียดการรับเงิน" : "ซ่อนรายละเอียดการรับเงิน"),
+          label: Text((!isSaleShop)
+              ? "แสดงรายละเอียดการรับเงิน"
+              : "ซ่อนรายละเอียดการรับเงิน"),
         )));
 
     widgetList.add(
@@ -1204,7 +1347,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 "รายละเอียดยอดขายหน้าร้าน",
-                style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.grey.shade800, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               Divider(height: 5, color: Colors.orange.shade600),
@@ -1219,7 +1363,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Opacity(
                     opacity: opacityText,
                     child: Text(
-                      global.formatNumber(salesumary.paycashamountshop + salesumary.paycashamounttakeaway),
+                      global.formatNumber(salesumary.paycashamountshop +
+                          salesumary.paycashamounttakeaway),
                       style: const TextStyle(color: Colors.black),
                     ),
                   )
@@ -1239,7 +1384,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Opacity(
                     opacity: opacityText,
                     child: Text(
-                      global.formatNumber(salesumary.sumqrcodeshop + salesumary.sumqrcodetakeaway),
+                      global.formatNumber(salesumary.sumqrcodeshop +
+                          salesumary.sumqrcodetakeaway),
                       style: const TextStyle(color: Colors.black),
                     ),
                   )
@@ -1274,7 +1420,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Opacity(
                     opacity: opacityText,
                     child: Text(
-                      global.formatNumber(salesumary.summoneytransfershop + salesumary.summoneytransfertakeaway),
+                      global.formatNumber(salesumary.summoneytransfershop +
+                          salesumary.summoneytransfertakeaway),
                       style: const TextStyle(color: Colors.black),
                     ),
                   )
@@ -1294,7 +1441,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Opacity(
                     opacity: opacityText,
                     child: Text(
-                      global.formatNumber(salesumary.sumcreditcardshop + salesumary.sumcreditcardtakeaway),
+                      global.formatNumber(salesumary.sumcreditcardshop +
+                          salesumary.sumcreditcardtakeaway),
                       style: const TextStyle(color: Colors.black),
                     ),
                   )
@@ -1334,7 +1482,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Text(
               "รายละเอียดบริการจัดส่ง",
-              style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.grey.shade800, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             Divider(height: 5, color: Colors.orange.shade700),
@@ -1441,7 +1590,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   style: TextStyle(color: Colors.black),
                 ),
                 Text(
-                  global.formatNumber(salesumary.totalamountdelivery - totalGPAmount),
+                  global.formatNumber(
+                      salesumary.totalamountdelivery - totalGPAmount),
                   style: const TextStyle(
                     color: Colors.black,
                   ),
@@ -1480,7 +1630,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(children: [
         Text(
           "รายการขายสินค้า",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade700),
         ),
         Divider(
           height: 3,
@@ -1491,8 +1644,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           height: 10,
         ),
         if (productSaleTodayList.isNotEmpty)
-          for (int i = 0; i < productSaleTodayList.length; i++) productSaleTodayList[i],
-        if (isproductSaleLoad) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+          for (int i = 0; i < productSaleTodayList.length; i++)
+            productSaleTodayList[i],
+        if (isproductSaleLoad)
+          const SizedBox(
+              height: 300, child: Center(child: CircularProgressIndicator())),
       ]),
     ));
 
@@ -1518,7 +1674,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(children: [
         Text(
           "10 อันดับสินค้าขายดี",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade700),
         ),
         Divider(
           height: 3,
@@ -1530,7 +1689,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         if (bestSellingList.isNotEmpty)
           for (int i = 0; i < bestSellingList.length; i++) bestSellingList[i],
-        if (bestSellingList.isEmpty) const SizedBox(height: 300, child: Center(child: CircularProgressIndicator())),
+        if (bestSellingList.isEmpty)
+          const SizedBox(
+              height: 300, child: Center(child: CircularProgressIndicator())),
       ]),
     ));
 
@@ -1564,7 +1725,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Opacity(
                         opacity: opacityText,
                         child: Text(
-                          global.formatNumber(salesumary.paycashamountshop + salesumary.paycashamounttakeaway),
+                          global.formatNumber(salesumary.paycashamountshop +
+                              salesumary.paycashamounttakeaway),
                           style: const TextStyle(color: Colors.black),
                         ),
                       )
@@ -1584,7 +1746,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Opacity(
                         opacity: opacityText,
                         child: Text(
-                          global.formatNumber(salesumary.sumqrcodeshop + salesumary.sumqrcodetakeaway),
+                          global.formatNumber(salesumary.sumqrcodeshop +
+                              salesumary.sumqrcodetakeaway),
                           style: const TextStyle(color: Colors.black),
                         ),
                       )
@@ -1604,7 +1767,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Opacity(
                         opacity: opacityText,
                         child: Text(
-                          global.formatNumber(salesumary.summoneytransfershop + salesumary.summoneytransfertakeaway),
+                          global.formatNumber(salesumary.summoneytransfershop +
+                              salesumary.summoneytransfertakeaway),
                           style: const TextStyle(color: Colors.black),
                         ),
                       )
@@ -1624,7 +1788,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Opacity(
                         opacity: opacityText,
                         child: Text(
-                          global.formatNumber(salesumary.sumcreditcardshop + salesumary.sumcreditcardtakeaway),
+                          global.formatNumber(salesumary.sumcreditcardshop +
+                              salesumary.sumcreditcardtakeaway),
                           style: const TextStyle(color: Colors.black),
                         ),
                       )
@@ -1644,7 +1809,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Opacity(
                         opacity: opacityText,
                         child: Text(
-                          global.formatNumber(salesumary.sumcreditshop + salesumary.sumcredittakeaway),
+                          global.formatNumber(salesumary.sumcreditshop +
+                              salesumary.sumcredittakeaway),
                           style: const TextStyle(color: Colors.black),
                         ),
                       )
@@ -1725,7 +1891,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 style: TextStyle(color: Colors.black),
                               ),
                               Text(
-                                global.formatNumber((data.amount - data.gpAmount)),
+                                global.formatNumber(
+                                    (data.amount - data.gpAmount)),
                                 style: const TextStyle(color: Colors.black),
                               )
                             ],
@@ -1786,7 +1953,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: TextStyle(color: Colors.black),
                       ),
                       Text(
-                        global.formatNumber(salesumary.totalamountdelivery - totalGPAmount),
+                        global.formatNumber(
+                            salesumary.totalamountdelivery - totalGPAmount),
                         style: const TextStyle(
                           color: Colors.black,
                         ),
