@@ -28,13 +28,13 @@ void mainApp() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init("dedeowner");
-  // if (!kIsWeb) {
-  //   await Firebase.initializeApp();
-  // } else {
-  //   await Firebase.initializeApp(
-  //     options: DefaultFirebaseOptions.currentPlatform,
-  //   );
-  // }
+  if (!kIsWeb) {
+    await Firebase.initializeApp();
+  } else {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   global.themeSelect(0);
 
   runApp(const MyApp());

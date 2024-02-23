@@ -27,14 +27,14 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "183871505957-7co3akl7smnhbpr4009vgmd7ht1iesfn.apps.googleusercontent.com",
+              "client_id": "183871505957-1s2pfrt9jhuvq5em6uirq35ao6evlvk8.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "183871505957-93bglibtnlmgnb7ftp9i8dli08dn27nm.apps.googleusercontent.com",
+              "client_id": "183871505957-8q0vq9ihucl28jba71nba3gp9htqqp5o.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.smlsoft.dedepos"
+                "bundle_id": "org.villagefundth.vfpos"
               }
             }
           ]
@@ -63,14 +63,14 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "183871505957-7co3akl7smnhbpr4009vgmd7ht1iesfn.apps.googleusercontent.com",
+              "client_id": "183871505957-1s2pfrt9jhuvq5em6uirq35ao6evlvk8.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "183871505957-93bglibtnlmgnb7ftp9i8dli08dn27nm.apps.googleusercontent.com",
+              "client_id": "183871505957-8q0vq9ihucl28jba71nba3gp9htqqp5o.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.smlsoft.dedepos"
+                "bundle_id": "org.villagefundth.vfpos"
               }
             }
           ]
@@ -107,14 +107,14 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "183871505957-7co3akl7smnhbpr4009vgmd7ht1iesfn.apps.googleusercontent.com",
+              "client_id": "183871505957-1s2pfrt9jhuvq5em6uirq35ao6evlvk8.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "183871505957-93bglibtnlmgnb7ftp9i8dli08dn27nm.apps.googleusercontent.com",
+              "client_id": "183871505957-8q0vq9ihucl28jba71nba3gp9htqqp5o.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.smlsoft.dedepos"
+                "bundle_id": "org.villagefundth.vfpos"
               }
             }
           ]
@@ -130,14 +130,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "183871505957-to3toefi51he8g8r1h8gbod31kvm27ii.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.smlsoft.dedeowner",
-            "certificate_hash": "a1a15decc60eb0084b3efd4e832cd3fc7ff1a644"
-          }
-        },
-        {
           "client_id": "183871505957-7co3akl7smnhbpr4009vgmd7ht1iesfn.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -151,14 +143,14 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "183871505957-7co3akl7smnhbpr4009vgmd7ht1iesfn.apps.googleusercontent.com",
+              "client_id": "183871505957-1s2pfrt9jhuvq5em6uirq35ao6evlvk8.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "183871505957-93bglibtnlmgnb7ftp9i8dli08dn27nm.apps.googleusercontent.com",
+              "client_id": "183871505957-8q0vq9ihucl28jba71nba3gp9htqqp5o.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.smlsoft.dedepos"
+                "bundle_id": "org.villagefundth.vfpos"
               }
             }
           ]
@@ -195,14 +187,14 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "183871505957-7co3akl7smnhbpr4009vgmd7ht1iesfn.apps.googleusercontent.com",
+              "client_id": "183871505957-1s2pfrt9jhuvq5em6uirq35ao6evlvk8.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "183871505957-93bglibtnlmgnb7ftp9i8dli08dn27nm.apps.googleusercontent.com",
+              "client_id": "183871505957-8q0vq9ihucl28jba71nba3gp9htqqp5o.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.smlsoft.dedepos"
+                "bundle_id": "org.villagefundth.vfpos"
               }
             }
           ]
@@ -239,14 +231,50 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "183871505957-7co3akl7smnhbpr4009vgmd7ht1iesfn.apps.googleusercontent.com",
+              "client_id": "183871505957-1s2pfrt9jhuvq5em6uirq35ao6evlvk8.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "183871505957-93bglibtnlmgnb7ftp9i8dli08dn27nm.apps.googleusercontent.com",
+              "client_id": "183871505957-8q0vq9ihucl28jba71nba3gp9htqqp5o.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.smlsoft.dedepos"
+                "bundle_id": "org.villagefundth.vfpos"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:183871505957:android:369ec195ada87f3f07a1cc",
+        "android_client_info": {
+          "package_name": "org.villagefundth.vfpos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "183871505957-7co3akl7smnhbpr4009vgmd7ht1iesfn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHfJ-wnQfzD4BSQeXggora43ygd5sRwcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "183871505957-1s2pfrt9jhuvq5em6uirq35ao6evlvk8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "183871505957-8q0vq9ihucl28jba71nba3gp9htqqp5o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.villagefundth.vfpos"
               }
             }
           ]
