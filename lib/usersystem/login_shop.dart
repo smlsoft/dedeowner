@@ -35,44 +35,50 @@ class LoginShopState extends State<LoginShop> {
   bool _isListShop = false;
   bool _isListShopNotFound = false;
 
-  // final GoogleSignIn _googleSignIn = GoogleSignIn();
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   global.LoginEnum loginType = global.LoginEnum.none;
   final bool _showPopup = false;
   late CreateShopModel createShopData;
 
-  // Future<UserCredential?> googleSignIn() async {
-  //   try {
-  //     final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['https://www.googleapis.com/auth/contacts.readonly']).signIn();
+  Future<UserCredential?> googleSignIn() async {
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['https://www.googleapis.com/auth/contacts.readonly']).signIn();
 
-  //     if (googleUser != null) {
-  //       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      // Obtain the auth details from the request
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-  //       final OAuthCredential credential = GoogleAuthProvider.credential(
-  //         accessToken: googleAuth.accessToken,
-  //         idToken: googleAuth.idToken,
-  //       );
+        // Create a new credential
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
 
-  //       return await _auth.signInWithCredential(credential);
-  //     }
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // }
+        // Sign in to Firebase with the Google [UserCredential]
 
-  // Future<String?> getCurrentUserIdToken() async {
-  //   User? currentUser = _auth.currentUser;
-  //   print(currentUser);
-  //   if (currentUser != null) {
-  //     String? idToken = await currentUser.getIdToken();
-  //     return idToken;
-  //   } else {
-  //     // No user is signed in.
-  //     print("No user is signed in");
-  //     return null;
-  //   }
-  // }
+        return await _auth.signInWithCredential(credential);
+      }
+    } catch (e) {
+      // print(e);
+      return null;
+    }
+  }
+
+  Future<String?> getCurrentUserIdToken() async {
+    User? currentUser = _auth.currentUser;
+    print(currentUser);
+    if (currentUser != null) {
+      String? idToken = await currentUser.getIdToken();
+      return idToken;
+    } else {
+      // No user is signed in.
+      print("No user is signed in");
+      return null;
+    }
+  }
 
   @override
   void initState() {
@@ -299,39 +305,32 @@ class LoginShopState extends State<LoginShop> {
     );
   }
 
-  // Widget loginWithGoogle() {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: 25),
-  //     child: Container(
-  //       margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10, top: 10),
-  //       child: SingInButton(
-  //         labelText: 'Sing in with Google',
-  //         press: () {
-  //           setState(() {
-  //             loginType = global.LoginEnum.google;
-
-  //             googleSignIn().then((value) async {
-  //               print(value);
-  //               if (value != null) {
-  //                 String? userIdToken = await getCurrentUserIdToken();
-  //                 if (userIdToken != null) {
-  //                   context.read<LoginBloc>().add(TokenLogin(token: userIdToken));
-  //                 }
-  //               } else {
-  //                 ScaffoldMessenger.of(context).showSnackBar(
-  //                   const SnackBar(
-  //                     content: Text('Login Fail User Not Found'),
-  //                   ),
-  //                 );
-  //               }
-  //             });
-  //           });
-  //         },
-  //         img: const AssetImage("assets/img/google_logo.png"),
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget loginWithGoogle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 25),
+      child: Container(
+        margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10, top: 10),
+        child: SingInButton(
+          labelText: 'Sing in with Google',
+          press: () {
+            setState(() {
+              loginType = global.LoginEnum.google;
+              googleSignIn().then((value) async {
+                if (value != null) {
+                  String? userIdToken = await getCurrentUserIdToken();
+                  if (userIdToken != null) {
+                    // print(userIdToken);
+                    context.read<LoginBloc>().add(TokenLogin(token: userIdToken));
+                  }
+                }
+              });
+            });
+          },
+          img: const AssetImage("assets/img/google_logo.png"),
+        ),
+      ),
+    );
+  }
 
   Widget loginDemo() {
     return Padding(
@@ -406,7 +405,7 @@ class LoginShopState extends State<LoginShop> {
             ),
             loginButton(),
             // loginDemo(),
-            // loginWithGoogle(),
+            loginWithGoogle(),
             BlocBuilder<LoginBloc, LoginState>(
               builder: (context, state) {
                 if (state is TokenLoginInProgress) {
