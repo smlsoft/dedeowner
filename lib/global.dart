@@ -89,6 +89,7 @@ List<String> googleLanguageCode = [];
 String userLanguage = "th";
 bool apiConnected = false;
 String apiToken = "";
+String environmentVersion = "PROD";
 String apiUserName = "maxkorn"; //maxkorn
 String apiUserPassword = "maxkorn"; //maxkorn
 String apiShopCode = "2Eh6e3pfWvXTp0yV3CyFEhKPjdI"; // "27dcEdktOoaSBYFmnN6G6ett4Jb";
@@ -109,6 +110,10 @@ ThemeModel theme = ThemeModel();
 
 bool isMobileScreen(BuildContext context) {
   return MediaQuery.of(context).size.width < 600;
+}
+
+String getAppversion() {
+  return environmentVersion;
 }
 
 String transactionName(TransactionTypeEnum transactionType) {
