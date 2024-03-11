@@ -1,5 +1,6 @@
 import 'package:dedeowner/components/singin_button.dart';
 import 'package:dedeowner/dashboard.dart';
+import 'package:dedeowner/environment.dart';
 import 'package:dedeowner/model/create_shop_model.dart';
 import 'package:dedeowner/model/global_model.dart';
 import 'package:dedeowner/repositories/client.dart';
@@ -34,6 +35,7 @@ class LoginShopState extends State<LoginShop> {
   final appConfig = GetStorage("AppConfig");
   bool _isListShop = false;
   bool _isListShopNotFound = false;
+  int logoTouch = 0;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -75,8 +77,8 @@ class LoginShopState extends State<LoginShop> {
 
   @override
   void initState() {
-    _userControl.text = "solao";
-    _passControl.text = "solao";
+    _userControl.text = "seoulmind";
+    _passControl.text = "seoulmind";
     createShopData = CreateShopModel(
       name1: "",
       telephone: "",
@@ -385,10 +387,52 @@ class LoginShopState extends State<LoginShop> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            imageLogo(),
+            InkWell(
+                onTap: () async {
+                  setState(() {
+                    logoTouch = logoTouch + 1;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("กดที่ Logo อีก${logoTouch - 5}ครั้ง เพื่อเปลี่ยนโหมด"),
+                        backgroundColor: Colors.black,
+                      ),
+                    );
+                    if (logoTouch >= 5) {
+                      if (global.environmentVersion == "PROD") {
+                        Environment().initConfig(Environment.DEV);
+                        global.environmentVersion = "DEV";
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Develop Mode Active$logoTouch"),
+                            backgroundColor: Colors.black,
+                          ),
+                        );
+                      } else {
+                        Environment().initConfig(Environment.PROD);
+                        global.environmentVersion = "PROD";
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Production Mode Active"),
+                            backgroundColor: Colors.black,
+                          ),
+                        );
+                      }
+                      logoTouch = 0;
+                    }
+                  });
+                },
+                child: imageLogo()),
+
             const SizedBox(
               height: 25,
             ),
+
+            Container(
+                margin: const EdgeInsets.only(bottom: 3),
+                child: Text("* ${global.getAppversion().replaceAll("(", "").replaceAll(")", "")} Mode", style: const TextStyle(color: Colors.red, fontSize: 12))),
+
             usernameField(),
             const SizedBox(
               height: 10,
